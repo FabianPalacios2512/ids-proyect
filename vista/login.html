@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e3e6f3, #f4f6fa);
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background: #1f2937;
+            color: #f9fafb;
+        }
+        .login-container {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            max-width: 500px;
+            width: 100%;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            height: 600px;
+        }
+        .logo {
+            width: 130px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            margin-bottom: 30px;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #4a5568;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .theme-toggle:hover {
+            background: #2d3748;
+        }
+        .input-field {
+            background: rgba(255, 255, 255, 0.5);
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            outline: none;
+            width: 100%;
+            transition: all 0.3s ease-in-out;
+        }
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            border-color: #4a5568;
+        }
+        .input-field::placeholder {
+            color: #666;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .form-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-top: 60px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .forgot-password, .register {
+            text-align: center;
+            font-size: 0.875rem;
+            margin-top: 10px;
+        }
+        .forgot-password a, .register a {
+            color: #4a5568;
+            text-decoration: underline;
+        }
+        .forgot-password a:hover, .register a:hover {
+            color: #2d3748;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        .success-msg {
+            color: #2ecc71;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        @media (max-width: 640px) {
+            .login-container {
+                padding: 1.5rem;
+            }
+            .form-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen relative" id="body">
+    <button onclick="toggleTheme()" class="theme-toggle">🌙</button>
+    <div class="login-container">
+        <img src="{{ url_for('static', filename='images/login-image.jpg') }}" alt="Logo" class="logo">
+
+
+
+        <h2 class="form-title text-gray-800">Iniciar Sesión</h2>
+        <div id="messageBox" class="hidden text-center mb-4"></div>
+        <div class="mb-5">
+            
+
+            <input type="email" id="email" class="input-field text-sm" placeholder="Correo Electrónico" required>
+            <p id="emailError" class="error-msg hidden">Correo inválido</p>
+        </div>
+        <div class="mb-5 relative">
+            <label class="block text-sm font-medium text-gray-700"> </label>
+            <input type="password" id="password" class="input-field text-sm pr-10" placeholder="Contraseña" required>
+            <span class="absolute right-2 top-3.5 cursor-pointer" onclick="togglePassword()">👁️</span>
+            <p id="passwordError" class="error-msg hidden">Contraseña demasiado corta</p>
+        </div>
+        <div class="flex justify-between text-sm mb-5 text-gray-600">
+            <label class="flex items-center">
+                <input type="checkbox" class="mr-2"> Recordarme
+            </label>
+            <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+        </div>
+        <button onclick="validateForm()" class="btn-primary flex items-center justify-center">
+            <span>Iniciar Sesión</span>
+            <div class="spinner ml-2" id="spinner"></div>
+        </button>
+        <p class="register text-center text-gray-600 text-sm mt-4">¿Aún no tienes cuenta? <a href="#" class="text-blue-500 hover:underline">Regístrate</a></p>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const themeButton = document.querySelector('.theme-toggle');
+            themeButton.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        }
+        
+        function togglePassword() {
+            const password = document.getElementById('password');
+            password.type = password.type === 'password' ? 'text' : 'password';
+        }
+        
+        async function validateForm() {
+    let email = document.getElementById('email').value;
+    let password = document.getElementById('password').value;
+    let messageBox = document.getElementById('messageBox');
+
+    messageBox.innerHTML = "";
+    messageBox.classList.add("hidden");
+
+    if (!email || !password) {
+        messageBox.classList.remove("hidden");
+        messageBox.classList.add("error-msg");
+        messageBox.innerHTML = "⚠️ Todos los campos son obligatorios.";
+        return false;
+    }
+
+    document.getElementById("spinner").style.display = "block";
+
+    try {
+        let response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, contrasena: password })
+        });
+
+        let result = await response.json();
+
+        if (response.ok) {
+            messageBox.classList.remove("hidden");
+            messageBox.classList.add("success-msg");
+            messageBox.innerHTML = result.mensaje;
+
+            // ✅ Redirigir a Dashboard después de 1 segundo
+            setTimeout(() => {
+                window.location.href = "/dashboard";  // Ajusta la ruta según tu estructura
+            }, 1000);
+        } else {
+            messageBox.classList.remove("hidden");
+            messageBox.classList.add("error-msg");
+            messageBox.innerHTML = result.mensaje;
+        }
+    } catch (error) {
+        messageBox.classList.remove("hidden");
+        messageBox.classList.add("error-msg");
+        messageBox.innerHTML = "Hubo un problema al iniciar sesión. Intenta nuevamente.";
+    } finally {
+        document.getElementById("spinner").style.display = "none";
+    }
+}
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alertas de Seguridad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        danger: '#dc2626',
+                        warning: '#facc15',
+                        success: '#16a34a',
+                        dark: '#1e293b',
+                        accent: '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex">
+
+    <!-- PANEL LATERAL -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col min-h-screen">
+        <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">🔐 IDS System</div>
+        <nav class="flex-1 p-4 space-y-2 text-sm">
+            <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Panel principal</span>
+            </a>
+            <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
+                <i data-lucide="users" class="w-5 h-5"></i><span>Usuarios</span>
+            </a>
+            <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
+                <i data-lucide="shield" class="w-5 h-5"></i><span>Perfiles</span>
+            </a>
+            <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
+                <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
+            </a>
+            <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
+                <i data-lucide="rss" class="w-5 h-5"></i><span>Monitoreo</span>
+            </a>
+            <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+                <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+                <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+                <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="flex-1 p-6 overflow-auto">
+        <div class="max-w-7xl mx-auto">
+            <!-- TÍTULO -->
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-dark">Centro de Alertas</h1>
+                    <p class="text-gray-600 mt-1">Visualización en tiempo real de eventos de seguridad en tu red.</p>
+                </div>
+            </div>
+
+            <!-- BUSCADOR -->
+            <div class="mb-4">
+                <input type="text" id="filtro-alertas" placeholder=" Buscar por tipo, IP o nivel..."
+                       class="w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <!-- CONTENEDOR DE TABLA CON SCROLL -->
+<div class="bg-white rounded-lg shadow-sm overflow-auto max-h-[65vh] border border-gray-200">
+    <table class="min-w-full text-sm text-left font-medium text-gray-700">
+        <thead class="bg-gray-100 text-xs uppercase text-gray-600 sticky top-0 z-10 border-b border-gray-300">
+            <tr>
+                <th class="px-4 py-3">Fecha</th>
+                <th class="px-4 py-3">Tipo</th>
+                <th class="px-4 py-3">IP Origen</th>
+                <th class="px-4 py-3">IP Destino</th>
+                <th class="px-4 py-3">Nivel</th>
+                <th class="px-4 py-3">Estado</th>
+                <th class="px-4 py-3">Repeticiones</th>
+                <th class="px-4 py-3 text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-alertas" class="divide-y divide-gray-200">
+            {% if alertas %}
+                {% for alerta in alertas %}
+                <tr class="hover:bg-gray-50 transition duration-200">
+                    <td class="px-4 py-3">{{ alerta.fecha }}</td>
+                    <td class="px-4 py-3">{{ alerta.tipo }}</td>
+                    <td class="px-4 py-3">{{ alerta.ip_origen }}</td>
+                    <td class="px-4 py-3">{{ alerta.ip_destino }}</td>
+                    <td class="px-4 py-3">
+                        {% if alerta.nivel == 'Crítico' %}
+                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">Crítica</span>
+                        {% elif alerta.nivel == 'Medio' %}
+                        <span class="bg-yellow-400 text-white px-3 py-1 rounded-full text-xs">Media</span>
+                        {% else %}
+                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">Baja</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs">
+                            {{ alerta.estado_alerta }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-center font-bold">{{ alerta.repeticiones }}</td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex justify-center gap-2">
+                            <button 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition duration-200"
+                                onclick="mostrarModal(
+                                    '{{ alerta.tipo }}', 
+                                    '{{ alerta.descripcion }}', 
+                                    '{{ alerta.ip_origen }}', 
+                                    '{{ alerta.nivel }}', 
+                                    '{{ alerta.fecha }}', 
+                                    '{{ alerta.estado_alerta }}', 
+                                    '{{ alerta.estado_evento }}', 
+                                    '{{ alerta.repeticiones }}', 
+                                    '{{ alerta.protocolo }}', 
+                                    '{{ alerta.mac_origen }}', 
+                                    '{{ alerta.so_origen }}', 
+                                    '{{ alerta.puerto_origen }}', 
+                                    '{{ alerta.ip_destino }}', 
+                                    '{{ alerta.mac_destino }}', 
+                                    '{{ alerta.puerto_destino }}'
+                                )">
+                                Ver detalles
+                            </button>
+                            <button 
+                                class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition duration-200"
+                                onclick="mostrarAcciones('{{ alerta.ip_origen }}', '{{ alerta.tipo }}')">
+                                Tomar acciones
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-10 text-center text-gray-500 italic">
+                        No se han detectado eventos de seguridad por el momento.
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    
+</div>
+
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE ALERTA -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl p-6 relative animate-fade-in">
+            <button onclick="cerrarModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4 text-dark">📋 Detalles del Evento de Seguridad</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 text-sm">
+                <p><strong>Tipo:</strong> <span id="modal-tipo"></span></p>
+                <p><strong>Nivel:</strong> <span id="modal-nivel"></span></p>
+                <p><strong>Fecha:</strong> <span id="modal-fecha"></span></p>
+                <p><strong>Estado Alerta:</strong> <span id="modal-estado-alerta"></span></p>
+                <p><strong>Estado Evento:</strong> <span id="modal-estado-evento"></span></p>
+                <p><strong>Repeticiones:</strong> <span id="modal-repeticiones"></span></p>
+                <p><strong>Descripción:</strong> <span id="modal-desc"></span></p>
+                <p><strong>Protocolo:</strong> <span id="modal-protocolo"></span></p>
+                <p><strong>IP Origen:</strong> <span id="modal-ip-origen"></span></p>
+                <p><strong>MAC Origen:</strong> <span id="modal-mac-origen"></span></p>
+                <p><strong>SO Origen:</strong> <span id="modal-so-origen"></span></p>
+                <p><strong>Puerto Origen:</strong> <span id="modal-puerto-origen"></span></p>
+                <p><strong>IP Destino:</strong> <span id="modal-ip-destino"></span></p>
+                <p><strong>MAC Destino:</strong> <span id="modal-mac-destino"></span></p>
+                <p><strong>Puerto Destino:</strong> <span id="modal-puerto-destino"></span></p>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- MODAL acciones ALERTA -->
+    <div id="modal-acciones" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">
+                ⚠️ Tomar acciones sobre <span id="modal-ip-acciones" class="font-mono text-blue-600"></span>
+            </h2>
+            <p class="text-sm text-gray-600 mb-6">Seleccione una acción para la alerta: <span id="modal-tipo-acciones" class="font-semibold text-red-600"></span></p>
+    
+            <div class="flex flex-col gap-3">
+                <button class="flex items-center justify-between px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition shadow-md">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="shield-off" class="w-5 h-5"></i> Desconectar atacante
+                    </span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+    
+                <button class="flex items-center justify-between px-4 py-3 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition shadow-md">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="bell" class="w-5 h-5"></i> Notificar administrador
+                    </span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+    
+                <button class="flex items-center justify-between px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition shadow-md">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="radar" class="w-5 h-5"></i> Iniciar escaneo activo
+                    </span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+    
+                <button class="flex items-center justify-between px-4 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-md">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="file-check" class="w-5 h-5"></i> Registrar incidente
+                    </span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+    
+                <button class="flex items-center justify-between px-4 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition shadow-md">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="server-off" class="w-5 h-5"></i> Suspender servicio víctima
+                    </span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+    
+                <button class="flex items-center justify-between px-4 py-3 bg-purple-700 text-white rounded-xl hover:bg-purple-800 transition shadow-md">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-5 h-5"></i> Generar informe PDF
+                    </span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+    
+            <div class="text-right mt-6">
+                <button class="text-sm text-gray-500 hover:text-gray-800 underline" onclick="cerrarModalAcciones()">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    
+
+    <!-- ICONOS LUCIDE -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <!-- FUNCIONES JS -->
+    <script>
+        function mostrarModal(tipo, descripcion, ip_origen, nivel, fecha, estado_alerta, estado_evento, repeticiones, protocolo, mac_origen, so_origen, puerto_origen, ip_destino, mac_destino, puerto_destino) {
+        document.getElementById('modal-tipo').textContent = tipo;
+        document.getElementById('modal-nivel').textContent = nivel;
+        document.getElementById('modal-fecha').textContent = fecha;
+        document.getElementById('modal-estado-alerta').textContent = estado_alerta;
+        document.getElementById('modal-estado-evento').textContent = estado_evento;
+        document.getElementById('modal-repeticiones').textContent = repeticiones;
+        document.getElementById('modal-desc').textContent = descripcion;
+        document.getElementById('modal-protocolo').textContent = protocolo;
+        document.getElementById('modal-ip-origen').textContent = ip_origen;
+        document.getElementById('modal-mac-origen').textContent = mac_origen;
+        document.getElementById('modal-so-origen').textContent = so_origen;
+        document.getElementById('modal-puerto-origen').textContent = puerto_origen;
+        document.getElementById('modal-ip-destino').textContent = ip_destino;
+        document.getElementById('modal-mac-destino').textContent = mac_destino;
+        document.getElementById('modal-puerto-destino').textContent = puerto_destino;
+
+    document.getElementById('modal').classList.remove('hidden');
+}
+
+
+        function cerrarModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function mostrarAcciones(ip, tipo) {
+            document.getElementById('modal-ip-acciones').textContent = ip;
+            document.getElementById('modal-tipo-acciones').textContent = tipo;
+            document.getElementById('modal-acciones').classList.remove('hidden');
+            document.getElementById('modal-acciones').classList.add('flex');
+        }
+
+        function cerrarModalAcciones() {
+            document.getElementById('modal-acciones').classList.add('hidden');
+        }
+
+
+        document.getElementById('filtro-alertas').addEventListener('input', function () {
+            const filtro = this.value.toLowerCase();
+            const filas = document.querySelectorAll('#tabla-alertas tr');
+            filas.forEach(fila => {
+                const texto = fila.innerText.toLowerCase();
+                fila.style.display = texto.includes(filtro) ? '' : 'none';
+            });
+        });
+
+          // Refrescar la página cada 5 segundos
+    setInterval(function () {
+        location.reload();
+    }, 50000);
+    </script>
+</body>
+</html>

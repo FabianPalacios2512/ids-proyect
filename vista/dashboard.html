@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CyberSentinel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/lucide@latest/dist/lucide.css" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+
+
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col">
+      <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">CyberSentinel 🔐 </div>
+      <nav class="flex-1 p-4 space-y-2 text-sm">
+        <a href="#" class="flex items-center space-x-2 p-2 rounded bg-gray-800">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Panel Principal</span>
+        </a>
+        <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="users" class="w-5 h-5"></i><span>Usuarios</span>
+        </a>
+        <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="shield" class="w-5 h-5"></i><span>Perfiles</span>
+        </a>
+        <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
+        </a>
+        <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="rss" class="w-5 h-5"></i><span>Monitoreo</span>
+        </a>
+        <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col">
+      <!-- Topbar -->
+
+
+      <header class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+        <!-- Buscador -->
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+            <input
+              type="text"
+              placeholder="Buscar..."
+              class="pl-10 pr-4 py-2 border border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all w-72"
+            />
+          </div>
+        </div>
+      
+        <!-- Acciones -->
+        <div class="flex items-center space-x-6">
+          <!-- Notificaciones -->
+          <button type="button" class="text-gray-600 hover:text-black transition-colors">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+          </button>
+      
+          <!-- Configuración -->
+          <div class="relative">
+            <button id="configBtn" class="text-gray-600 hover:text-black transition-colors focus:outline-none">
+              <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
+           
+          </div>
+      
+          <!-- Usuario -->
+          <div class="relative">
+            <button id="userBtn" class="flex items-center space-x-2 text-gray-700 hover:text-black transition-colors focus:outline-none">
+              <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold">
+                {{ usuario[0] }}
+
+              </div>
+              <span class="font-medium">{{ usuario }}</span>
+              <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </button>
+            <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Editar perfil</a>
+              <a href="{{ url_for('login.logout') }}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-100">Cerrar sesión</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      <!-- Panel lateral de configuración -->
+<div id="configPanel" class="fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto border-l">
+    <div class="p-4 flex justify-between items-center border-b">
+      <h2 class="text-lg font-semibold text-gray-800">Configuración</h2>
+      <button id="closeConfigPanel" class="text-gray-500 hover:text-red-500">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div class="p-4 space-y-4">
+      <button class="w-full flex items-center p-3 bg-gray-100 rounded-lg hover:bg-blue-100 transition">
+        <i data-lucide="user" class="w-5 h-5 mr-2 text-blue-600"></i>
+        Editar datos personales
+      </button>
+      <button class="w-full flex items-center p-3 bg-gray-100 rounded-lg hover:bg-blue-100 transition">
+        <i data-lucide="lock" class="w-5 h-5 mr-2 text-blue-600"></i>
+        Cambiar contraseña
+      </button>
+      <button class="w-full flex items-center p-3 bg-gray-100 rounded-lg hover:bg-blue-100 transition">
+        <i data-lucide="calendar-clock" class="w-5 h-5 mr-2 text-blue-600"></i>
+        Programar escaneos
+      </button>
+      <button class="w-full flex items-center p-3 bg-gray-100 rounded-lg hover:bg-blue-100 transition">
+        <i data-lucide="settings" class="w-5 h-5 mr-2 text-blue-600"></i>
+        Ajustes generales
+      </button>
+    </div>
+  </div>
+
+     <!-- Formulario flotante -->
+<div id="formEditarDatos" class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 hidden z-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md relative">
+    <button id="cerrarFormulario" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
+      Editar datos personales
+    </h2>
+    <form id="formDatosPersonales" class="space-y-4">
+      <div>
+        <label for="nombre" class="block text-sm text-gray-600 mb-1">Nombre</label>
+        <input type="text" id="nombre" name="nombre" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-300" required>
+      </div>
+      <div>
+        <label for="apellido" class="block text-sm text-gray-600 mb-1">Apellido</label>
+        <input type="text" id="apellido" name="apellido" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-300" required>
+      </div>
+      <div>
+        <label for="telefono" class="block text-sm text-gray-600 mb-1">Teléfono</label>
+        <input type="text" id="telefono" name="telefono" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-300">
+      </div>
+      <div>
+        <label for="email" class="block text-sm text-gray-600 mb-1">Email</label>
+        <input type="email" id="email" name="email" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-300" required>
+      </div>
+      <div class="flex justify-end mt-4">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+      
+      <!-- Dashboard Content -->
+      <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Cards -->
+        <!-- Cards Mejoradas -->
+<div class="bg-gradient-to-r from-blue-100 to-blue-200 p-5 rounded-2xl shadow flex justify-between items-center hover:shadow-lg transition duration-300">
+    <div>
+      <p class="text-gray-600 font-medium">Usuarios Registrados</p>
+      <h2 class="text-2xl font-bold">{{ total_usuarios }}</h2>
+    </div>
+    <div class="bg-white rounded-full p-3 shadow">
+      <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+    </div>
+  </div>
+  
+  <div class="bg-gradient-to-r from-green-100 to-green-200 p-5 rounded-2xl shadow flex justify-between items-center hover:shadow-lg transition duration-300">
+    <div>
+      <p class="text-gray-600 font-medium">Dispositivos Conectados</p>
+      <h2 class="text-2xl font-bold">{{ total_dispositivos }}</h2>
+    </div>
+    <div class="bg-white rounded-full p-3 shadow">
+      <i data-lucide="server" class="w-8 h-8 text-green-600"></i>
+    </div>
+  </div>
+  
+
+
+  <div class="bg-white p-4 rounded-lg shadow-md w-full h-full">
+    <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-semibold text-gray-800">Últimas Alertas</h2>
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+    </div>
+    <div class="overflow-y-auto max-h-30">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-gray-100 text-xs uppercase text-gray-500">
+                <tr>
+                    <th class="px-2 py-1">Tipo</th>
+                    <th class="px-2 py-1">Nivel</th>
+                    <th class="px-2 py-1">Fecha</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for evento in ultimos_eventos %}
+                <tr>
+                    <td class="px-2 py-1 font-medium text-blue-600">{{ evento.tipo }}</td>
+                    <td class="px-2 py-1 flex items-center gap-1">
+                        {% if evento.nivel == 'Alto' %}
+                            <i data-lucide="alert-octagon" class="w-4 h-4 text-red-600"></i>
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-600">Alto</span>
+                        {% elif evento.nivel == 'Medio' %}
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-500"></i>
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-600">Medio</span>
+                        {% elif evento.nivel == 'Bajo' %}
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-green-600"></i>
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-600">Bajo</span>
+                        {% else %}
+                            <i data-lucide="info" class="w-4 h-4 text-gray-500"></i>
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">{{ evento.nivel }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-1 text-xs text-gray-500">{{ evento.fecha }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="px-2 py-2 text-center text-gray-500">No hay alertas activas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+
+
+
+
+
+
+        <!-- Monitoreo -->
+<!-- Monitoreo de Red -->
+<div class="col-span-2 bg-white p-5 rounded shadow">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-semibold flex items-center gap-2">
+      <i class="lucide lucide-radar text-blue-600"></i> Monitoreo de Red
+    </h3>
+    <a href="/monitoreo" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Ver más informacion</a>
+  </div>
+
+  <ul id="resumen-monitoreo" class="space-y-3 text-sm text-gray-700">
+    {% for registro in resumen_monitoreo %}
+      <li class="flex justify-between items-center bg-blue-50 p-4 rounded shadow-sm hover:bg-blue-100 transition duration-150">
+        <div>
+          <p class="font-medium text-gray-800">
+            <span class="text-gray-600 font-semibold">Origen:</span> {{ registro.ip_origen }}
+            <span class="mx-2 text-gray-500">→</span>
+            <span class="text-gray-600 font-semibold">Destino:</span> {{ registro.ip_destino }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+            <i class="lucide lucide-clock text-gray-400 w-4 h-4"></i> {{ registro.timestamp }}
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-blue-600 font-semibold text-sm flex items-center justify-end gap-1">
+            <i class="lucide lucide-network text-blue-500 w-4 h-4"></i> {{ registro.protocolo }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Puerto {{ registro.puerto }}</p>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+
+        <!-- Últimos eventos -->
+<div class="bg-white p-5 rounded shadow">
+  <h3 class="text-lg font-semibold flex items-center gap-2">
+    <i data-lucide="list"></i> Eventos Recientes
+  </h3>
+  <ul id="lista-eventos" class="mt-3 text-sm space-y-2 text-gray-700">
+    <!-- Aquí se cargan los eventos reales -->
+  </ul>
+</div>
+
+        <!-- Estado del sistema -->
+       <!-- Estado del Sistema -->
+       <div class="col-span-3 bg-white p-5 rounded-2xl shadow">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Estado del Sistema</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+          <!-- CPU -->
+          <div class="bg-gray-50 p-4 rounded-xl shadow-sm">
+            <div class="flex justify-between mb-2 text-sm text-gray-500">
+              <span>Uso de CPU</span>
+              <span id="cpu-porcentaje">...</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div id="cpu-barra" class="bg-red-400 h-2.5 rounded-full w-0"></div>
+            </div>
+          </div>
+      
+          <!-- Memoria -->
+          <div class="bg-gray-50 p-4 rounded-xl shadow-sm">
+            <div class="flex justify-between mb-2 text-sm text-gray-500">
+              <span>Memoria</span>
+              <span id="memoria-uso">...</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div id="memoria-barra" class="bg-yellow-400 h-2.5 rounded-full w-0"></div>
+            </div>
+          </div>
+      
+          <!-- Disco -->
+          <div class="bg-gray-50 p-4 rounded-xl shadow-sm">
+            <div class="flex justify-between mb-2 text-sm text-gray-500">
+              <span>Espacio en Disco</span>
+              <span id="disco-uso">...</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div id="disco-barra" class="bg-green-400 h-2.5 rounded-full w-0"></div>
+            </div>
+          </div>
+      
+        </div>
+      </div>
+      
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+
+<script>
+    lucide.createIcons();
+  
+    // Alternar menú de configuración
+    document.getElementById('configBtn').addEventListener('click', function () {
+      document.getElementById('configMenu').classList.toggle('hidden');
+    });
+  
+    // Alternar menú del usuario
+    document.getElementById('userBtn').addEventListener('click', function () {
+      document.getElementById('userMenu').classList.toggle('hidden');
+    });
+  
+    // Cerrar los menús si haces clic fuera
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#configBtn') && !e.target.closest('#configMenu')) {
+        document.getElementById('configMenu').classList.add('hidden');
+      }
+      if (!e.target.closest('#userBtn') && !e.target.closest('#userMenu')) {
+        document.getElementById('userMenu').classList.add('hidden');
+      }
+    });
+  </script>
+  <script>
+    document.getElementById('configBtn').addEventListener('click', () => {
+      document.getElementById('configPanel').classList.remove('translate-x-full');
+    });
+  
+    document.getElementById('closeConfigPanel').addEventListener('click', () => {
+      document.getElementById('configPanel').classList.add('translate-x-full');
+    });
+  </script>
+  <script>
+    async function cargarEstadoSistema() {
+      const res = await fetch('/estado_sistema');
+      const data = await res.json();
+  
+      // CPU
+      document.getElementById('cpu-porcentaje').innerText = `${data.cpu}%`;
+      document.getElementById('cpu-barra').style.width = `${data.cpu}%`;
+  
+      // Memoria
+      document.getElementById('memoria-uso').innerText = `${data.memoria_usada}GB / ${data.memoria_total}GB`;
+      document.getElementById('memoria-barra').style.width = `${data.memoria_porcentaje}%`;
+  
+      // Disco
+      document.getElementById('disco-uso').innerText = `${data.disco_usado}GB / ${data.disco_total}GB`;
+      document.getElementById('disco-barra').style.width = `${data.disco_porcentaje}%`;
+    }
+  
+    // Actualiza cada 5 segundos
+    setInterval(cargarEstadoSistema, 10000);
+    cargarEstadoSistema();
+  </script>
+  <script>
+    async function cargarResumenMonitoreo() {
+      try {
+        const res = await fetch('/api/resumen_monitoreo');
+        const data = await res.json();
+  
+        const lista = document.getElementById('resumen-monitoreo');
+        lista.innerHTML = ''; // Limpiamos lo anterior
+  
+        data.forEach(registro => {
+          const item = document.createElement('li');
+          item.className = "flex justify-between items-center bg-blue-50 p-3 rounded shadow-sm hover:bg-blue-100 transition";
+  
+          item.innerHTML = `
+            <div>
+              <p><span class="font-semibold">Origen:</span> ${registro.ip_origen} ➜ <span class="font-semibold">Destino:</span> ${registro.ip_destino}</p>
+              <p class="text-xs text-gray-500">${registro.timestamp}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-blue-600 font-semibold">${registro.protocolo}</p>
+              <p class="text-xs">Puerto ${registro.puerto_destino || '—'}</p>
+            </div>
+          `;
+  
+          lista.appendChild(item);
+        });
+      } catch (error) {
+        console.error('Error al cargar resumen de monitoreo:', error);
+      }
+    }
+  
+    // Cargar inicialmente y luego cada 10 segundos
+    cargarResumenMonitoreo();
+    setInterval(cargarResumenMonitoreo, 10000); // cada 10 segundos
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', cargarEventosRecientes);
+
+function cargarEventosRecientes() {
+  fetch('/eventos_recientes')
+    .then(res => res.json())
+    .then(eventos => {
+      const lista = document.getElementById('lista-eventos');
+      lista.innerHTML = '';
+
+      if (eventos.length === 0) {
+        lista.innerHTML = '<li class="text-gray-400">No hay eventos registrados.</li>';
+        return;
+      }
+
+      eventos.forEach(ev => {
+        const icono = obtenerIconoEvento(ev.tipo_evento);
+        const color = obtenerColorEvento(ev.tipo_evento);
+        const fecha = new Date(ev.fecha_evento).toLocaleString();
+
+        lista.insertAdjacentHTML('beforeend', `
+          <li class="flex items-start gap-2">
+            <span class="text-${color}-600">${icono}</span>
+            <div>
+              <p class="font-medium">${ev.descripcion}</p>
+              <p class="text-xs text-gray-500">Por: ${ev.usuario || 'Desconocido'} • ${fecha}</p>
+            </div>
+          </li>
+        `);
+      });
+
+      // Re-renderizar los íconos Lucide
+      lucide.createIcons();
+    });
+}
+
+function obtenerIconoEvento(tipo) {
+  switch (tipo) {
+    case "Inicio de sesión": return `<i data-lucide="log-in"></i>`;
+    case "Logout": return `<i data-lucide="log-out"></i>`;
+    case "Creación de usuario": return `<i data-lucide="user-plus"></i>`;
+    case "Actualización de usuario": return `<i data-lucide="user-check"></i>`;
+    case "Creación de perfil": return `<i data-lucide="folder-plus"></i>`;
+    case "Actualización de perfil": return `<i data-lucide="file-pen-line"></i>`;
+    case "Escaneo de dispositivos": return `<i data-lucide="monitor-smartphone"></i>`;
+    case "Escaneo de paquetes": return `<i data-lucide="package-search"></i>`;
+    default: return `<i data-lucide="info"></i>`;
+  }
+}
+
+function obtenerColorEvento(tipo) {
+  switch (tipo) {
+    case "Inicio de sesión": return "green";
+    case "Logout": return "gray";
+    case "Creación de usuario": return "cyan";
+    case "Actualización de usuario": return "blue";
+    case "Creación de perfil": return "purple";
+    case "Actualización de perfil": return "yellow";
+    case "Escaneo de dispositivos": return "indigo";
+    case "Escaneo de paquetes": return "orange";
+    default: return "gray";
+  }
+}
+
+  </script>
+  
+  
+
+
+
+<!-- Botón flotante de WhatsApp con mensaje lateral y toggle -->
+<div id="whatsapp-container" class="fixed bottom-5 right-5 z-50 flex items-center gap-2 transition-all duration-300">
+  <!-- Texto lateral -->
+  <div id="whatsapp-message" class="bg-white text-gray-800 text-sm px-3 py-2 rounded-lg shadow-md">
+      ¿Necesitas ayuda?
+  </div>
+
+  <!-- Botón de WhatsApp -->
+  <a href="https://wa.me/51999999999" target="_blank" rel="noopener noreferrer"
+     class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition duration-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+          <path d="M20.52 3.48A11.75 11.75 0 0 0 12 0C5.37 0 .01 5.36 0 12a11.9 11.9 0 0 0 1.63 6.02L0 24l6.17-1.61A11.86 11.86 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.17-1.23-6.15-3.48-8.52zm-8.52 19.2a9.82 9.82 0 0 1-5-1.36l-.36-.21-3.66.96.98-3.57-.24-.37a9.91 9.91 0 1 1 8.28 4.55zm5.42-7.42c-.3-.15-1.76-.87-2.03-.97-.27-.1-.46-.15-.64.15s-.73.97-.9 1.17c-.16.2-.33.23-.6.08s-1.16-.43-2.21-1.36c-.82-.73-1.37-1.63-1.53-1.9-.16-.27-.02-.42.12-.57.12-.12.27-.3.4-.45.13-.15.17-.26.26-.43.1-.17.05-.32 0-.45-.06-.14-.64-1.54-.88-2.1-.23-.56-.47-.48-.64-.49l-.55-.01c-.17 0-.45.06-.68.3s-.9.87-.9 2.12.92 2.46 1.05 2.63c.13.17 1.8 2.74 4.37 3.84.61.26 1.09.42 1.46.54.61.19 1.17.16 1.61.1.49-.07 1.5-.61 1.71-1.2.21-.59.21-1.1.15-1.2-.06-.1-.25-.16-.55-.31z"/>
+      </svg>
+  </a>
+</div>
+
+<!-- Botón para mostrar/ocultar -->
+<button onclick="toggleWhatsapp()" class="fixed bottom-5 right-24 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs px-3 py-1 rounded-full shadow z-50">
+  
+</button>
+
+<script>
+  function toggleWhatsapp() {
+      const container = document.getElementById('whatsapp-container');
+      if (container.style.display === 'none') {
+          container.style.display = 'flex';
+      } else {
+          container.style.display = 'none';
+      }
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<div class="fixed top-4 right-4 z-50 space-y-4">
+  {% for alerta in alertas_nuevas %}
+  <div class="bg-white shadow-lg rounded-lg max-w-xs w-full p-4 mb-4 
+      {% if alerta.nivel == 'Critico' %} bg-red-500 text-white 
+      {% elif alerta.nivel == 'Advertencia' %} bg-yellow-400 text-black 
+      {% else %} bg-green-400 text-white {% endif %} 
+      transform transition-all duration-300 ease-in-out opacity-0 animate-fadeIn">
+      <div class="flex justify-between items-start">
+          <div>
+              <h4 class="font-semibold text-lg">{{ alerta.descripcion }}</h4>
+              <p class="text-sm mt-2">{{ alerta.fecha }}</p>
+              <p class="text-xs text-gray-200">{{ alerta.ip_origen }}</p>
+          </div>
+          <button onclick="verMasAlertas('{{ alerta.id_evento }}')" class="text-white hover:text-gray-300 ml-3">
+              <i class="fas fa-arrow-right"></i> Ver más
+          </button>
+      </div>
+  </div>
+  {% endfor %}
+</div>
+
+
+<style>
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1.5s ease-out;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+<!-- AUDIO DE ALERTA -->
+<audio id="sonido-alerta" src="https://notificationsounds.com/notification-sounds/closure-542/download/mp3" preload="auto"></audio>
+
+
+
+
+<script>
+  // Mostrar más detalles de una alerta
+  // Mostrar más detalles de una alerta
+// Mostrar más detalles de una alerta
+function verMasAlertas(idEvento) {
+  // Buscar la alerta por id_evento y mostrar detalles en el div
+  fetch(`/obtener_alerta/${idEvento}`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("detalle-descripcion").innerText = data.descripcion;
+      document.getElementById("detalle-fecha").innerText = `Fecha: ${data.fecha}`;
+      document.getElementById("detalle-ip").innerText = `IP Origen: ${data.ip_origen}`;
+      document.getElementById("detalle-puerto").innerText = `Puerto: ${data.puerto || 'No disponible'}`;
+      // Muestra el div con los detalles
+      document.getElementById("alerta-detalle").classList.remove("hidden");
+    })
+    .catch(error => {
+      console.error('Error al obtener detalles de la alerta:', error);
+    });
+}
+
+
+</script>
+
+
+
+<script>
+  setTimeout(function() {
+      const alertas = document.querySelectorAll('.animate-fadeIn');
+      alertas.forEach(alerta => alerta.remove());
+  }, 50000); // Elimina las notificaciones después de 5 segundos
+</script>
+
+
+</body>
+</html>

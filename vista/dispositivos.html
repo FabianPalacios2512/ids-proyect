@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dispositivos en Red - IDS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <div class="flex h-screen">
+    <!-- Menú lateral -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col h-full">
+      <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">🔐 IDS System</div>
+      <nav class="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
+        <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Panel principal</span>
+        </a>
+        <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
+          <i data-lucide="users" class="w-5 h-5"></i><span>Usuarios</span>
+        </a>
+        <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
+          <i data-lucide="shield" class="w-5 h-5"></i><span>Perfiles</span>
+        </a>
+        <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
+          <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
+        </a>
+        <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
+          <i data-lucide="rss" class="w-5 h-5"></i><span>Monitoreo</span>
+        </a>
+        <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
+        </a>
+        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Contenido -->
+    <div class="flex-1 p-8 overflow-y-auto">
+      <!-- Encabezado -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
+        <h1 class="text-4xl font-extrabold text-gray-900">🖧 Dispositivos Detectados</h1>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="iniciarEscaneo()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+            ▶️ <span>Iniciar escaneo</span>
+          </button>
+          <button onclick="detenerEscaneo()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+            ⏹️ <span>Detener escaneo</span>
+          </button>
+          <a href="/dashboard" class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+            🔙 <span>Volver al panel</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="overflow-x-auto rounded-lg shadow-md bg-white">
+        <table class="min-w-full text-sm text-left border-separate border-spacing-y-2">
+          <thead class="bg-gray-100 text-gray-700 text-xs uppercase">
+            <tr>
+              <th class="px-6 py-3">IP</th>
+              <th class="px-6 py-3">MAC</th>
+              <th class="px-6 py-3">Hostname</th>
+              <th class="px-6 py-3">Sistema Operativo</th>
+              <th class="px-6 py-3">Puertos Abiertos</th>
+              <th class="px-6 py-3">Fecha de Escaneo</th>
+              <th class="px-6 py-3">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-dispositivos">
+            <!-- Datos dinámicos aquí -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+  function actualizarBotones() {
+    fetch('/estado_escaneo')
+      .then(res => res.json())
+      .then(data => {
+        const botonIniciar = document.querySelector('button[onclick="iniciarEscaneo()"]');
+        const botonDetener = document.querySelector('button[onclick="detenerEscaneo()"]');
+
+        if (data.en_progreso) {
+          botonIniciar.disabled = true;
+          botonIniciar.classList.add("opacity-50", "cursor-not-allowed");
+          botonDetener.disabled = false;
+          botonDetener.classList.remove("opacity-50", "cursor-not-allowed");
+        } else {
+          botonIniciar.disabled = false;
+          botonIniciar.classList.remove("opacity-50", "cursor-not-allowed");
+          botonDetener.disabled = true;
+          botonDetener.classList.add("opacity-50", "cursor-not-allowed");
+        }
+      });
+  }
+
+  function cargarDispositivos() {
+fetch('/datos_dispositivos')  // ✅ nueva ruta para dispositivos
+  .then(res => res.json())
+  .then(data => {
+    const tabla = document.getElementById('tabla-dispositivos');
+    tabla.innerHTML = '';
+    data.forEach(item => {
+      tabla.insertAdjacentHTML("beforeend", `
+        <tr class="bg-white hover:bg-gray-50 transition">
+          <td class="px-6 py-3 rounded-l-lg">${item.direccion_ip || '-'}</td>
+          <td class="px-6 py-3">${item.direccion_mac || '-'}</td>
+          <td class="px-6 py-3">${item.nombre_host || '-'}</td>
+          <td class="px-6 py-3">${item.sistema_operativo || '-'}</td>
+          <td class="px-6 py-3">${item.puerto || '-'}</td>
+          <td class="px-6 py-3">${new Date(item.fecha_escaneo).toLocaleString()}</td>
+          <td class="px-6 py-3 rounded-r-lg">
+            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full 
+              ${item.estado_dispositivo === 'activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+              ${item.estado_dispositivo || 'desconocido'}
+            </span>
+          </td>
+        </tr>`);
+    });
+  });
+}
+
+  function iniciarEscaneo() {
+    fetch('/iniciar_escaneo_dispositivos', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+        actualizarBotones();
+      })
+      .catch(() => alert("❌ Error al iniciar escaneo"));
+  }
+
+  function detenerEscaneo() {
+    fetch('/detener_escaneo_dispositivos', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+        actualizarBotones();
+      })
+      .catch(() => alert("❌ Error al detener escaneo"));
+  }
+
+  setInterval(() => {
+    cargarDispositivos();
+    actualizarBotones();
+  }, 1000);
+
+  cargarDispositivos();
+  actualizarBotones();
+
+
+  
+  
+</script>
+</body>
+
+</html>
+
+
+
+
