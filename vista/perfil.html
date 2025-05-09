@@ -6,21 +6,40 @@
   <title>Gestión de Perfiles - IDS System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <!-- Estilos personalizados para temas -->
   <style>
     :root {
-      --bg-light: #ffffff;
-      --text-light: #1f2937;
-      --card-light: #f9fafb;
-      --border-light: #e5e7eb;
-      --table-head-light: #f3f4f6;
+      --bg-light: #f8fafc;
+      --text-light: #1e293b;
+      --card-light: #ffffff;
+      --border-light: #e2e8f0;
+      --table-head-light: #f1f5f9;
+      --input-light: #ffffff;
+      --input-border-light: #cbd5e1;
+      --accent-light: #3b82f6;
+      --accent-hover-light: #2563eb;
+      --accent-text-light: #ffffff;
+      --success-light: #10b981;
+      --warning-light: #f59e0b;
+      --error-light: #ef4444;
+      --info-light: #0ea5e9;
 
-      --bg-dark: #111827;
-      --text-dark: #f9fafb;
-      --card-dark: #1f2937;
-      --border-dark: #374151;
-      --table-head-dark: #2d3748;
+      --bg-dark: #0f172a;
+      --text-dark: #f1f5f9;
+      --card-dark: #1e293b;
+      --border-dark: #334155;
+      --table-head-dark: #334155;
+      --input-dark: #1e293b;
+      --input-border-dark: #475569;
+      --accent-dark: #3b82f6;
+      --accent-hover-dark: #60a5fa;
+      --accent-text-dark: #ffffff;
+      --success-dark: #059669;
+      --warning-dark: #d97706;
+      --error-dark: #dc2626;
+      --info-dark: #0284c7;
     }
 
     html[data-theme='light'] {
@@ -29,6 +48,15 @@
       --card: var(--card-light);
       --border: var(--border-light);
       --table-head: var(--table-head-light);
+      --input: var(--input-light);
+      --input-border: var(--input-border-light);
+      --accent: var(--accent-light);
+      --accent-hover: var(--accent-hover-light);
+      --accent-text: var(--accent-text-light);
+      --success: var(--success-light);
+      --warning: var(--warning-light);
+      --error: var(--error-light);
+      --info: var(--info-light);
     }
 
     html[data-theme='dark'] {
@@ -37,12 +65,21 @@
       --card: var(--card-dark);
       --border: var(--border-dark);
       --table-head: var(--table-head-dark);
+      --input: var(--input-dark);
+      --input-border: var(--input-border-dark);
+      --accent: var(--accent-dark);
+      --accent-hover: var(--accent-hover-dark);
+      --accent-text: var(--accent-text-dark);
+      --success: var(--success-dark);
+      --warning: var(--warning-dark);
+      --error: var(--error-dark);
+      --info: var(--info-dark);
     }
 
     body {
       background-color: var(--bg);
       color: var(--text);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', sans-serif;
       transition: background-color 0.3s, color 0.3s;
     }
 
@@ -50,17 +87,40 @@
       background-color: var(--card);
       border: 1px solid var(--border);
       border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       transition: all 0.3s ease-in-out;
     }
 
     input, select {
-      background-color: var(--bg);
+      background-color: var(--input);
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 1px solid var(--input-border);
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
 
     input::placeholder {
-      color: #9ca3af;
+      color: #94a3b8;
+    }
+
+    .error-text {
+      color: var(--error);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
     }
 
     table thead {
@@ -68,10 +128,18 @@
       color: var(--text);
     }
 
-    table th, table td {
-      border-bottom: 1px solid var(--border);
-      padding: 0.75rem;
-      text-align: left;
+    table th {
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+
+    table td {
+      padding: 0.75rem 1rem;
+      vertical-align: middle;
+      border-top: 1px solid var(--border);
     }
 
     table tbody tr {
@@ -80,60 +148,226 @@
     }
 
     table tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    /* Badges para estados */
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: capitalize;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .badge.active {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .badge.inactive {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    /* Botones de acción */
+    .btn-action {
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      transition: all 0.2s;
+    }
+
+    .btn-edit {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: var(--accent);
+    }
+
+    .btn-edit:hover {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    .btn-delete {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    .btn-delete:hover {
+      background-color: var(--error);
+      color: white;
+    }
+
+    /* Sistema de notificaciones tipo toast */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 50;
+      width: 22rem;
+      max-width: calc(100% - 2rem);
+    }
+
+    .toast {
+      margin-bottom: 0.75rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+      color: white;
+    }
+
+    .toast-success {
+      background-color: var(--success);
+    }
+
+    .toast-error {
+      background-color: var(--error);
+    }
+
+    .toast-info {
+      background-color: var(--info);
+    }
+
+    .toast-warning {
+      background-color: var(--warning);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    /* Botón de cambio de tema */
+    .theme-switch-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .theme-switch {
+      position: relative;
+      width: 3.5rem;
+      height: 1.75rem;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #64748b;
+      transition: .4s;
+      border-radius: 1.75rem;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "🌞";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 1.25rem;
+      width: 1.25rem;
+      left: 0.25rem;
+      bottom: 0.25rem;
+      transition: .4s;
+      border-radius: 50%;
+      background-color: white;
+    }
+
+    html[data-theme='dark'] .slider {
+      background-color: #4b5563;
+    }
+
+    html[data-theme='dark'] .slider:before {
+      content: "🌙";
+      transform: translateX(1.75rem);
     }
   </style>
 </head>
 
 <body>
-  <div class="flex min-h-screen">
+  <!-- Contenedor de notificaciones toast -->
+  <div id="toast-container" class="toast-container"></div>
 
+  <div class="flex min-h-screen">
     <!-- Menú lateral -->
     <aside class="w-64 bg-gray-900 text-white flex flex-col">
-      <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">🔐 IDS System</div>
-      <nav class="flex-1 p-4 space-y-2 text-sm">
+      <div class="p-6 text-center text-2xl font-bold border-b border-gray-700">
+        <span class="flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          IDS System
+        </span>
+      </div>
+      <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
         {% set menu_items = [
           ('login.dashboard', 'layout-dashboard', 'Panel principal'),
           ('login.usuario', 'users', 'Usuarios'),
           ('login.perfil', 'shield', 'Perfiles'),
           ('dispositivos.dispositivos', 'server', 'Dispositivos'),
-          ('login.monitoreo', 'rss', 'Monitoreo'),
+          ('login.monitoreo', 'activity', 'Monitoreo'),
           ('login.alertas', 'alert-triangle', 'Alertas'),
           (None, 'search', 'Eventos'),
-          (None, 'bar-chart', 'Reportes'),
+          (None, 'bar-chart-2', 'Reportes'),
           (None, 'settings', 'Configuración'),
           (None, 'log-out', 'Cerrar Sesión')
         ] %}
         {% for endpoint, icon, label in menu_items %}
           <a href="{{ url_for(endpoint) if endpoint else '#' }}"
-             class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == endpoint else '' }}">
+             class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
             <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
           </a>
         {% endfor %}
       </nav>
+      <div class="p-4 text-xs text-gray-500 mt-auto text-center">
+        IDS System v1.2.0 | © 2025
+      </div>
     </aside>
 
     <!-- Contenido principal -->
     <main class="flex-1 p-8 relative">
       <!-- Botón para cambiar tema -->
-      <button id="theme-toggle" aria-label="Cambiar tema"
-              class="absolute top-4 right-4 px-3 py-1 rounded bg-gray-300 text-black dark:bg-gray-700 dark:text-white hover:opacity-80 transition">
-        🌗 Cambiar Tema
-      </button>
+      <div class="absolute top-6 right-8">
+        <div class="theme-switch-wrapper">
+          <label class="theme-switch" for="theme-toggle">
+            <input type="checkbox" id="theme-toggle" aria-label="Cambiar tema">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
 
-      <h1 class="text-4xl font-bold mb-8 text-center">Gestión de Perfiles</h1>
+      <h1 class="text-3xl font-bold mb-8 text-center">Gestión de Perfiles</h1>
 
-      <div class="max-w-5xl mx-auto space-y-10">
-
+      <div class="max-w-5xl mx-auto space-y-8">
         <!-- Formulario -->
         <section class="card shadow-md p-6">
-          <h2 class="text-xl font-semibold mb-4">Crear o editar perfil</h2>
+          <h2 class="text-xl font-semibold mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Crear o editar perfil
+          </h2>
           <form id="formularioPerfil" onsubmit="guardarPerfil(event)" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label for="nombre" class="block text-sm font-medium mb-1">Nombre del perfil</label>
-              <input type="text" name="nombre" id="nombre" required pattern="^(?![\d]+$).{3,50}$"
-                     title="Debe tener entre 3 y 50 caracteres y no ser solo números"
-                     class="w-full px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-500">
+              <input type="text" name="nombre" id="nombre" required
+                     class="w-full px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-500"
+                     oninput="validarCampo(this, validarNombre)">
+              <span id="nombre-error" class="error-text hidden"></span>
             </div>
             <div>
               <label for="estado" class="block text-sm font-medium mb-1">Estado</label>
@@ -145,14 +379,17 @@
             </div>
             <div>
               <label for="descripcion" class="block text-sm font-medium mb-1">Descripción</label>
-              <input type="text" name="descripcion" id="descripcion" required minlength="5"
+              <input type="text" name="descripcion" id="descripcion" required
                      class="w-full px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-500"
-                     placeholder="Ej: Perfil con acceso limitado">
+                     placeholder="Ej: Perfil con acceso limitado"
+                     oninput="validarCampo(this, validarDescripcion)">
+              <span id="descripcion-error" class="error-text hidden"></span>
             </div>
             <div class="md:col-span-3 flex justify-end">
               <input type="hidden" id="id_perfil_editar">
               <button type="submit"
-                      class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition flex items-center gap-2">
+                      class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" 
+                      id="btn-guardar">
                 <i data-lucide="save" class="w-4 h-4"></i> Guardar
               </button>
             </div>
@@ -160,28 +397,90 @@
         </section>
 
         <!-- Tabla de perfiles -->
-        <section class="card shadow-md p-6">
-          <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-            <h2 class="text-xl font-semibold">📋 Perfiles Registrados</h2>
-            <input type="text" id="buscador" oninput="filtrarPerfiles()" placeholder="Buscar por nombre o estado..."
-                   class="w-full md:w-64 px-4 py-2 text-sm rounded-full focus:ring-2 focus:ring-blue-500">
+        <section class="card shadow-md overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h2 class="text-xl font-semibold flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Perfiles Registrados
+              </h2>
+              <div class="relative w-full md:w-64">
+                <input type="text" id="buscador" oninput="filtrarPerfiles()" placeholder="Buscar por nombre o estado..."
+                      class="w-full px-4 py-2 text-sm rounded-full bg-white/20 text-white placeholder-white/70 border-white/30 focus:ring-2 focus:ring-white/50 focus:bg-white/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
           </div>
+          
           <div class="overflow-x-auto">
-            <table class="min-w-full text-sm text-left" role="table">
-              <thead class="uppercase text-xs text-gray-500">
+            <table class="min-w-full text-sm" role="table">
+              <thead>
                 <tr>
-                  <th class="px-4 py-3">ID</th>
-                  <th class="px-4 py-3">Nombre</th>
-                  <th class="px-4 py-3">Descripción</th>
-                  <th class="px-4 py-3">Estado</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                  <th class="text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tabla-perfiles">
-                <!-- Filas dinámicas -->
+                <!-- Datos de ejemplo para visualización -->
+                <tr>
+                  <td>1</td>
+                  <td class="font-medium">Administrador</td>
+                  <td>Acceso total al sistema</td>
+                  <td><span class="badge active">Activo</span></td>
+                  <td class="text-center">
+                    <div class="flex justify-center gap-2">
+                      <button class="btn-action btn-edit">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                      </button>
+                      <button class="btn-action btn-delete">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td class="font-medium">Usuario</td>
+                  <td>Acceso limitado al sistema</td>
+                  <td><span class="badge active">Activo</span></td>
+                  <td class="text-center">
+                    <div class="flex justify-center gap-2">
+                      <button class="btn-action btn-edit">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                      </button>
+                      <button class="btn-action btn-delete">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td class="font-medium">Invitado</td>
+                  <td>Solo lectura</td>
+                  <td><span class="badge inactive">Inactivo</span></td>
+                  <td class="text-center">
+                    <div class="flex justify-center gap-2">
+                      <button class="btn-action btn-edit">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                      </button>
+                      <button class="btn-action btn-delete">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
+          
         </section>
       </div>
     </main>
@@ -199,6 +498,7 @@
     function setTheme(theme) {
       rootElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
+      themeToggleBtn.checked = theme === 'dark';
     }
 
     function toggleTheme() {
@@ -206,11 +506,251 @@
       setTheme(current === 'light' ? 'dark' : 'light');
     }
 
-    themeToggleBtn.addEventListener('click', toggleTheme);
-    setTheme(localStorage.getItem('theme') || 'light');
+    themeToggleBtn.addEventListener('change', toggleTheme);
+    
+    // Establecer tema según la preferencia guardada o la preferencia del sistema
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      // Detectar preferencia del sistema
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
   </script>
 
-  <!-- Lógica de perfiles -->
+  <!-- Sistema de notificaciones tipo toast -->
+  <script>
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${tipo}`;
+      
+      // Agregar icono según tipo
+      let icono = '';
+      switch (tipo) {
+        case 'success':
+          icono = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+          break;
+        case 'error':
+          icono = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+          break;
+        case 'warning':
+          icono = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
+          break;
+        default:
+          icono = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+      }
+      
+      toast.innerHTML = `
+        <div class="flex items-center">
+          ${icono}
+          <span>${mensaje}</span>
+        </div>
+        <button onclick="this.parentElement.remove()" class="ml-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      `;
+      
+      container.appendChild(toast);
+      
+      // Eliminar después de 3 segundos
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.remove();
+        }
+      }, 3000);
+    }
+  </script>
+
+  <!-- Validación en tiempo real -->
+  <script>
+    function validarNombre(valor) {
+      if (!valor) return "El nombre del perfil es obligatorio";
+      if (valor.length < 3) return "El nombre debe tener al menos 3 caracteres";
+      if (valor.length > 50) return "El nombre no puede exceder los 50 caracteres";
+      if (/^\d+$/.test(valor)) return "El nombre no puede contener solo números";
+      return "";
+    }
+    
+    function validarDescripcion(valor) {
+      if (!valor) return "La descripción es obligatoria";
+      if (valor.length < 5) return "La descripción debe tener al menos 5 caracteres";
+      return "";
+    }
+    
+    function validarCampo(input, validador) {
+      const errorElement = document.getElementById(`${input.id}-error`);
+      const error = validador(input.value);
+      
+      if (error) {
+        input.classList.add('border-red-500');
+        errorElement.textContent = error;
+        errorElement.classList.remove('hidden');
+      } else {
+        input.classList.remove('border-red-500');
+        errorElement.classList.add('hidden');
+      }
+      
+      actualizarEstadoFormulario();
+    }
+    
+    function actualizarEstadoFormulario() {
+      const nombre = document.getElementById('nombre');
+      const descripcion = document.getElementById('descripcion');
+      const btnGuardar = document.getElementById('btn-guardar');
+      
+      const nombreError = validarNombre(nombre.value);
+      const descripcionError = validarDescripcion(descripcion.value);
+      
+      btnGuardar.disabled = !!(nombreError || descripcionError);
+    }
+    
+    // Función para guardar perfil
+    function guardarPerfil(event) {
+      event.preventDefault();
+      
+      const nombre = document.getElementById('nombre').value;
+      const estado = document.getElementById('estado').value;
+      const descripcion = document.getElementById('descripcion').value;
+      const idEditar = document.getElementById('id_perfil_editar').value;
+      
+      // Aquí iría la lógica para guardar el perfil en el servidor
+      
+      if (idEditar) {
+        mostrarNotificacion(`Perfil "${nombre}" actualizado correctamente`, 'success');
+      } else {
+        mostrarNotificacion(`Perfil "${nombre}" creado correctamente`, 'success');
+      }
+      
+      // Limpiar formulario
+      document.getElementById('formularioPerfil').reset();
+      document.getElementById('id_perfil_editar').value = '';
+      
+      // Ejemplo: actualizar tabla (esto debería ser reemplazado por tu lógica real)
+      setTimeout(() => {
+        filtrarPerfiles();
+      }, 500);
+    }
+    
+    // Filtrar perfiles
+    function filtrarPerfiles() {
+      const termino = document.getElementById('buscador').value.toLowerCase();
+      
+      // Aquí iría la lógica real para filtrar perfiles desde el servidor o en el cliente
+      
+      // Ejemplo de notificación cuando no hay resultados
+      if (termino && document.querySelectorAll('#tabla-perfiles tr').length === 0) {
+        mostrarNotificacion('No se encontraron perfiles con ese criterio de búsqueda', 'info');
+      }
+    }
+    
+    // Configurar eventos iniciales
+    document.addEventListener('DOMContentLoaded', function() {
+      // Ejemplo de uso de notificaciones
+      setTimeout(() => {
+        mostrarNotificacion('Bienvenido al sistema de gestión de perfiles', 'info');
+      }, 500);
+      
+      // Configurar eventos de edición y eliminación para los botones de ejemplo
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const fila = this.closest('tr');
+          editarPerfil({
+            id: fila.cells[0].textContent,
+            nombre: fila.cells[1].textContent,
+            descripcion: fila.cells[2].textContent,
+            estado: fila.cells[3].querySelector('.badge').classList.contains('active') ? 'activo' : 'inactivo'
+          });
+        });
+      });
+      
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const fila = this.closest('tr');
+          const id = fila.cells[0].textContent;
+          const nombre = fila.cells[1].textContent;
+          confirmarEliminacion(id, nombre);
+        });
+      });
+    });
+    
+    // Función para cargar datos de perfil en formulario para edición
+    function editarPerfil(perfil) {
+      document.getElementById('nombre').value = perfil.nombre;
+      document.getElementById('descripcion').value = perfil.descripcion;
+      document.getElementById('estado').value = perfil.estado;
+      document.getElementById('id_perfil_editar').value = perfil.id;
+      
+      // Validar campos tras cargarlos
+      validarCampo(document.getElementById('nombre'), validarNombre);
+      validarCampo(document.getElementById('descripcion'), validarDescripcion);
+      
+      // Scroll hacia el formulario con animación suave
+      document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+      
+      // Cambiar texto del botón temporalmente
+      const btnGuardar = document.getElementById('btn-guardar');
+      const textoOriginal = btnGuardar.innerHTML;
+      btnGuardar.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Actualizar';
+      lucide.createIcons();
+      
+      mostrarNotificacion(`Editando perfil "${perfil.nombre}"`, 'info');
+    }
+    
+    // Función para confirmar eliminación
+    function confirmarEliminacion(id, nombre) {
+      // Se podría implementar un modal aquí, pero para ejemplificar usaré un toast especial
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast toast-warning';
+      toast.style.animation = 'none'; // Prevenir que desaparezca automáticamente
+      
+      toast.innerHTML = `
+        <div>
+          <div class="flex items-center mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span class="font-medium">¿Eliminar perfil?</span>
+          </div>
+          <p class="mb-3">¿Está seguro de eliminar el perfil "${nombre}"?</p>
+          <div class="flex justify-end gap-2">
+            <button onclick="this.closest('.toast').remove()" class="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition text-sm">
+              Cancelar
+            </button>
+            <button onclick="eliminarPerfil(${id})" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm">
+              Eliminar
+            </button>
+          </div>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+    }
+    
+    // Función para eliminar perfil
+    function eliminarPerfil(id) {
+      // Aquí iría la lógica para eliminar el perfil del servidor
+      
+      // Cerrar todas las notificaciones existentes
+      document.querySelectorAll('.toast').forEach(toast => toast.remove());
+      
+      // Mostrar confirmación
+      mostrarNotificacion(`Perfil eliminado correctamente`, 'success');
+      
+      // Ejemplo: actualizar tabla tras eliminación
+      setTimeout(() => {
+        // Esta lógica sería reemplazada por tu código real
+        const filaEliminar = document.querySelector(`#tabla-perfiles tr:nth-child(${id})`);
+        if (filaEliminar) filaEliminar.remove();
+      }, 500);
+    }
+  </script>
+
+  <!-- Lógica de perfiles (archivo externo) -->
   <script defer src="{{ url_for('static', filename='js/perfiles.js') }}"></script>
 </body>
 </html>

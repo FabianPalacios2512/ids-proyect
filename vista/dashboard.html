@@ -633,5 +633,319 @@ function verMasAlertas(idEvento) {
 </script>
 
 
+
+
+
+
+
+
+<!-- Modal de Bienvenida al Tour -->
+<div id="tour-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"></div>
+
+<div id="tour-modal-0" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-lg hidden">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-xl font-bold text-blue-700">¡Bienvenido a CyberSentinel! 🔐</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-gray-700">
+    <p class="mb-4">Hemos preparado un recorrido rápido para que conozcas todas las funcionalidades del sistema.</p>
+    <p class="mb-4">Te mostraremos las principales secciones y herramientas disponibles para ayudarte a sacar el máximo provecho.</p>
+  </div>
+  <div class="flex justify-between mt-6">
+    <button id="tour-skip" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Más tarde</button>
+    <button id="tour-next-0" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Comenzar tour</button>
+  </div>
+</div>
+
+<!-- Modal del Panel Principal -->
+<div id="tour-modal-1" class="fixed top-1/4 left-64 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-md hidden">
+  <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+      1
+    </div>
+  </div>
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-blue-700">Panel Principal</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-gray-700 text-sm">
+    <p class="mb-2">Aquí encontrarás un resumen de toda la actividad de tu sistema.</p>
+    <p>Incluye estadísticas, alertas y eventos recientes para que tengas una visión general del estado de seguridad.</p>
+  </div>
+  <div class="flex justify-between mt-4">
+    <button class="tour-prev px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">Anterior</button>
+    <button class="tour-next px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">Siguiente</button>
+  </div>
+</div>
+
+<!-- Modal de Usuarios -->
+<div id="tour-modal-2" class="fixed top-1/4 left-64 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-md hidden">
+  <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+      2
+    </div>
+  </div>
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-blue-700">Gestión de Usuarios</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-gray-700 text-sm">
+    <p class="mb-2">Administra todos los usuarios del sistema con diferentes niveles de acceso.</p>
+    <p>Puedes crear, editar y desactivar cuentas según los roles necesarios para tu organización.</p>
+  </div>
+  <div class="flex justify-between mt-4">
+    <button class="tour-prev px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">Anterior</button>
+    <button class="tour-next px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">Siguiente</button>
+  </div>
+</div>
+
+<!-- Modal de Dispositivos -->
+<div id="tour-modal-3" class="fixed top-1/4 left-64 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-md hidden">
+  <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+      3
+    </div>
+  </div>
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-blue-700">Dispositivos</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-gray-700 text-sm">
+    <p class="mb-2">Visualiza todos los dispositivos conectados a tu red y su estado de seguridad.</p>
+    <p>Puedes realizar escaneos de vulnerabilidades y verificar la configuración de cada equipo.</p>
+  </div>
+  <div class="flex justify-between mt-4">
+    <button class="tour-prev px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">Anterior</button>
+    <button class="tour-next px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">Siguiente</button>
+  </div>
+</div>
+
+<!-- Modal de Monitoreo -->
+<div id="tour-modal-4" class="fixed top-1/4 left-64 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-md hidden">
+  <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+      4
+    </div>
+  </div>
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-blue-700">Monitoreo</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-gray-700 text-sm">
+    <p class="mb-2">Supervisa el tráfico de red en tiempo real para detectar posibles amenazas.</p>
+    <p>Analiza los paquetes de información y detecta patrones sospechosos automáticamente.</p>
+  </div>
+  <div class="flex justify-between mt-4">
+    <button class="tour-prev px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">Anterior</button>
+    <button class="tour-next px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">Siguiente</button>
+  </div>
+</div>
+
+<!-- Modal de Alertas -->
+<div id="tour-modal-5" class="fixed top-1/4 left-64 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-md hidden">
+  <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+      5
+    </div>
+  </div>
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-blue-700">Alertas</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-gray-700 text-sm">
+    <p class="mb-2">Recibe notificaciones inmediatas cuando se detecten amenazas o comportamientos sospechosos.</p>
+    <p>Configura niveles de alerta y personaliza las notificaciones según tus necesidades.</p>
+  </div>
+  <div class="flex justify-between mt-4">
+    <button class="tour-prev px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">Anterior</button>
+    <button class="tour-next px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">Siguiente</button>
+  </div>
+</div>
+
+<!-- Modal de Configuración -->
+<div id="tour-modal-6" class="fixed top-1/2 right-10 transform -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-md hidden">
+  <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+    <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+      6
+    </div>
+  </div>
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-blue-700">Configuración</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-gray-700 text-sm">
+    <p class="mb-2">Personaliza todos los aspectos del sistema según tus necesidades.</p>
+    <p>Ajusta la configuración de seguridad, programa escaneos automáticos y gestiona tus preferencias.</p>
+  </div>
+  <div class="flex justify-between mt-4">
+    <button class="tour-prev px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">Anterior</button>
+    <button class="tour-next px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">Siguiente</button>
+  </div>
+</div>
+
+<!-- Modal Final del Tour -->
+<div id="tour-modal-7" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 z-50 w-11/12 max-w-lg hidden">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-xl font-bold text-blue-700">¡Tour completado!</h3>
+    <button class="text-gray-500 hover:text-red-500 focus:outline-none tour-close">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="text-center">
+    <div class="text-green-500 mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <div class="text-gray-700">
+      <p class="mb-4">¡Ya conoces los aspectos básicos de CyberSentinel!</p>
+      <p class="mb-4">Si necesitas más información, puedes consultar nuestra guía completa en la sección de ayuda o contactar con soporte técnico.</p>
+    </div>
+  </div>
+  <div class="flex justify-center mt-6">
+    <button id="tour-finish" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">¡Entendido!</button>
+  </div>
+</div>
+
+<!-- Script para el tour -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si es la primera visita
+    const tourCompleted = localStorage.getItem('tourCompleted');
+    
+    if (!tourCompleted) {
+      // Mostrar el primer modal del tour después de un pequeño retraso
+      setTimeout(() => {
+        showTourModal(0);
+      }, 1000);
+    }
+    
+    // Configuración del tour
+    const totalSteps = 7;
+    let currentStep = 0;
+    
+    // Mostrar un modal específico
+    function showTourModal(step) {
+      // Ocultar todos los modales
+      for (let i = 0; i <= totalSteps; i++) {
+        document.getElementById(`tour-modal-${i}`).classList.add('hidden');
+      }
+      
+      // Mostrar el overlay si no es el último paso
+      if (step >= 0) {
+        document.getElementById('tour-overlay').classList.remove('hidden');
+      }
+      
+      // Mostrar el modal actual
+      if (step >= 0 && step <= totalSteps) {
+        document.getElementById(`tour-modal-${step}`).classList.remove('hidden');
+        currentStep = step;
+      }
+    }
+    
+    // Cerrar el tour
+    function closeTour() {
+      document.getElementById('tour-overlay').classList.add('hidden');
+      for (let i = 0; i <= totalSteps; i++) {
+        document.getElementById(`tour-modal-${i}`).classList.add('hidden');
+      }
+    }
+    
+    // Finalizar el tour y guardar en localStorage
+    function finishTour() {
+      localStorage.setItem('tourCompleted', 'true');
+      closeTour();
+    }
+    
+    // Evento para el botón "Siguiente" del modal inicial
+    document.getElementById('tour-next-0').addEventListener('click', () => {
+      showTourModal(1);
+    });
+    
+    // Evento para el botón "Finalizar" del último modal
+    document.getElementById('tour-finish').addEventListener('click', finishTour);
+    
+    // Evento para el botón "Más tarde"
+    document.getElementById('tour-skip').addEventListener('click', closeTour);
+    
+    // Botones de navegación
+    document.querySelectorAll('.tour-next').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showTourModal(currentStep + 1);
+      });
+    });
+    
+    document.querySelectorAll('.tour-prev').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showTourModal(currentStep - 1);
+      });
+    });
+    
+    // Botones de cierre
+    document.querySelectorAll('.tour-close').forEach(btn => {
+      btn.addEventListener('click', closeTour);
+    });
+    
+    // Si se hace clic en el overlay, cerrar el tour
+    document.getElementById('tour-overlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeTour();
+      }
+    });
+    
+    // Función para reiniciar el tour (útil para pruebas)
+    window.resetTour = function() {
+      localStorage.removeItem('tourCompleted');
+      showTourModal(0);
+    };
+  });
+</script>
+
+<!-- Botón para reiniciar el tour (solo para desarrollo, puedes eliminar en producción) -->
+<button onclick="resetTour()" class="fixed bottom-4 left-4 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm z-50 opacity-70 hover:opacity-100">
+  Reiniciar Tour
+</button>
+
+
+
+<script>
+  // Ejecuta al cargar la página
+  fetch('/ultimas-amenazas')
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) mostrarAlertas(data);
+      });
+</script>
+
 </body>
 </html>

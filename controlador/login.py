@@ -400,3 +400,14 @@ def listar_perfiles():
 
 #consultar por imaill 
 
+
+
+@login_bp.route('/ultimas-amenazas')
+def ultimas_amenazas():
+    conn = obtener_conexion()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT tipo, nivel, descripcion, ip_origen, fecha FROM eventos_seguridad ORDER BY fecha DESC LIMIT 5")
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(data)

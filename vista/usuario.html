@@ -7,6 +7,7 @@
     <script defer src="{{ url_for('static', filename='js/usuarios.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
     <style>
         .transition-all {
             transition: all 0.3s ease;
@@ -54,44 +55,39 @@
 <body class="bg-gradient-to-r from-slate-100 to-blue-100 dark:bg-gradient-to-r dark:from-gray-800 dark:to-slate-900 min-h-screen flex transition-all">
 
     <!-- Menú lateral -->
-    <aside class="w-16 md:w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col transition-all shadow-xl z-10">
-        <div class="p-4 text-center text-xl md:text-2xl font-bold border-b border-gray-700 flex items-center justify-center md:justify-start">
-            <span class="hidden md:inline">🔐 IDS System</span>
-            <span class="md:hidden">🔐</span>
+    <aside class="w-64 bg-gray-900 text-white flex flex-col">
+        <div class="p-6 text-center text-2xl font-bold border-b border-gray-700">
+          <span class="flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            IDS System
+          </span>
         </div>
-        <nav class="flex-1 p-2 md:p-4 space-y-2 text-sm overflow-y-auto">
-            <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="hidden md:inline">Panel principal</span>
+        <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
+          {% set menu_items = [
+            ('login.dashboard', 'layout-dashboard', 'Panel principal'),
+            ('login.usuario', 'users', 'Usuarios'),
+            ('login.perfil', 'shield', 'Perfiles'),
+            ('dispositivos.dispositivos', 'server', 'Dispositivos'),
+            ('login.monitoreo', 'activity', 'Monitoreo'),
+            ('login.alertas', 'alert-triangle', 'Alertas'),
+            (None, 'search', 'Eventos'),
+            (None, 'bar-chart-2', 'Reportes'),
+            (None, 'settings', 'Configuración'),
+            (None, 'log-out', 'Cerrar Sesión')
+          ] %}
+          {% for endpoint, icon, label in menu_items %}
+            <a href="{{ url_for(endpoint) if endpoint else '#' }}"
+               class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
+              <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
             </a>
-            <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-blue-600 shadow-lg' if request.endpoint == 'login.usuario' else '' }}">
-                <i data-lucide="users" class="w-5 h-5"></i><span class="hidden md:inline">Usuarios</span>
-            </a>
-            <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
-                <i data-lucide="shield" class="w-5 h-5"></i><span class="hidden md:inline">Perfiles</span>
-            </a>
-            <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
-                <i data-lucide="server" class="w-5 h-5"></i><span class="hidden md:inline">Dispositivos</span>
-            </a>
-            <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
-                <i data-lucide="rss" class="w-5 h-5"></i><span class="hidden md:inline">Monitoreo</span>
-            </a>
-            <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
-                <i data-lucide="alert-triangle" class="w-5 h-5"></i><span class="hidden md:inline">Alertas</span>
-            </a>
-            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
-                <i data-lucide="search" class="w-5 h-5"></i><span class="hidden md:inline">Eventos</span>
-            </a>
-            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
-                <i data-lucide="bar-chart" class="w-5 h-5"></i><span class="hidden md:inline">Reportes</span>
-            </a>
-            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
-                <i data-lucide="settings" class="w-5 h-5"></i><span class="hidden md:inline">Configuración</span>
-            </a>
-            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
-                <i data-lucide="log-out" class="w-5 h-5"></i><span class="hidden md:inline">Cerrar Sesión</span>
-            </a>
+          {% endfor %}
         </nav>
-    </aside>
+        <div class="p-4 text-xs text-gray-500 mt-auto text-center">
+          IDS System v1.2.0 | © 2025
+        </div>
+      </aside>
 
     <div class="flex-1 p-4 sm:p-6 md:pl-8">
         <!-- Barra superior con tema -->
