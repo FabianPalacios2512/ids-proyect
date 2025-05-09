@@ -1,129 +1,376 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="light">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios</title>
     <script defer src="{{ url_for('static', filename='js/usuarios.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        .slide-in {
+            animation: slideIn 0.3s forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '##f0f9ff',
+                            100: '##e0f2fe',
+                            200: '##bae6fd',
+                            300: '##7dd3fc',
+                            400: '##38bdf8',
+                            500: '##0ea5e9',
+                            600: '##0284c7',
+                            700: '##0369a1',
+                            800: '##075985',
+                            900: '##0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
+<body class="bg-gradient-to-r from-slate-100 to-blue-100 dark:bg-gradient-to-r dark:from-gray-800 dark:to-slate-900 min-h-screen flex transition-all">
 
-<body class="bg-gradient-to-r from-slate-100 to-blue-100 min-h-screen flex">
-
-   <!-- Menú lateral -->
-<aside class="w-64 bg-gray-900 text-white flex flex-col">
-    <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">🔐 IDS System</div>
-    <nav class="flex-1 p-4 space-y-2 text-sm">
-      <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
-        <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Panel principal</span>
-      </a>
-      <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
-        <i data-lucide="users" class="w-5 h-5"></i><span>Usuarios</span>
-      </a>
-      <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
-        <i data-lucide="shield" class="w-5 h-5"></i><span>Perfiles</span>
-      </a>
-      <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
-        <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
-      </a>
-      <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
-        <i data-lucide="rss" class="w-5 h-5"></i><span>Monitoreo</span>
-      </a>
-      <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
-        <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
-      </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-        <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
-      </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-        <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
-      </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-        <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
-      </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-        <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
-      </a>
-    </nav>
-  </aside>
-  
-  
-    <div class="flex-1 p-6 pl-16"> <!-- Agregamos padding-left aquí -->
-      <!-- Contenido principal -->
-      <div class="w-full max-w-6xl mx-auto bg-white shadow-2xl rounded-3xl p-10"> <!-- mx-auto para centrar el formulario -->
-        <h1 class="text-4xl font-bold text-center text-blue-700 mb-10">Gestión de Usuarios</h1>
-        
-        <form id="formulario-usuario" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <input type="hidden" id="id_usuario">
-  
-          <!-- Campos de entrada del formulario -->
-          <div class="col-span-1">
-            <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-            <input type="text" id="nombre" name="nombre" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-          </div>
-  
-          <div class="col-span-1">
-            <label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
-            <input type="text" id="apellido" name="apellido" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-          </div>
-  
-          <div class="col-span-1">
-            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-            <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-          </div>
-  
-          <div class="col-span-1">
-            <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
-            <input type="text" id="telefono" name="telefono" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-          </div>
-  
-          <div class="col-span-1">
-            <label for="perfil" class="block text-sm font-medium text-gray-700">Perfil</label>
-            <select id="perfil" name="perfil" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-              <!-- Opciones de perfil dinámicas -->
-            </select>
-          </div>
-  
-          <div class="col-span-1">
-            <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
-            <select id="estado" name="estado" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-            </select>
-          </div>
-  
-          <div class="col-span-2 text-center">
-            <button type="submit" class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Guardar</button>
-          </div>
-        </form>
-  
-        <h2 class="text-2xl font-semibold text-gray-700 mt-12 mb-4">Lista de Usuarios</h2>
-        <div class="overflow-x-auto rounded-xl shadow-md">
-          <table class="min-w-full bg-white text-sm text-gray-700">
-            <thead class="bg-blue-100 text-gray-800 text-left">
-              <tr>
-                <th class="px-4 py-3">Nombre</th>
-                <th class="px-4 py-3">Apellido</th>
-                <th class="px-4 py-3">Email</th>
-                <th class="px-4 py-3">Teléfono</th>
-                <th class="px-4 py-3">Perfil</th>
-                <th class="px-4 py-3">Estado</th>
-                <th class="px-4 py-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-usuarios" class="divide-y divide-gray-200">
-              <!-- Usuarios cargados dinámicamente -->
-            </tbody>
-          </table>
+    <!-- Menú lateral -->
+    <aside class="w-16 md:w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col transition-all shadow-xl z-10">
+        <div class="p-4 text-center text-xl md:text-2xl font-bold border-b border-gray-700 flex items-center justify-center md:justify-start">
+            <span class="hidden md:inline">🔐 IDS System</span>
+            <span class="md:hidden">🔐</span>
         </div>
-      </div>
+        <nav class="flex-1 p-2 md:p-4 space-y-2 text-sm overflow-y-auto">
+            <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="hidden md:inline">Panel principal</span>
+            </a>
+            <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-blue-600 shadow-lg' if request.endpoint == 'login.usuario' else '' }}">
+                <i data-lucide="users" class="w-5 h-5"></i><span class="hidden md:inline">Usuarios</span>
+            </a>
+            <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
+                <i data-lucide="shield" class="w-5 h-5"></i><span class="hidden md:inline">Perfiles</span>
+            </a>
+            <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
+                <i data-lucide="server" class="w-5 h-5"></i><span class="hidden md:inline">Dispositivos</span>
+            </a>
+            <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
+                <i data-lucide="rss" class="w-5 h-5"></i><span class="hidden md:inline">Monitoreo</span>
+            </a>
+            <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i><span class="hidden md:inline">Alertas</span>
+            </a>
+            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
+                <i data-lucide="search" class="w-5 h-5"></i><span class="hidden md:inline">Eventos</span>
+            </a>
+            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
+                <i data-lucide="bar-chart" class="w-5 h-5"></i><span class="hidden md:inline">Reportes</span>
+            </a>
+            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
+                <i data-lucide="settings" class="w-5 h-5"></i><span class="hidden md:inline">Configuración</span>
+            </a>
+            <a href="##" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-all">
+                <i data-lucide="log-out" class="w-5 h-5"></i><span class="hidden md:inline">Cerrar Sesión</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 p-4 sm:p-6 md:pl-8">
+        <!-- Barra superior con tema -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">
+                <i data-lucide="users" class="inline-block w-8 h-8 mr-2"></i> Gestión de Usuarios
+            </h1>
+            
+            <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">
+                <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+                <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+              </button>
+          </div>
+  
+          <!-- Contenido principal -->
+          <div class="w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 shadow-2xl rounded-3xl p-6 md:p-10 fade-in transition-all">
+              
+              <div class="mb-8 border-b dark:border-gray-700 pb-4">
+                  <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">Información del Usuario</h2>
+                  <p class="text-gray-600 dark:text-gray-400">Complete todos los campos para crear o actualizar un usuario</p>
+              </div>
+              
+              <form id="formulario-usuario" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input type="hidden" id="id_usuario">
+                  
+                  <!-- Campos de entrada del formulario -->
+                  <div class="col-span-1">
+                      <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <i data-lucide="user" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                          </div>
+                          <input type="text" id="nombre" name="nombre" class="pl-10 mt-1 block w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:text-white sm:text-sm transition-all" required>
+                      </div>
+                  </div>
+                  
+                  <div class="col-span-1">
+                      <label for="apellido" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <i data-lucide="user" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                          </div>
+                          <input type="text" id="apellido" name="apellido" class="pl-10 mt-1 block w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:text-white sm:text-sm transition-all" required>
+                      </div>
+                  </div>
+                  
+                  <div class="col-span-1">
+                      <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <i data-lucide="mail" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                          </div>
+                          <input type="email" id="email" name="email" class="pl-10 mt-1 block w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:text-white sm:text-sm transition-all" required>
+                      </div>
+                  </div>
+                  
+                  <div class="col-span-1">
+                      <label for="telefono" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <i data-lucide="phone" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                          </div>
+                          <input type="text" id="telefono" name="telefono" class="pl-10 mt-1 block w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:text-white sm:text-sm transition-all" required>
+                      </div>
+                  </div>
+                  
+                  <div class="col-span-1">
+                      <label for="perfil" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Perfil</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <i data-lucide="shield" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                          </div>
+                          <select id="perfil" name="perfil" class="pl-10 mt-1 block w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:text-white sm:text-sm transition-all" required>
+                              <!-- Opciones de perfil dinámicas -->
+                          </select>
+                      </div>
+                  </div>
+                  
+                  <div class="col-span-1">
+                      <label for="contrasena" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <i data-lucide="key" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                          </div>
+                          <input type="password" id="contrasena" name="contrasena" class="pl-10 mt-1 block w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:text-white sm:text-sm transition-all" required>
+                      </div>
+                  </div>
+                  
+                  <div class="col-span-1">
+                      <label for="estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <i data-lucide="activity" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                          </div>
+                          <select id="estado" name="estado" class="pl-10 mt-1 block w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:text-white sm:text-sm transition-all" required>
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-span-2 mt-4">
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all flex items-center justify-center">
+                            <i data-lucide="save" class="w-5 h-5 mr-2"></i> Guardar Usuario
+                        </button>
+                        <button type="reset" class="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-6 py-3 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all flex items-center justify-center">
+                            <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i> Limpiar Formulario
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="mt-12 mb-4 border-t dark:border-gray-700 pt-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white flex items-center">
+                        <i data-lucide="list" class="w-6 h-6 mr-2"></i> Lista de Usuarios
+                    </h2>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                        </div>
+                        <input type="text" id="buscar-usuario" placeholder="Buscar usuario..." 
+                               class="pl-10 py-2 pr-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 
+                                     text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto rounded-xl shadow-md bg-white dark:bg-gray-800 border dark:border-gray-700">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm text-gray-700 dark:text-gray-300">
+                        <thead class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 text-left">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold rounded-tl-xl">Nombre</th>
+                                <th class="px-4 py-3 font-semibold">Apellido</th>
+                                <th class="px-4 py-3 font-semibold">Email</th>
+                                <th class="px-4 py-3 font-semibold hidden sm:table-cell">Teléfono</th>
+                                <th class="px-4 py-3 font-semibold hidden md:table-cell">Perfil</th>
+                                <th class="px-4 py-3 font-semibold hidden lg:table-cell">Estado</th>
+                                <th class="px-4 py-3 text-center font-semibold rounded-tr-xl">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-usuarios" class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Usuarios cargados dinámicamente -->
+                            <tr class="text-center">
+                                <td colspan="7" class="px-4 py-8 text-gray-500 dark:text-gray-400">
+                                    <div class="flex flex-col items-center">
+                                        <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-3"></i>
+                                        <span>Cargando usuarios...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  
+    
+    <!-- Toast de notificación -->
+    <div id="toast" class="fixed top-5 right-5 max-w-sm px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-full opacity-0">
+        <div class="flex items-center">
+            <div id="toast-icon-container" class="mr-3">
+                <i id="toast-icon" data-lucide="alert-circle" class="w-6 h-6"></i>
+            </div>
+            <div class="flex-1">
+                <p id="toast-message" class="font-medium"></p>
+            </div>
+            <button onclick="document.getElementById('toast').classList.add('translate-x-full', 'opacity-0')" class="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
     <script>
-      lucide.createIcons(); // Inicializa los íconos de Lucide
+        // Inicializa los íconos de Lucide
+        lucide.createIcons();
+        
+        // Toggle de tema oscuro/claro
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Cargar tema guardado
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        
+        // Función para mostrar notificaciones
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            const iconContainer = document.getElementById('toast-icon-container');
+            
+            // Configurar tipo de notificación
+            if (tipo === 'success') {
+              toast.className = 'fixed top-5 right-5 max-w-sm px-4 py-3 bg-green-100 text-green-800 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 opacity-100';
+                toastIcon.setAttribute('name', 'check-circle');
+                iconContainer.className = 'mr-3 text-green-500';
+            } else if (tipo === 'error') {
+                toast.className = 'fixed top-5 right-5 max-w-sm px-4 py-3 bg-red-100 text-red-800 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 opacity-100';
+                toastIcon.setAttribute('name', 'alert-circle');
+                iconContainer.className = 'mr-3 text-red-500';
+            } else if (tipo === 'warning') {
+                toast.className = 'fixed top-5 right-5 max-w-sm px-4 py-3 bg-yellow-100 text-yellow-800 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 opacity-100';
+                toastIcon.setAttribute('name', 'alert-triangle');
+                iconContainer.className = 'mr-3 text-yellow-500';
+            } else if (tipo === 'info') {
+                toast.className = 'fixed top-5 right-5 max-w-sm px-4 py-3 bg-blue-100 text-blue-800 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 opacity-100';
+                toastIcon.setAttribute('name', 'info');
+                iconContainer.className = 'mr-3 text-blue-500';
+            }
+            
+            // Actualizar el mensaje
+            toastMessage.textContent = mensaje;
+            
+            // Recrear icono
+            lucide.createIcons({
+                icons: {
+                    'toast-icon': true
+                }
+            });
+            
+            // Auto ocultar después de 4 segundos
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 4000);
+        }
+        
+        // Ejemplo de búsqueda en la tabla (debes integrarlo con tu lógica)
+        document.getElementById('buscar-usuario').addEventListener('input', function(e) {
+            const valor = e.target.value.toLowerCase();
+            const filas = document.querySelectorAll('##tabla-usuarios tr:not(.text-center)');
+            
+            filas.forEach(fila => {
+                const texto = fila.textContent.toLowerCase();
+                fila.style.display = texto.includes(valor) ? '' : 'none';
+            });
+            
+            // Si no hay filas visibles después de filtrar
+            const filasVisibles = [...filas].filter(fila => fila.style.display !== 'none');
+            if (filasVisibles.length === 0 && valor !== '') {
+                const tbody = document.getElementById('tabla-usuarios');
+                const noResultados = document.querySelector('##tabla-usuarios .no-resultados');
+                
+                if (!noResultados) {
+                    const tr = document.createElement('tr');
+                    tr.className = 'no-resultados text-center';
+                    tr.innerHTML = `
+                        <td colspan="7" class="px-4 py-8 text-gray-500 dark:text-gray-400">
+                            <div class="flex flex-col items-center">
+                                <i data-lucide="search-x" class="w-10 h-10 mb-3"></i>
+                                <span>No se encontraron resultados para "${valor}"</span>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                    lucide.createIcons({
+                        icons: {
+                            'search-x': true
+                        }
+                    });
+                }
+            } else {
+                const noResultados = document.querySelector('##tabla-usuarios .no-resultados');
+                if (noResultados) {
+                    noResultados.remove();
+                }
+            }
+        });
     </script>
-  
-  </body>
-  
-</html>
+</body>
+</html>{}

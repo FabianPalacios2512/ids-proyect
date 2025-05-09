@@ -1,167 +1,821 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Monitoreo de Red</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema avanzado de monitoreo de red y detección de intrusiones">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Sistema de Monitoreo de Red | IDS</title>
+
+  <!-- Fuentes optimizadas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class'
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+              950: '#1e1b4b',
+            },
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
     };
   </script>
 
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
 
   <!-- Socket.IO -->
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
 
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
   <!-- Estilos personalizados -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/temas.css') }}">
-  <script src="{{ url_for('static', filename='js/tema.js') }}" defer></script>
-
+  
   <style>
+    /* Scrollbar personalizado */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(79, 70, 229, 0.5);
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(79, 70, 229, 0.8);
+    }
+    
+    .dark ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .dark ::-webkit-scrollbar-thumb {
+      background: rgba(165, 180, 252, 0.5);
+    }
+    
+    .dark ::-webkit-scrollbar-thumb:hover {
+      background: rgba(165, 180, 252, 0.8);
+    }
+
+    /* Tabla responsiva */
     .table-container {
-      max-height: 600px;
+      max-height: 60vh;
       overflow-y: auto;
       position: relative;
+      scrollbar-color: rgba(79, 70, 229, 0.5) rgba(0, 0, 0, 0.05);
+      scrollbar-width: thin;
     }
+    
+    @media (max-width: 1024px) {
+      .table-container {
+        max-height: 50vh;
+      }
+    }
+    
     #mensajeEstado {
-      font-size: 1.2rem;
-      font-weight: bold;
-      padding: 10px;
-      border-radius: 5px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
       text-align: center;
+      transition: all 0.3s ease;
     }
-    .dark .table-container table {
-      background-color: #1f2937;
-      color: #f3f4f6;
+    
+    .table-container thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
+    
+    .table-container table tr {
+      transition: background-color 0.2s;
+    }
+    
+    .table-container table tr:hover {
+      background-color: rgba(79, 70, 229, 0.05);
+    }
+    
+    .dark .table-container table tr:hover {
+      background-color: rgba(165, 180, 252, 0.05);
+    }
+    
     body {
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.5s, color 0.5s;
+      scroll-behavior: smooth;
+    }
+    
+    /* Animaciones y transiciones */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Estado de captura */
+    .state-active {
+      background-color: rgba(16, 185, 129, 0.1);
+      border-left: 4px solid #10b981;
+    }
+    
+    .state-inactive {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-left: 4px solid #ef4444;
+    }
+    
+    .dark .state-active {
+      background-color: rgba(16, 185, 129, 0.2);
+    }
+    
+    .dark .state-inactive {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Tooltip para filas largas */
+    .truncate-cell {
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   </style>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex font-sans transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col md:flex-row font-sans transition-colors duration-500">
   
   <!-- PANEL LATERAL -->
-  <aside class="w-64 bg-gray-900 text-white flex flex-col min-h-screen">
-    <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">🔐 IDS System</div>
-    <nav class="flex-1 p-4 space-y-2 text-sm">
-      <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
+  <aside class="w-full md:w-64 bg-primary-900 text-white flex flex-col md:min-h-screen shadow-lg z-20">
+    <div class="p-4 text-center text-xl font-bold border-b border-primary-700 flex items-center justify-center gap-2">
+      <span class="text-2xl">🔐</span>
+      <span>IDS System</span>
+    </div>
+    
+    <div class="md:hidden flex justify-end p-2">
+      <button id="menuToggle" class="text-white p-2 focus:outline-none">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+    
+    <nav id="sideMenu" class="flex-1 p-3 space-y-1 text-sm hidden md:block">
+      <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
         <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Panel principal</span>
       </a>
-      <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
+      <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
         <i data-lucide="users" class="w-5 h-5"></i><span>Usuarios</span>
       </a>
-      <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
+      <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
         <i data-lucide="shield" class="w-5 h-5"></i><span>Perfiles</span>
       </a>
-      <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
+      <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
         <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
       </a>
-      <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
-        <i data-lucide="rss" class="w-5 h-5"></i><span>Monitoreo</span>
+      <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-3 p-3 bg-primary-700 text-white font-medium rounded-lg shadow-md transition-all duration-200">
+        <i data-lucide="activity" class="w-5 h-5"></i><span>Monitoreo</span>
       </a>
-      <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
+      <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
         <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
       </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+      
+      <div class="pt-2 pb-2">
+        <div class="border-t border-primary-700 my-2"></div>
+      </div>
+      
+      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200">
         <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
       </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-        <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
+      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200">
+        <i data-lucide="bar-chart-2" class="w-5 h-5"></i><span>Reportes</span>
       </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200">
         <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
       </a>
-      <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-        <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
-      </a>
+      
+      <div class="pt-2 mt-auto">
+        <div class="border-t border-primary-700 my-2"></div>
+        <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 text-red-200">
+          <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
+        </a>
+      </div>
     </nav>
   </aside>
 
   <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-5xl font-extrabold text-indigo-700 dark:text-indigo-300">Monitoreo de Red</h1>
-      <button id="temaSwitch" class="flex items-center transition duration-300 ease-in-out bg-gray-800 text-white px-4 py-2 rounded shadow hover:bg-gray-700">
-        🌙 Tema Oscuro
+  <main class="flex-1 p-4 md:p-6 overflow-hidden">
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div>
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary-700 dark:text-primary-300 tracking-tight">
+          Monitoreo de Red
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">
+          Control y análisis de tráfico en tiempo real
+        </p>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <span id="currentDateTime" class="text-sm text-gray-600 dark:text-gray-400 hidden md:inline-block"></span>
+        <button id="temaSwitch" class="flex items-center justify-center transition duration-300 ease-in-out bg-gray-800 dark:bg-gray-700 text-white px-3 py-2 rounded-full shadow hover:bg-gray-700 dark:hover:bg-gray-600">
+          <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+          <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-primary-600">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Paquetes Capturados</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="paquetesTotal">0</h3>
+          </div>
+          <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+            <i data-lucide="package" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-green-600">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Tráfico Normal</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="traficoNormal">0</h3>
+          </div>
+          <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+            <i data-lucide="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-amber-600">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Alertas</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="alertasTotal">0</h3>
+          </div>
+          <div class="bg-amber-100 dark:bg-amber-900 p-3 rounded-full">
+            <i data-lucide="alert-circle" class="w-6 h-6 text-amber-600 dark:text-amber-400"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-red-600">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Amenazas</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="amenazasTotal">0</h3>
+          </div>
+          <div class="bg-red-100 dark:bg-red-900 p-3 rounded-full">
+            <i data-lucide="shield-alert" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-center mb-6 gap-3">
+      <button id="btnIniciar" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
+        <i data-lucide="play" class="w-5 h-5"></i> Iniciar Captura
+      </button>
+      <button id="btnDetener" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2 opacity-50 cursor-not-allowed" disabled>
+        <i data-lucide="square" class="w-5 h-5"></i> Detener Captura
+      </button>
+      <button id="btnFiltrar" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
+        <i data-lucide="filter" class="w-5 h-5"></i> Filtros
+      </button>
+      <button id="btnExportar" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
+        <i data-lucide="download" class="w-5 h-5"></i> Exportar
+      </button>
+      <button id="btnRegresar" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i> Regresar
       </button>
     </div>
 
-    <div class="flex justify-center mb-6 gap-4">
-      <button id="btnIniciar" class="bg-green-500 text-white px-4 py-2 rounded">▶️ Iniciar Captura</button>
-      <button id="btnDetener" class="bg-red-500 text-white px-4 py-2 rounded opacity-50 cursor-not-allowed" disabled>🛑 Detener Captura</button>
-      <button id="btnRegresar" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300">Regresar al Panel</button>
+    <div id="mensajeEstado" class="state-inactive mb-6">
+      <span class="inline-flex items-center gap-2">
+        <i data-lucide="pause-circle" class="w-5 h-5"></i>
+        Captura detenida
+      </span>
     </div>
 
-    <p id="mensajeEstado" class="mt-4 font-semibold text-lg"></p>
-
-    <div class="flex justify-center mb-6">
-      <input type="text" id="buscador" placeholder="Buscar..." class="p-3 border border-gray-300 rounded-lg w-1/2 shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+      <div class="w-full md:w-1/2">
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5"></i>
+          <input type="text" id="buscador" placeholder="Buscar por IP, puerto, protocolo..." class="pl-10 p-3 border border-gray-300 dark:border-gray-700 rounded-lg w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
+        </div>
+      </div>
+      
+      <div class="flex flex-wrap gap-2 w-full md:w-auto">
+        <select id="filtroProtocolo" class="p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
+          <option value="">Todos los protocolos</option>
+          <option value="TCP">TCP</option>
+          <option value="UDP">UDP</option>
+          <option value="ICMP">ICMP</option>
+          <option value="HTTP">HTTP</option>
+          <option value="HTTPS">HTTPS</option>
+          <option value="DNS">DNS</option>
+        </select>
+        
+        <select id="filtroTamaño" class="p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
+          <option value="">Todos los tamaños</option>
+          <option value="pequeño">Pequeños (&lt; 100 bytes)</option>
+          <option value="mediano">Medianos (100-1000 bytes)</option>
+          <option value="grande">Grandes (&gt; 1000 bytes)</option>
+        </select>
+      </div>
     </div>
 
-    <div class="table-container bg-white dark:bg-gray-800 dark:text-white p-6 rounded-lg shadow-lg overflow-auto">
+    <div class="table-container bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg shadow-lg overflow-hidden mb-6">
       <table class="w-full text-sm text-left border-collapse">
-        <thead class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 uppercase text-xs font-semibold">
+        <thead class="bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200 uppercase text-xs font-semibold sticky top-0">
           <tr>
-            <th class="p-3">ID</th>
-            <th class="p-3">IP Origen</th>
-            <th class="p-3">IP Destino</th>
-            <th class="p-3">MAC Origen</th>
-            <th class="p-3">MAC Destino</th>
-            <th class="p-3">Puerto Origen</th>
-            <th class="p-3">Puerto Destino</th>
-            <th class="p-3">Protocolo</th>
-            <th class="p-3">Tamaño</th>
-            <th class="p-3">Fecha Captura</th>
-            <th class="p-3">TTL</th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="id">
+              <div class="flex items-center gap-1">
+                ID <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="ip_origen">
+              <div class="flex items-center gap-1">
+                IP Origen <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="ip_destino">
+              <div class="flex items-center gap-1">
+                IP Destino <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="mac_origen">
+              <div class="flex items-center gap-1">
+                MAC Origen <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="mac_destino">
+              <div class="flex items-center gap-1">
+                MAC Destino <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="puerto_origen">
+              <div class="flex items-center gap-1">
+                Puerto Origen <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="puerto_destino">
+              <div class="flex items-center gap-1">
+                Puerto Destino <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="protocolo">
+              <div class="flex items-center gap-1">
+                Protocolo <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="tamaño">
+              <div class="flex items-center gap-1">
+                Tamaño <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="fecha">
+              <div class="flex items-center gap-1">
+                Fecha <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
+            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="ttl">
+              <div class="flex items-center gap-1">
+                TTL <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </th>
           </tr>
         </thead>
-        <tbody id="packetTable" class="text-center bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
+        <tbody id="packetTable" class="text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
           {% for p in paquetes %}
-          <tr>
-            <td class="p-2">{{ p[0] or 'N/A' }}</td>
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
+            <td class="p-2 text-center">{{ p[0] or 'N/A' }}</td>
             <td class="p-2">{{ p[1] or 'N/A' }}</td>
             <td class="p-2">{{ p[2] or 'N/A' }}</td>
-            <td class="p-2">{{ p[3] or 'N/A' }}</td>
-            <td class="p-2">{{ p[4] or 'N/A' }}</td>
-            <td class="p-2">{{ p[5] or 'N/A' }}</td>
-            <td class="p-2">{{ p[6] or 'N/A' }}</td>
-            <td class="p-2">{{ p[7] or 'N/A' }}</td>
-            <td class="p-2">{{ p[8] or 'N/A' }}</td>
+            <td class="p-2 truncate-cell" title="{{ p[3] or 'N/A' }}">{{ p[3] or 'N/A' }}</td>
+            <td class="p-2 truncate-cell" title="{{ p[4] or 'N/A' }}">{{ p[4] or 'N/A' }}</td>
+            <td class="p-2 text-center">{{ p[5] or 'N/A' }}</td>
+            <td class="p-2 text-center">{{ p[6] or 'N/A' }}</td>
+            <td class="p-2">
+              {% if p[7] == 'TCP' %}
+              <span class="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-xs font-medium">TCP</span>
+              {% elif p[7] == 'UDP' %}
+              <span class="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">UDP</span>
+              {% elif p[7] == 'ICMP' %}
+              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 rounded-full text-xs font-medium">ICMP</span>
+              {% elif p[7] == 'HTTP' %}
+              <span class="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full text-xs font-medium">HTTP</span>
+              {% elif p[7] == 'HTTPS' %}
+              <span class="px-2 py-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full text-xs font-medium">HTTPS</span>
+              {% else %}
+              <span class="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-full text-xs font-medium">{{ p[7] or 'N/A' }}</span>
+              {% endif %}
+            </td>
+            <td class="p-2 text-right">{{ p[8] or 'N/A' }}</td>
             <td class="p-2">{{ p[9] or 'N/A' }}</td>
-            <td class="p-2">{{ p[10] or 'N/A' }}</td>
+            <td class="p-2 text-center">{{ p[10] or 'N/A' }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 class="text-lg font-semibold text-indigo-700 dark:text-indigo-300 mb-3">📈 Tráfico en Tiempo Real</h3>
-        <canvas id="trafficChart"></canvas>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">Tráfico en Tiempo Real</h3>
+          <div class="flex gap-2">
+            <button class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-time="1m">1m</button>
+            <button class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-time="5m">5m</button>
+            <button class="text-xs bg-primary-100 dark:bg-primary-800 px-2 py-1 rounded text-primary-700 dark:text-primary-200 font-medium" data-time="15m">15m</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="trafficChart"></canvas>
+        </div>
       </div>
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 class="text-lg font-semibold text-indigo-700 dark:text-indigo-300 mb-3">🔍 Protocolos Detectados</h3>
-        <canvas id="protocolChart"></canvas>
+      
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">Protocolos Detectados</h3>
+          <div class="flex gap-2">
+            <button class="text-xs bg-primary-100 dark:bg-primary-800 px-2 py-1 rounded text-primary-700 dark:text-primary-200 font-medium" data-chart="pie">Circular</button>
+            <button class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-chart="bar">Barras</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="protocolChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Distribución por Puertos</h3>
+        <div class="h-64">
+          <canvas id="portChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Actividad por IP</h3>
+        <div class="h-64">
+          <canvas id="ipChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Tamaño de Paquetes</h3>
+        <div class="h-64">
+          <canvas id="sizeChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Contenedor de Alertas -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300">Alertas Recientes</h3>
+        <a href="{{ url_for('login.alertas') }}" class="text-primary-600 dark:text-primary-400 hover:underline text-sm flex items-center">
+          Ver todas <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+        </a>
+      </div>
+      
+      <div id="alertasContainer" class="space-y-3">
+        <!-- Las alertas se cargarán dinámicamente aquí -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-amber-500 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="bg-amber-100 dark:bg-amber-900 p-2 rounded-full">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-800 dark:text-gray-200">Tráfico UDP inusual</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Desde 192.168.1.45 - Hace 5 minutos</p>
+            </div>
+          </div>
+          <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
     </div>
   </main>
 
-  <!-- Script principal -->
-  <script src="{{ url_for('static', filename='js/monitoreo.js') }}"></script>
+  <!-- PANEL DE DETALLES (oculto por defecto) -->
+  <div id="detallesPanel" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-lg shadow-2xl p-6 max-h-[90vh] overflow-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-primary-700 dark:text-primary-300">Detalles del Paquete</h3>
+        <button id="cerrarDetalles" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Información Básica</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">ID:</span>
+              <span id="detalleId" class="font-medium text-gray-800 dark:text-gray-200">12345</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">Protocolo:</span>
+              <span id="detalleProtocolo" class="font-medium text-gray-800 dark:text-gray-200">TCP</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">Tamaño:</span>
+              <span id="detalleTamaño" class="font-medium text-gray-800 dark:text-gray-200">1024 bytes</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">Fecha captura:</span>
+              <span id="detalleFecha" class="font-medium text-gray-800 dark:text-gray-200">2025-05-02 15:30:45</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">TTL:</span>
+              <span id="detalleTTL" class="font-medium text-gray-800 dark:text-gray-200">64</span>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Direcciones</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">IP Origen:</span>
+              <span id="detalleIPOrigen" class="font-medium text-gray-800 dark:text-gray-200">192.168.1.100</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">IP Destino:</span>
+              <span id="detalleIPDestino" class="font-medium text-gray-800 dark:text-gray-200">10.0.0.1</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">MAC Origen:</span>
+              <span id="detalleMACOrigen" class="font-medium text-gray-800 dark:text-gray-200">00:1A:2B:3C:4D:5E</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">MAC Destino:</span>
+              <span id="detalleMACDestino" class="font-medium text-gray-800 dark:text-gray-200">00:5E:4D:3C:2B:1A</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">Puerto Origen:</span>
+              <span id="detallePuertoOrigen" class="font-medium text-gray-800 dark:text-gray-200">54321</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+              <span class="text-gray-600 dark:text-gray-400">Puerto Destino:</span>
+              <span id="detallePuertoDestino" class="font-medium text-gray-800 dark:text-gray-200">80</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Análisis de Seguridad</h4>
+        <div id="detalleAnalisis" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="bg-green-100 dark:bg-green-900 p-2 rounded-full">
+              <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+            </div>
+            <span class="text-green-600 dark:text-green-400 font-medium">Tráfico Normal</span>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300">No se detectaron anomalías en este paquete.</p>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Contenido del Paquete</h4>
+        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+          <pre id="detalleContenido" class="text-xs font-mono whitespace-pre-wrap overflow-x-auto text-gray-800 dark:text-gray-200">
+0000   45 00 00 28 ab cd 40 00 40 06 a6 ec c0 a8 01 64
+0010   0a 00 00 01 d4 31 00 50 a1 b2 c3 d4 e5 f6 a7 b8
+0020   50 10 01 00 ce 9c 00 00
+          </pre>
+        </div>
+      </div>
+      
+      <div class="mt-6 flex justify-end gap-3">
+        <button class="bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg transition-colors duration-300 flex items-center gap-2">
+          <i data-lucide="printer" class="w-5 h-5"></i> Imprimir
+        </button>
+        <button class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center gap-2">
+          <i data-lucide="download" class="w-5 h-5"></i> Exportar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL DE FILTROS (oculto por defecto) -->
+  <div id="filtrosPanel" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-lg shadow-2xl p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-primary-700 dark:text-primary-300">Filtros Avanzados</h3>
+        <button id="cerrarFiltros" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      
+      <form id="formFiltros" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="filtroIPOrigen" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IP Origen</label>
+            <input type="text" id="filtroIPOrigen" placeholder="Ej: 192.168.1.100" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+          </div>
+          <div>
+            <label for="filtroIPDestino" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IP Destino</label>
+            <input type="text" id="filtroIPDestino" placeholder="Ej: 10.0.0.1" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="filtroPuertoOrigen" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Puerto Origen</label>
+            <input type="number" id="filtroPuertoOrigen" placeholder="Ej: 8080" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+          </div>
+          <div>
+            <label for="filtroPuertoDestino" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Puerto Destino</label>
+            <input type="number" id="filtroPuertoDestino" placeholder="Ej: 80" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+          </div>
+        </div>
+        
+        <div>
+          <label for="filtroProtocoloAvanzado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Protocolo</label>
+          <select id="filtroProtocoloAvanzado" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+            <option value="">Todos los protocolos</option>
+            <option value="TCP">TCP</option>
+            <option value="UDP">UDP</option>
+            <option value="ICMP">ICMP</option>
+            <option value="HTTP">HTTP</option>
+            <option value="HTTPS">HTTPS</option>
+            <option value="DNS">DNS</option>
+            <option value="ARP">ARP</option>
+            <option value="NTP">NTP</option>
+            <option value="SMTP">SMTP</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rango de tamaño (bytes)</label>
+          <div class="flex items-center space-x-4">
+            <input type="number" id="filtroTamañoMin" placeholder="Mínimo" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+            <span class="text-gray-500">a</span>
+            <input type="number" id="filtroTamañoMax" placeholder="Máximo" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rango de fechas</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="datetime-local" id="filtroFechaInicio" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+            <input type="datetime-local" id="filtroFechaFin" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
+          </div>
+        </div>
+        
+        <div class="flex justify-between pt-4">
+          <button type="button" id="limpiarFiltros" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300">
+            Limpiar Filtros
+          </button>
+          <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300">
+            Aplicar Filtros
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Script para fecha y hora actual -->
   <script>
-    lucide.createIcons();
+    function actualizarFechaHora() {
+      const ahora = new Date();
+      const opciones = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      };
+      document.getElementById('currentDateTime').textContent = ahora.toLocaleDateString('es-ES', opciones);
+    }
+    
+    // Actualizar la fecha y hora cada segundo
+    actualizarFechaHora();
+    setInterval(actualizarFechaHora, 1000);
+    
+    // Manejo del menú en dispositivos móviles
+    document.getElementById('menuToggle').addEventListener('click', function() {
+      const menu = document.getElementById('sideMenu');
+      menu.classList.toggle('hidden');
+    });
+    
+    // Inicializar los iconos de Lucide
+    document.addEventListener('DOMContentLoaded', function() {
+      lucide.createIcons();
+      
+      // Funcionalidad para el cambio de tema
+      const temaSwitch = document.getElementById('temaSwitch');
+      temaSwitch.addEventListener('click', function() {
+        document.documentElement.classList.toggle('dark');
+        
+        // Guardar preferencia en localStorage
+        if (document.documentElement.classList.contains('dark')) {
+          localStorage.setItem('theme', 'dark');
+        } else {
+          localStorage.setItem('theme', 'light');
+        }
+      });
+      
+      // Mostrar panel de detalles al hacer clic en una fila
+      const filas = document.querySelectorAll('#packetTable tr');
+      filas.forEach(fila => {
+        fila.addEventListener('click', function() {
+          document.getElementById('detallesPanel').classList.remove('hidden');
+        });
+      });
+      
+      // Cerrar panel de detalles
+      document.getElementById('cerrarDetalles').addEventListener('click', function() {
+        document.getElementById('detallesPanel').classList.add('hidden');
+      });
+      
+      // Mostrar panel de filtros
+      document.getElementById('btnFiltrar').addEventListener('click', function() {
+        document.getElementById('filtrosPanel').classList.remove('hidden');
+      });
+      
+      // Cerrar panel de filtros
+      document.getElementById('cerrarFiltros').addEventListener('click', function() {
+        document.getElementById('filtrosPanel').classList.add('hidden');
+      });
+      
+      // Botones de inicio y detención
+      document.getElementById('btnIniciar').addEventListener('click', function() {
+        this.disabled = true;
+        this.classList.add('opacity-50', 'cursor-not-allowed');
+        document.getElementById('btnDetener').disabled = false;
+        document.getElementById('btnDetener').classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        document.getElementById('mensajeEstado').className = 'state-active mb-6';
+        document.getElementById('mensajeEstado').innerHTML = '<span class="inline-flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5"></i>Captura en curso</span>';
+        lucide.createIcons();
+      });
+      
+      document.getElementById('btnDetener').addEventListener('click', function() {
+        this.disabled = true;
+        this.classList.add('opacity-50', 'cursor-not-allowed');
+        document.getElementById('btnIniciar').disabled = false;
+        document.getElementById('btnIniciar').classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        document.getElementById('mensajeEstado').className = 'state-inactive mb-6';
+        document.getElementById('mensajeEstado').innerHTML = '<span class="inline-flex items-center gap-2"><i data-lucide="pause-circle" class="w-5 h-5"></i>Captura detenida</span>';
+        lucide.createIcons();
+      });
+    });
+    
+    // Comprobar tema guardado
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   </script>
+
+  <!-- Cargar los scripts de las gráficas después de que la página esté lista -->
+  <script src="{{ url_for('static', filename='js/monitoreo.js') }}" defer></script>
 </body>
 </html>

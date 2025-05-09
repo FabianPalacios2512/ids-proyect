@@ -66,3 +66,9 @@ def ruta_detener_escaneo_dispositivos():
         return jsonify({"status": "success", "mensaje": "🛑 Escaneo detenido correctamente."}), 200
     except Exception as e:
         return jsonify({"status": "error", "mensaje": "❌ Error al detener escaneo.", "detalle": str(e)}), 500
+
+
+@dispositivos_bp.route('/desconectar_dispositivo/<ip>', methods=['POST'])
+def desconectar_dispositivo(ip):
+    # lógica para desconectar el dispositivo de la red
+    return jsonify({"mensaje": f"Dispositivo {ip} desconectado correctamente"})

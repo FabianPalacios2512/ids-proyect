@@ -1,0 +1,573 @@
+2025-05-02 20:06:40,807 - IDS - INFO - ✨ Iniciando Sistema de Detección de Intrusos
+2025-05-02 20:06:40,807 - IDS - INFO - 👮 Iniciando controlador de resilencia
+2025-05-02 20:06:40,808 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 20:06:40,808 - IDS - INFO - 📊 Iniciando monitor del sistema
+2025-05-02 20:06:40,808 - IDS - INFO - ✅ Sistema IDS iniciado y funcionando
+2025-05-02 20:06:40,808 - IDS - INFO - ✅ Trabajador analisis_1 iniciado/reiniciado
+2025-05-02 20:06:40,808 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:06:40,809 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 20:06:40,809 - IDS - INFO - ✅ Trabajador analisis_2 iniciado/reiniciado
+2025-05-02 20:06:40,809 - IDS - INFO - 💾 Iniciando trabajador de base de datos
+2025-05-02 20:06:40,809 - IDS - INFO - ✅ Trabajador bd iniciado/reiniciado
+2025-05-02 20:06:40,809 - IDS - INFO - ✅ Trabajador eventos iniciado/reiniciado
+2025-05-02 20:06:50,810 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:07:00,812 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:07:10,809 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:07:10,814 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:07:20,816 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:07:30,818 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:07:40,809 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:07:40,820 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:07:50,821 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:08:00,823 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:08:10,810 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:08:10,825 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:08:20,826 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:08:30,828 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:08:40,810 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:08:40,830 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:08:50,832 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:09:00,833 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:09:10,811 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:09:10,835 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:09:20,837 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:09:30,838 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:09:40,811 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:09:40,840 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:09:50,841 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:10:00,843 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:10:10,811 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:10:10,845 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:10:20,846 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:10:30,848 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:10:40,811 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:10:40,850 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:10:50,852 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:11:00,853 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:11:10,812 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:11:10,855 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:11:20,857 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:11:30,860 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:11:40,812 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:11:40,862 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:11:50,863 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:12:00,865 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:12:10,815 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:12:10,867 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:12:20,868 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:12:30,869 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:12:40,815 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:12:40,873 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:12:50,875 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:13:00,877 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:13:10,816 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:13:10,878 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:13:20,880 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:13:30,881 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:13:40,816 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:13:40,883 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:13:50,885 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:14:00,887 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:14:10,816 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:14:10,888 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:14:20,890 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:14:30,892 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:14:40,817 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:14:40,893 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:14:50,898 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:15:00,900 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:15:10,817 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:15:10,901 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:15:20,907 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:15:30,908 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:15:40,818 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:15:40,910 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:15:50,913 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:16:00,915 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:16:10,818 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:16:10,917 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:16:20,918 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:16:30,920 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:16:40,818 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:16:40,921 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:16:50,923 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:17:00,924 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:17:10,819 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:17:10,926 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:17:20,928 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:17:30,929 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:17:40,819 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:17:40,931 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:17:50,933 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:18:00,935 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:18:10,819 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:18:10,936 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:18:20,938 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:18:30,939 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:18:40,820 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:18:40,941 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:18:50,943 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:19:00,944 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:19:10,820 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:19:10,946 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:19:20,948 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:19:30,950 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:19:40,820 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 20:19:40,951 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 20:19:50,952 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:06:55,086 - IDS - INFO - ✨ Iniciando Sistema de Detección de Intrusos
+2025-05-02 22:06:55,094 - IDS - INFO - 👮 Iniciando controlador de resilencia
+2025-05-02 22:06:55,094 - IDS - INFO - 📊 Iniciando monitor del sistema
+2025-05-02 22:06:55,094 - IDS - INFO - ✅ Sistema IDS iniciado y funcionando
+2025-05-02 22:06:55,094 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:06:55,094 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:06:55,094 - IDS - INFO - ✅ Trabajador analisis_1 iniciado/reiniciado
+2025-05-02 22:06:55,094 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:06:55,095 - IDS - INFO - ✅ Trabajador analisis_2 iniciado/reiniciado
+2025-05-02 22:06:55,095 - IDS - INFO - 💾 Iniciando trabajador de base de datos
+2025-05-02 22:06:55,095 - IDS - INFO - ✅ Trabajador bd iniciado/reiniciado
+2025-05-02 22:06:55,095 - IDS - INFO - ✅ Trabajador eventos iniciado/reiniciado
+2025-05-02 22:07:05,096 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:07:15,098 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:07:25,094 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:07:25,099 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:07:35,100 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:07:45,102 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:07:55,095 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:07:55,103 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:08:05,104 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:08:15,105 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:08:25,095 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:08:25,107 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:08:35,108 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:08:45,109 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:08:55,095 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:08:55,110 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:09:05,112 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:09:15,113 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:09:25,095 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:09:25,115 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:09:35,116 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:09:45,117 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:09:55,096 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:09:55,119 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:10:05,120 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:10:15,122 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:10:25,096 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:10:25,123 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:10:35,124 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:10:45,126 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:10:55,096 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:10:55,127 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:11:05,128 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:11:15,130 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:11:25,096 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:11:25,131 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:11:35,132 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:11:45,133 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:11:55,097 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:11:55,135 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:12:05,136 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:12:15,138 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:12:25,097 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:12:25,139 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:12:35,140 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:12:45,141 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:12:55,097 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:12:55,142 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:13:05,144 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:13:15,145 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:13:25,097 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:13:25,147 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:13:35,149 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:13:45,150 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:13:55,098 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:13:55,152 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:14:05,153 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:14:15,154 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:14:35,186 - IDS - INFO - ✨ Iniciando Sistema de Detección de Intrusos
+2025-05-02 22:14:35,186 - IDS - INFO - 👮 Iniciando controlador de resilencia
+2025-05-02 22:14:35,186 - IDS - INFO - 📊 Iniciando monitor del sistema
+2025-05-02 22:14:35,186 - IDS - INFO - ✅ Sistema IDS iniciado y funcionando
+2025-05-02 22:14:35,187 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:14:35,187 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:14:35,187 - IDS - INFO - ✅ Trabajador analisis_1 iniciado/reiniciado
+2025-05-02 22:14:35,187 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:14:35,187 - IDS - INFO - ✅ Trabajador analisis_2 iniciado/reiniciado
+2025-05-02 22:14:35,187 - IDS - INFO - 💾 Iniciando trabajador de base de datos
+2025-05-02 22:14:35,187 - IDS - INFO - ✅ Trabajador bd iniciado/reiniciado
+2025-05-02 22:14:35,187 - IDS - INFO - ✅ Trabajador eventos iniciado/reiniciado
+2025-05-02 22:14:45,188 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:14:55,189 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:15:05,187 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:15:05,191 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:15:15,192 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:15:25,193 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:15:35,187 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:15:35,195 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:15:45,196 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:15:55,198 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:16:05,187 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:16:05,199 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:16:15,200 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:16:25,202 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:16:35,188 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:16:35,204 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:16:45,205 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:16:55,206 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:17:05,188 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:17:05,208 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:17:15,210 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:17:25,211 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:17:35,188 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:17:35,212 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:17:45,214 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:17:55,215 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:18:05,189 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:18:05,217 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:18:15,218 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:18:25,219 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:18:35,189 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:18:35,221 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:18:45,222 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:18:55,223 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:19:05,189 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:19:05,224 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:19:15,225 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:19:25,227 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:19:35,190 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:19:35,228 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:19:45,229 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:19:55,230 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:20:05,190 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:20:05,232 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:20:15,233 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:20:25,234 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:20:35,190 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:20:35,236 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:20:45,237 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:20:55,239 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:21:05,190 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:21:05,240 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:21:15,241 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:21:41,480 - IDS - INFO - ✨ Iniciando Sistema de Detección de Intrusos
+2025-05-02 22:21:41,480 - IDS - INFO - 🌐 Interfaces de red disponibles: lo, eth0, wlan0, docker0
+2025-05-02 22:21:41,481 - IDS - INFO - 👮 Iniciando controlador de resilencia
+2025-05-02 22:21:41,481 - IDS - INFO - 📊 Iniciando monitor del sistema
+2025-05-02 22:21:41,481 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:21:41,481 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:21:41,481 - IDS - INFO - ✅ Trabajador analisis_1 iniciado/reiniciado
+2025-05-02 22:21:41,482 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:21:41,482 - IDS - INFO - ✅ Trabajador analisis_2 iniciado/reiniciado
+2025-05-02 22:21:41,482 - IDS - INFO - 💾 Iniciando trabajador de base de datos
+2025-05-02 22:21:41,482 - IDS - INFO - ✅ Trabajador bd iniciado/reiniciado
+2025-05-02 22:21:41,482 - IDS - INFO - ✅ Trabajador eventos iniciado/reiniciado
+2025-05-02 22:21:51,483 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:22:01,484 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:22:03,299 - IDS - INFO - ✅ Sistema IDS iniciado y funcionando
+2025-05-02 22:22:11,482 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:22:11,486 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:22:21,488 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:22:31,489 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:22:41,482 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:22:41,490 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:22:51,492 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:23:01,493 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:23:11,482 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:23:11,495 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:23:21,496 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:23:28,863 - IDS - INFO - ✨ Iniciando Sistema de Detección de Intrusos
+2025-05-02 22:23:28,863 - IDS - INFO - 🌐 Interfaces de red disponibles: lo, eth0, wlan0, docker0
+2025-05-02 22:23:28,863 - IDS - INFO - 👮 Iniciando controlador de resilencia
+2025-05-02 22:23:28,863 - IDS - INFO - 📊 Iniciando monitor del sistema
+2025-05-02 22:23:28,863 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:23:28,863 - IDS - INFO - ✅ Trabajador analisis_1 iniciado/reiniciado
+2025-05-02 22:23:28,863 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:23:28,864 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-02 22:23:28,864 - IDS - INFO - ✅ Trabajador analisis_2 iniciado/reiniciado
+2025-05-02 22:23:28,864 - IDS - INFO - 💾 Iniciando trabajador de base de datos
+2025-05-02 22:23:28,864 - IDS - INFO - ✅ Trabajador bd iniciado/reiniciado
+2025-05-02 22:23:28,864 - IDS - INFO - ✅ Trabajador eventos iniciado/reiniciado
+2025-05-02 22:23:38,865 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:23:39,147 - IDS - INFO - ✅ Sistema IDS iniciado y funcionando
+2025-05-02 22:23:48,866 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:23:58,864 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:23:58,868 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:24:08,870 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:24:18,871 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:24:28,864 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000
+2025-05-02 22:24:28,872 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:24:38,874 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-02 22:24:48,875 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 05:58:55,741 - IDS - INFO - 🚀 Iniciando Sistema de Detección de Intrusos
+2025-05-03 05:58:55,742 - IDS - INFO - 🔍 Interfaces de red disponibles:
+2025-05-03 05:58:55,742 - IDS - INFO -   [0] lo - MAC: 00:00:00:00:00:00
+2025-05-03 05:58:55,742 - IDS - INFO -   [1] eth0 - MAC: 84:69:93:4f:66:da
+2025-05-03 05:58:55,742 - IDS - INFO -   [2] wlan0 - MAC: d8:80:83:da:d7:b7
+2025-05-03 05:58:55,742 - IDS - INFO -   [3] docker0 - MAC: 02:42:eb:a9:ab:7b
+2025-05-03 05:58:55,742 - IDS - INFO - 💡 Sugerencias de interfaces para captura:
+2025-05-03 05:58:55,742 - IDS - INFO -   - eth0
+2025-05-03 05:58:55,742 - IDS - INFO -   - wlan0
+2025-05-03 05:58:55,742 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-03 05:58:55,743 - IDS - INFO - ✅ Hilo analisis_1 iniciado
+2025-05-03 05:58:55,743 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-03 05:58:55,743 - IDS - INFO - ✅ Hilo analisis_2 iniciado
+2025-05-03 05:58:55,743 - IDS - INFO - 💾 Iniciando trabajador de base de datos
+2025-05-03 05:58:55,743 - IDS - INFO - ✅ Hilo bd iniciado
+2025-05-03 05:58:55,744 - IDS - INFO - ✅ Hilo eventos iniciado
+2025-05-03 05:58:55,744 - IDS - INFO - 📊 Iniciando monitor del sistema
+2025-05-03 05:58:55,744 - IDS - INFO - ✅ Hilo monitor iniciado
+2025-05-03 05:58:55,744 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 05:58:55,744 - IDS - INFO - 👮 Iniciando controlador de resilencia
+2025-05-03 05:58:55,744 - IDS - INFO - ✅ Hilo resilencia iniciado
+2025-05-03 05:58:55,744 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-03 05:58:55,745 - IDS - INFO - ✅ Trabajador analisis_1 iniciado/reiniciado
+2025-05-03 05:58:55,745 - IDS - INFO - 🔍 Iniciando trabajador de análisis de paquetes
+2025-05-03 05:58:55,745 - IDS - INFO - ✅ Trabajador analisis_2 iniciado/reiniciado
+2025-05-03 05:58:55,745 - IDS - INFO - 💾 Iniciando trabajador de base de datos
+2025-05-03 05:58:55,745 - IDS - INFO - ✅ Trabajador bd iniciado/reiniciado
+2025-05-03 05:58:55,745 - IDS - INFO - ✅ Trabajador eventos iniciado/reiniciado
+2025-05-03 05:59:05,745 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 05:59:15,748 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 05:59:25,744 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 05:59:25,750 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 05:59:35,753 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 05:59:45,756 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 05:59:55,745 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 05:59:55,758 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:00:05,760 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:00:15,762 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:00:25,745 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:00:25,765 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:00:35,768 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:00:45,770 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:00:55,746 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:00:55,771 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:01:05,773 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:01:15,775 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:01:25,746 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:01:25,777 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:01:35,779 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:01:45,781 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:01:55,746 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:01:55,782 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:02:05,784 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:02:15,786 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:02:25,747 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:02:25,788 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:02:35,790 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:02:45,792 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:02:55,747 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:02:55,794 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:03:05,797 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:03:15,799 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:03:25,748 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:03:25,802 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:03:35,805 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:03:45,807 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:03:55,748 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:03:55,810 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:04:05,812 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:04:15,815 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:04:25,749 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:04:25,817 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:04:35,819 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:04:45,822 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:04:55,750 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:04:55,823 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:05:05,826 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:05:15,829 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:05:25,750 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:05:25,831 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:05:35,832 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:05:45,834 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:05:55,751 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:05:55,835 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:06:05,836 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:06:15,838 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:06:25,751 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:06:25,839 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:06:35,841 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:06:45,843 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:06:55,752 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:06:55,844 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:07:05,846 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:07:15,848 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:07:25,752 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:07:25,851 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:07:35,852 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:07:45,854 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:07:55,752 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:07:55,856 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:08:05,858 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:08:15,860 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:08:25,753 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:08:25,862 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:08:35,864 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:08:45,865 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:08:55,753 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:08:55,867 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:09:05,869 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:09:15,871 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:09:25,754 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:09:25,873 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:09:35,875 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:09:45,877 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:09:55,754 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:09:55,879 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:10:05,881 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:10:15,883 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:10:25,755 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:10:25,885 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:10:35,887 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:10:45,889 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:10:55,755 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:10:55,891 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:11:05,893 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:11:15,895 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:11:25,755 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:11:25,896 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:11:35,898 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:11:45,900 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:11:55,756 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:11:55,902 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:12:05,903 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:12:15,905 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:12:25,756 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:12:25,906 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:12:35,908 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:12:45,910 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:12:55,756 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:12:55,913 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:13:05,915 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:13:15,917 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:13:25,757 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:13:25,919 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:13:35,921 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:13:45,923 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:13:55,757 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:13:55,926 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:14:05,928 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:14:15,930 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:14:25,758 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:14:25,932 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:14:35,934 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:14:45,935 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:14:55,759 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:14:55,937 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:15:05,939 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:15:15,941 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:15:25,759 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:15:25,943 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:15:35,945 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:15:45,947 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:15:55,760 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:15:55,949 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:16:05,951 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:16:15,952 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:16:25,760 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:16:25,954 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:16:35,956 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:16:45,957 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:16:55,760 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:16:55,959 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:17:05,960 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:17:15,962 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:17:25,761 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:17:25,964 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:17:35,966 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:17:45,967 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:17:55,761 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:17:55,969 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:18:05,970 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:18:15,972 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:18:25,761 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:18:25,974 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:18:35,975 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:18:45,977 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:18:55,762 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:18:55,980 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:19:05,982 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:19:15,983 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:19:25,762 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:19:25,986 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:19:35,988 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:19:45,990 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:19:55,763 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:19:55,992 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:20:05,993 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:20:15,995 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:20:25,763 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:20:25,996 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:20:35,998 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:20:46,000 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:20:55,763 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:20:56,002 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:21:06,004 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:21:16,006 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:21:25,764 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:21:26,008 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:21:36,010 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:21:46,011 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:21:55,764 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:21:56,013 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:22:06,015 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:22:16,018 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:22:25,765 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:22:26,020 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:22:36,022 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:22:46,024 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:22:55,766 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:22:56,026 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:23:06,028 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:23:16,030 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:23:25,766 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:23:26,032 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:23:36,034 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:23:46,035 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:23:55,767 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:23:56,037 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:24:06,039 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:24:16,041 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:24:25,767 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:24:26,043 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:24:36,046 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:24:46,048 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:24:55,768 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:24:56,050 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:25:06,051 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:25:16,053 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:25:25,768 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:25:26,054 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:25:36,056 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:25:46,058 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:25:55,769 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:25:56,059 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:26:06,060 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:26:16,062 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:26:25,769 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:26:26,063 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:26:36,065 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:26:46,067 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:26:55,769 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:26:56,069 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:27:06,071 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:27:16,073 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:27:25,770 - IDS - INFO - 📊 Estado del Sistema | Cola Paquetes: 0/100000 | Cola Eventos: 0/1000 | Cola DB: 0/10000 | Interfaz: No seleccionada
+2025-05-03 06:27:26,075 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:27:36,077 - IDS - INFO - Estadísticas: 0 paquetes procesados, 0 eventos, 0 paquetes descartados
+2025-05-03 06:27:59,681 - INFO - Iniciando Sistema de Detección de Intrusos
+2025-05-03 06:27:59,682 - INFO - Iniciando captura de paquetes...
+2025-05-03 06:28:55,493 - INFO - [TTL sospechoso] Evento registrado desde 192.168.0.2
+2025-05-03 06:28:55,496 - INFO - [Protocolo sospechoso] Evento registrado desde 192.168.0.2
+2025-05-03 06:28:58,864 - INFO - [TTL sospechoso] Evento registrado desde 192.168.0.1
+2025-05-03 06:28:58,867 - INFO - [Protocolo sospechoso] Evento registrado desde 192.168.0.1
+2025-05-03 06:31:13,251 - INFO - [SYN Flood] Evento registrado desde 192.168.0.5
+2025-05-03 06:31:13,254 - INFO - [Scan] Evento registrado desde 192.168.0.5
+2025-05-03 06:32:55,610 - INFO - [TTL sospechoso] Evento registrado desde 192.168.0.9
+2025-05-03 06:32:55,613 - INFO - [Protocolo sospechoso] Evento registrado desde 192.168.0.9
+2025-05-03 06:35:13,846 - INFO - [TTL sospechoso] Evento registrado desde 192.168.0.1
+2025-05-03 06:35:13,850 - INFO - [Protocolo sospechoso] Evento registrado desde 192.168.0.1
+2025-05-03 06:37:23,284 - INFO - [SYN Flood] Evento registrado desde 192.168.0.5
+2025-05-03 06:37:23,287 - INFO - [Scan] Evento registrado desde 192.168.0.5
+2025-05-03 06:39:56,185 - INFO - IDS detenido

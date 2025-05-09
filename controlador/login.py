@@ -94,10 +94,6 @@ def perfil():
 
 
 # CONFIGURACION DEL LOGIN
-from flask import request, jsonify, session
-from modelo.base_datos import obtener_conexion
-from modelo.eventos import registrar_evento  # Asegúrate de tener esta función
-
 @login_bp.route('/login', methods=['POST'])
 def login():
     datos = request.json
@@ -118,6 +114,7 @@ def login():
 
         if usuario:
             session['usuario'] = usuario['nombre']
+            session['perfil'] = usuario['id_perfil']  # Almacena el perfil en la sesión
             
             # Registrar evento de inicio de sesión
             registrar_evento(usuario['nombre'], "Inicio de sesión")
@@ -143,41 +140,45 @@ def login():
         conexion.close()
 
 
-
 @login_bp.route('/crear_perfil', methods=['POST'])
 def crear_perfil():
     from modelo.eventos import registrar_evento
     from flask import session
 
     datos = request.get_json()
-    nombre = datos.get("nombre")
-    estado = datos.get("estado")
+    nombre = datos.get("nombre", "").strip()
+    estado = datos.get("estado", "").strip()
+    descripcion = datos.get("descripcion", "").strip()
 
-    if not nombre or not estado:
-        return jsonify({"status": "error", "mensaje": "❌ Nombre y estado son obligatorios."}), 400
+    if not nombre or not estado or not descripcion:
+        return jsonify({"status": "error", "mensaje": "❌ Todos los campos son obligatorios."}), 400
+
+    if nombre.isnumeric():
+        return jsonify({"status": "error", "mensaje": "❌ El nombre del perfil no puede ser solo números."}), 400
 
     conexion = obtener_conexion()
     try:
-        cursor = conexion.cursor()
-        cursor.execute("INSERT INTO perfil (nombre, estado) VALUES (%s, %s)", (nombre, estado))
+        cursor = conexion.cursor(dictionary=True)
+
+        # Validar duplicado
+        cursor.execute("SELECT COUNT(*) as total FROM perfil WHERE LOWER(nombre) = LOWER(%s)", (nombre,))
+        if cursor.fetchone()["total"] > 0:
+            return jsonify({"status": "error", "mensaje": "❌ Ya existe un perfil con ese nombre."}), 409
+
+        cursor.execute(
+            "INSERT INTO perfil (nombre, estado, descripcion) VALUES (%s, %s, %s)",
+            (nombre, estado, descripcion)
+        )
         conexion.commit()
 
-        # Evento registrado
         registrar_evento(session.get('usuario'), "Creación de perfil", f"Se creó el perfil: {nombre}")
-
         return jsonify({"status": "success", "mensaje": "✅ Perfil creado correctamente."})
     except Exception as e:
         print("Error al crear perfil:", e)
         return jsonify({"status": "error", "mensaje": "❌ Error al guardar el perfil.", "detalle": str(e)}), 500
     finally:
-        try:
-            cursor.close()
-        except:
-            pass
-        try:
-            conexion.close()
-        except:
-            pass
+        cursor.close()
+        conexion.close()
 
 
 login = Blueprint('login', __name__)
@@ -188,7 +189,7 @@ def obtener_perfiles():
     cursor = conexion.cursor(dictionary=True)
 
     try:
-        cursor.execute("SELECT id_perfil, nombre, estado FROM perfil")
+        cursor.execute("SELECT id_perfil, nombre, estado, descripcion FROM perfil")
         perfiles = cursor.fetchall()
         return jsonify(perfiles), 200
     except Exception as e:
@@ -198,47 +199,46 @@ def obtener_perfiles():
         cursor.close()
         conexion.close()
 
+
 @login_bp.route('/editar_perfil/<int:id_perfil>', methods=['PUT'])
 def editar_perfil(id_perfil):
     from modelo.eventos import registrar_evento
     from flask import session
 
     datos = request.get_json()
-    nombre = datos.get("nombre")
-    estado = datos.get("estado")
+    nombre = datos.get("nombre", "").strip()
+    estado = datos.get("estado", "").strip()
+    descripcion = datos.get("descripcion", "").strip()
 
-    if not nombre or not estado:
-        return jsonify({"status": "error", "mensaje": "❌ Nombre y estado son obligatorios."}), 400
+    if not nombre or not estado or not descripcion:
+        return jsonify({"status": "error", "mensaje": "❌ Todos los campos son obligatorios."}), 400
+
+    if nombre.isnumeric():
+        return jsonify({"status": "error", "mensaje": "❌ El nombre del perfil no puede ser solo números."}), 400
 
     conexion = obtener_conexion()
     try:
-        cursor = conexion.cursor()
-        cursor.execute("UPDATE perfil SET nombre = %s, estado = %s WHERE id_perfil = %s",
-                       (nombre, estado, id_perfil))
+        cursor = conexion.cursor(dictionary=True)
+
+        # Validar nombre duplicado para otro perfil
+        cursor.execute("SELECT COUNT(*) as total FROM perfil WHERE LOWER(nombre) = LOWER(%s) AND id_perfil != %s", (nombre, id_perfil))
+        if cursor.fetchone()["total"] > 0:
+            return jsonify({"status": "error", "mensaje": "❌ Ya existe otro perfil con ese nombre."}), 409
+
+        cursor.execute(
+            "UPDATE perfil SET nombre = %s, estado = %s, descripcion = %s WHERE id_perfil = %s",
+            (nombre, estado, descripcion, id_perfil)
+        )
         conexion.commit()
 
-        usuario_sesion = session.get('usuario')
-        print("👤 Usuario en sesión (para editar perfil):", usuario_sesion)  # 👈 Agregado
-
-        if usuario_sesion:
-            registrar_evento(usuario_sesion, f"Se actualizó el perfil con ID {id_perfil} (Nombre: {nombre}, Estado: {estado})", "Actualización de perfil")
-        else:
-            print("⚠️ No se encontró usuario en sesión para registrar el evento.")
-
+        registrar_evento(session.get('usuario'), "Actualización de perfil", f"Perfil ID {id_perfil} actualizado")
         return jsonify({"status": "success", "mensaje": "✅ Perfil actualizado correctamente."})
     except Exception as e:
         print("❌ Error al editar perfil:", e)
         return jsonify({"status": "error", "mensaje": "❌ Error al editar el perfil.", "detalle": str(e)}), 500
     finally:
-        try:
-            cursor.close()
-        except:
-            pass
-        try:
-            conexion.close()
-        except:
-            pass
-
+        cursor.close()
+        conexion.close()
 
 
 
@@ -355,4 +355,48 @@ def alertas():
     # Tu código para la vista de alertas
     return render_template('alertas.html', alertas=obtener_alertas())
 
+
+
+
+
+from flask import session, redirect, url_for, flash, render_template, jsonify
+
+@login_bp.route('/usuarios')
+def gestion_usuarios():
+    # Verificamos si el perfil del usuario está en la sesión y si es 'Administrador'
+    if 'perfil' not in session or session['perfil'] != 1:  # 1 es el id de perfil para 'Administrador'
+        flash("Usted no tiene permiso para acceder aquí.")
+        return redirect(url_for('login.dashboard'))  # Redirige al dashboard o a donde desees
+    return render_template('usuarios.html')
+
+
+# Ruta para obtener el perfil actual del usuario
+@login_bp.route('/usuarios/perfil-actual')
+def perfil_actual():
+    # Obtenemos el perfil del usuario desde la sesión
+    perfil = session.get('perfil', 'Invitado')  # Si no está en la sesión, asignamos 'Invitado'
+    # Retornamos el perfil como respuesta en formato JSON
+    return jsonify({'perfil': perfil})
+
+@login_bp.route('/editar_perfil/<int:id>', methods=['PUT'], endpoint='editar_perfil_admin')
+def editar_perfil_admin(id):
+    # lógica de edición para administradores
+    pass
+
+@login_bp.route('/editar_perfil_usuario/<int:id>', methods=['PUT'], endpoint='editar_perfil_usuario')
+def editar_perfil_usuario(id):
+    # lógica de edición para usuarios
+    pass
+
+@login_bp.route('/perfiles')
+def listar_perfiles():
+    if 'perfil' not in session or session['perfil'] != 1:  # 1 = Administrador
+        return jsonify({'error': 'No autorizado'}), 403
+
+    # Código que devuelve los perfiles
+
+
+
+
+#consultar por imaill 
 

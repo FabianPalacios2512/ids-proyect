@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    cargarUsuarios();
-    cargarPerfiles();
+    verificarPermiso();
 
     document.getElementById("formulario-usuario").addEventListener("submit", function (e) {
         e.preventDefault();
@@ -11,8 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
             apellido: document.getElementById("apellido").value,
             telefono: document.getElementById("telefono").value,
             email: document.getElementById("email").value,
-            contrasena: document.getElementById("contrasena").value,
-            id_perfil: document.getElementById("perfil").value
+            contrasena: document.getElementById("contrasena")?.value || "",
+            id_perfil: document.getElementById("perfil").value,
+            estado: document.getElementById("estado")?.value || "activo"
         };
 
         const url = id ? `/usuarios/actualizar/${id}` : "/usuarios/crear";
@@ -23,37 +23,51 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(datos)
         })
-            .then(res => res.json())
-            .then(res => {
-                alert(res.mensaje);
-                if (res.exito) {
-                    limpiarFormulario();
-                    cargarUsuarios();
-                }
-            });
+        .then(res => res.json())
+        .then(res => {
+            mostrarToast(res.mensaje, res.exito ? "success" : "error");
+            if (res.exito) {
+                limpiarFormulario();
+                cargarUsuarios();
+            }
+        });
     });
 });
 
+// ========================== FUNCIONES ==========================
+
+function verificarPermiso() {
+    fetch('/usuarios/perfil-actual')
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);  // Verificar lo que devuelve el servidor
+            if (data.perfil !== 1) {  // Cambia aquí a '1' si el id_perfil del admin es 1
+                mostrarToast('Usted no tiene permiso para acceder aquí, comunicate con el administrador', 'error');
+                document.querySelector('form').style.display = 'none';
+                document.getElementById('tabla-usuarios').innerHTML = '';
+            } else {
+                cargarUsuarios();
+                cargarPerfiles();
+            }
+        });
+}
 
 
 function cargarUsuarios() {
     fetch("/usuarios/listar")
         .then(res => res.json())
         .then(data => {
-            console.log(data); // <-- VERIFICACIÓN
             const tbody = document.getElementById("tabla-usuarios");
             tbody.innerHTML = "";
-        
-            data.forEach(u => {
-                const fila = document.createElement("tr");
 
-                // Normalizar el estado (por si viene en mayúsculas o minúsculas)
+            data.forEach(u => {
                 const estado = (u.estado || "").toLowerCase();
                 const estadoTexto = estado === "activo" ? "Activo" : "Inactivo";
                 const estadoColor = estado === "activo"
                     ? "bg-green-100 text-green-700"
                     : "bg-red-100 text-red-700";
 
+                const fila = document.createElement("tr");
                 fila.innerHTML = `
                     <td class="px-4 py-3">${u.nombre}</td>
                     <td class="px-4 py-3">${u.apellido}</td>
@@ -79,17 +93,9 @@ function cargarUsuarios() {
                 tbody.appendChild(fila);
             });
 
-            lucide.createIcons(); // Renderiza íconos correctamente después del DOM update
+            lucide.createIcons();
         });
 }
-
-
-
-
-
-
-
-
 
 function cargarPerfiles() {
     fetch("/usuarios/perfiles")
@@ -125,7 +131,7 @@ function eliminarUsuario(id) {
     fetch(`/usuarios/eliminar/${id}`, { method: "DELETE" })
         .then(res => res.json())
         .then(res => {
-            alert(res.mensaje);
+            mostrarToast(res.mensaje, res.exito ? "success" : "error");
             if (res.exito) cargarUsuarios();
         });
 }
@@ -134,3 +140,21 @@ function limpiarFormulario() {
     document.getElementById("formulario-usuario").reset();
     document.getElementById("id_usuario").value = "";
 }
+
+// ========================== TOAST ==========================
+
+function mostrarToast(mensaje, tipo = "error") {
+    const toast = document.getElementById("toast");
+    toast.textContent = mensaje;
+
+    toast.className = `fixed top-5 right-5 px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-500 ${
+        tipo === "error" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+    }`;
+
+    toast.classList.remove("hidden");
+
+    setTimeout(() => {
+        toast.classList.add("hidden");
+    }, 8000);
+}
+

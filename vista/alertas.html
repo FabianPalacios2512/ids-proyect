@@ -100,8 +100,8 @@
                     <td class="px-4 py-3">{{ alerta.ip_origen }}</td>
                     <td class="px-4 py-3">{{ alerta.ip_destino }}</td>
                     <td class="px-4 py-3">
-                        {% if alerta.nivel == 'Crítico' %}
-                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">Crítica</span>
+                        {% if alerta.nivel == 'Alto' %}
+                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">Alto</span>
                         {% elif alerta.nivel == 'Medio' %}
                         <span class="bg-yellow-400 text-white px-3 py-1 rounded-full text-xs">Media</span>
                         {% else %}

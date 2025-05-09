@@ -5,171 +5,614 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dispositivos en Red - IDS</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Definición de variables para el tema (mejoradas) */
+    :root {
+      /* Variables del tema claro */
+      --bg-light: #f8fafc;
+      --text-light: #1e293b;
+      --card-light: #ffffff;
+      --table-head-light: #f1f5f9;
+      --border-light: #e2e8f0;
+      --menu-light: #ffffff;
+      --table-row-hover-light: #f8fafc;
+  
+      /* Variables del tema oscuro */
+      --bg-dark: #0f172a;
+      --text-dark: #f1f5f9;
+      --card-dark: #1e293b;
+      --table-head-dark: #334155;
+      --border-dark: #334155;
+      --menu-dark: #1e293b;
+      --table-row-dark: #1e293b; /* Color oscuro para las filas en modo oscuro */
+      --pagination-dark-bg: #334155; /* Fondo oscuro para la paginación en modo oscuro */
+      --pagination-dark-border: #3b4b60; /* Borde de la paginación en modo oscuro */
+    }
+  
+    /* Estilo base según tema */
+    [data-theme="light"] {
+      --bg: var(--bg-light);
+      --text: var(--text-light);
+      --card: var(--card-light);
+      --table-head: var(--table-head-light);
+      --border: var(--border-light);
+      --menu: var(--menu-light);
+      --table-row-hover: var(--table-row-hover-light);
+    }
+  
+    [data-theme="dark"] {
+      --bg: var(--bg-dark);
+      --text: var(--text-dark);
+      --card: var(--card-dark);
+      --table-head: var(--table-head-dark);
+      --border: var(--border-dark);
+      --menu: var(--menu-dark);
+      --table-row-hover: var(--table-row-dark);
+    }
+  
+    /* Estilo general */
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 0.3s, color 0.3s;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+  
+    /* Estilo para el menú lateral */
+    .sidebar {
+      background-color: var(--menu);
+      border-right: 1px solid var(--border);
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    }
+  
+    /* Estilo para tarjetas */
+    .card {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+  
+    /* Estilo de los inputs y selects */
+    input, select, textarea {
+      background-color: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+  
+    /* Estilo para las tablas */
+    .data-table {
+      background-color: var(--card);
+      transition: background-color 0.3s, border-color 0.3s;
+      overflow: hidden;
+    }
+  
+    .data-table thead {
+      background-color: var(--table-head);
+      color: var(--text);
+      transition: background-color 0.3s;
+    }
+  
+    .data-table th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+    }
+  
+    .data-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      background-color: var(--table-row); /* Color para las filas en modo oscuro */
+      transition: background-color 0.2s;
+    }
+  
+    /* Eliminar hover en el modo oscuro para las filas */
+    [data-theme="dark"] .data-table tbody tr:hover {
+      background-color: var(--table-row-dark); /* Mantener el color oscuro sin cambio */
+    }
+  
+    /* Estilo para estado de dispositivos */
+    .status-active {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+  
+    .status-offline {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+  
+    .status-warning {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+  
+    [data-theme="dark"] .status-active {
+      background-color: rgba(22, 101, 52, 0.3);
+    }
+  
+    [data-theme="dark"] .status-offline {
+      background-color: rgba(153, 27, 27, 0.3);
+    }
+  
+    [data-theme="dark"] .status-warning {
+      background-color: rgba(146, 64, 14, 0.3);
+    }
+  
+    /* Estilo de la paginación */
+    .pagination-container {
+      background-color: var(--pagination-dark-bg); /* Fondo oscuro en modo oscuro */
+      border-top: 1px solid var(--border);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s, color 0.3s;
+    }
+  
+    /* Estilos de texto y botones en la paginación */
+    .pagination-container .text-sm {
+      color: var(--text);
+    }
+  
+    .pagination-container .pagination-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--pagination-dark-border); /* Borde de la paginación en modo oscuro */
+      border-radius: 0.5rem;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+  
+    .pagination-container .pagination-btn:hover {
+      background-color: var(--bg-light);
+      border-color: var(--border-light);
+    }
+  
+    /* Transiciones suaves */
+    .theme-transition {
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+  </style>
+
+
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="theme-transition" data-theme="light">
   <div class="flex h-screen">
     <!-- Menú lateral -->
-    <aside class="w-64 bg-gray-900 text-white flex flex-col h-full">
-      <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">🔐 IDS System</div>
-      <nav class="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
+    <aside class="sidebar w-64 bg-gray-900 text-white flex flex-col h-full">
+      <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">
+        <div class="flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>IDS System</span>
+        </div>
+      </div>
+      <nav class="flex-1 p-4 space-y-1 text-sm overflow-y-auto">
         <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
-          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Panel principal</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9"></rect>
+            <rect x="14" y="3" width="7" height="5"></rect>
+            <rect x="14" y="12" width="7" height="9"></rect>
+            <rect x="3" y="16" width="7" height="5"></rect>
+          </svg>
+          <span>Panel principal</span>
         </a>
         <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
-          <i data-lucide="users" class="w-5 h-5"></i><span>Usuarios</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Usuarios</span>
         </a>
         <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
-          <i data-lucide="shield" class="w-5 h-5"></i><span>Perfiles</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Perfiles</span>
         </a>
-        <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
-          <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
+        <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 bg-blue-700 shadow-md rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+          <span>Dispositivos</span>
         </a>
         <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
-          <i data-lucide="rss" class="w-5 h-5"></i><span>Monitoreo</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>Monitoreo</span>
         </a>
         <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
-          <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>Alertas</span>
         </a>
         <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Eventos</span>
         </a>
         <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Reportes</span>
         </a>
         <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Configuración</span>
         </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
-        </a>
+        <div class="pt-4 mt-4 border-t border-gray-700">
+          <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 text-red-400 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Cerrar Sesión</span>
+          </a>
+        </div>
       </nav>
     </aside>
 
-    <!-- Contenido -->
-    <div class="flex-1 p-8 overflow-y-auto">
-      <!-- Encabezado -->
-      <div class="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
-        <h1 class="text-4xl font-extrabold text-gray-900">🖧 Dispositivos Detectados</h1>
-        <div class="flex flex-wrap gap-3">
-          <button onclick="iniciarEscaneo()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
-            ▶️ <span>Iniciar escaneo</span>
-          </button>
-          <button onclick="detenerEscaneo()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
-            ⏹️ <span>Detener escaneo</span>
-          </button>
-          <a href="/dashboard" class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
-            🔙 <span>Volver al panel</span>
-          </a>
+    <!-- Contenido principal -->
+    <div class="flex-1 flex flex-col overflow-hidden theme-transition">
+      <!-- Header con información y botones -->
+      <header class="theme-transition py-6 px-8 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <h1 class="text-3xl font-bold flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+              </svg>
+              Dispositivos Detectados
+            </h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Monitoreo de dispositivos en la red interna</p>
+          </div>
+          
+          <div class="flex flex-wrap gap-3">
+            <button id="scan-btn" onclick="iniciarEscaneo()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Iniciar escaneo</span>
+            </button>
+            <button id="stop-btn" onclick="detenerEscaneo()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="6" width="12" height="12"></rect>
+              </svg>
+              <span>Detener escaneo</span>
+            </button>
+            <a href="/dashboard" class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Volver al panel</span>
+            </a>
+            <!-- Botón para cambiar el tema -->
+            <button id="theme-toggle" onclick="toggleTheme()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
+              <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+              <span id="theme-text">Modo oscuro</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <!-- Tabla -->
-      <div class="overflow-x-auto rounded-lg shadow-md bg-white">
-        <table class="min-w-full text-sm text-left border-separate border-spacing-y-2">
-          <thead class="bg-gray-100 text-gray-700 text-xs uppercase">
-            <tr>
-              <th class="px-6 py-3">IP</th>
-              <th class="px-6 py-3">MAC</th>
-              <th class="px-6 py-3">Hostname</th>
-              <th class="px-6 py-3">Sistema Operativo</th>
-              <th class="px-6 py-3">Puertos Abiertos</th>
-              <th class="px-6 py-3">Fecha de Escaneo</th>
-              <th class="px-6 py-3">Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-dispositivos">
-            <!-- Datos dinámicos aquí -->
-          </tbody>
-        </table>
+      <!-- Contenido principal - Tabla de dispositivos -->
+<main class="flex-1 p-8 overflow-auto">
+  <!-- Estadísticas rápidas -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="card p-5 flex items-center">
+      <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full mr-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600 dark:text-blue-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+          <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+          <line x1="6" y1="6" x2="6.01" y2="6"></line>
+          <line x1="6" y1="18" x2="6.01" y2="18"></line>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total Dispositivos</p>
+        <h3 class="text-2xl font-bold" id="total-devices">--</h3>
+      </div>
+    </div>
+    
+    <div class="card p-5 flex items-center">
+      <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full mr-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600 dark:text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Activos</p>
+        <h3 class="text-2xl font-bold" id="active-devices">--</h3>
+      </div>
+    </div>
+    
+    <div class="card p-5 flex items-center">
+      <div class="bg-red-100 dark:bg-red-900 p-3 rounded-full mr-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600 dark:text-red-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Inactivos</p>
+        <h3 class="text-2xl font-bold" id="inactive-devices">--</h3>
+      </div>
+    </div>
+  </div>
+        
+        <!-- Filtros y búsqueda -->
+        <div class="flex flex-col md:flex-row gap-4 mb-6">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input type="text" id="search-devices" placeholder="Buscar dispositivos..." class="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+          
+          <div class="flex gap-2">
+            <select id="filter-status" class="border ...">
+              <option value="all">Todos los estados</option>
+              <option value="active">Activo</option>
+              <option value="offline">Offline</option>
+              <option value="warning">Advertencia</option>
+            </select>
+          
+            <select id="filter-os" class="border ...">
+              <option value="all">Todos los S.O.</option>
+              <option value="windows">Windows</option>
+              <option value="linux">Linux</option>
+              <option value="macos">MacOS</option>
+              <option value="other">Otros</option>
+            </select>
+          </div>
+          
+        </div>
+
+        <!-- Tabla de dispositivos - Mejorada -->
+        <div class="card data-table overflow-hidden rounded-xl shadow-lg">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr>
+                  <th class="px-6 py-4 text-left">IP</th>
+                  <th class="px-6 py-4 text-left">MAC</th>
+                  <th class="px-6 py-4 text-left">Hostname</th>
+                  <th class="px-6 py-4 text-left">Sistema Operativo</th>
+                  <th class="px-6 py-4 text-left">Puertos Abiertos</th>
+                  <th class="px-6 py-4 text-left">Fecha de Escaneo</th>
+                  <th class="px-6 py-4 text-left">Estado</th>
+                  <th class="px-6 py-4 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-dispositivos">
+                <!-- Los datos serán cargados dinámicamente por el JS -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Paginación -->
+          <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between pagination-container">
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+              Mostrando <span id="showing-start">0</span> - <span id="showing-end">0</span> de <span id="total-entries">0</span> dispositivos
+            </div>
+            <div class="flex gap-2">
+              <button id="prev-page" class="pagination-btn">
+                Anterior
+              </button>
+              <button id="next-page" class="pagination-btn">
+                Siguiente
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Notificación Toast para acciones -->
+  <div id="toast-notification" class="fixed top-4 right-4 z-50 max-w-xs bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto border border-gray-100 dark:border-gray-700 transform transition-all duration-300 translate-y-[-100%] opacity-0">
+    <div class="p-4 flex items-center">
+      <div id="toast-icon" class="flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 dark:text-green-300" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p id="toast-title" class="text-sm font-medium text-gray-900 dark:text-white">Operación exitosa</p>
+        <p id="toast-message" class="mt-1 text-sm text-gray-500 dark:text-gray-400">La acción se ha completado correctamente.</p>
+      </div>
+      <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-gray-500 focus:outline-none">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal para detalles del dispositivo -->
+  <div id="device-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeDeviceModal()"></div>
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-xl w-full mx-4 transform transition-all">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="modal-title">Detalles del dispositivo</h3>
+          <button onclick="closeDeviceModal()" class="text-gray-400 hover:text-gray-500">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div id="modal-content" class="space-y-4">
+          <!-- El contenido será llenado dinámicamente -->
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button onclick="closeDeviceModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg">
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-
-<script>
-  function actualizarBotones() {
-    fetch('/estado_escaneo')
-      .then(res => res.json())
-      .then(data => {
-        const botonIniciar = document.querySelector('button[onclick="iniciarEscaneo()"]');
-        const botonDetener = document.querySelector('button[onclick="detenerEscaneo()"]');
-
-        if (data.en_progreso) {
-          botonIniciar.disabled = true;
-          botonIniciar.classList.add("opacity-50", "cursor-not-allowed");
-          botonDetener.disabled = false;
-          botonDetener.classList.remove("opacity-50", "cursor-not-allowed");
+  <!-- Script para manejar el tema -->
+  <script>
+    // Función para cambiar el tema
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      // Cambiar el tema del cuerpo
+      body.setAttribute('data-theme', newTheme);
+      
+      // Guardar preferencia en localStorage
+      localStorage.setItem('theme', newTheme);
+      
+      // Actualizar texto e ícono del botón
+      const themeIcon = document.getElementById('theme-icon');
+      const themeText = document.getElementById('theme-text');
+      
+      if (newTheme === 'dark') {
+        themeIcon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+        themeText.textContent = 'Modo claro';
+      } else {
+        themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+        themeText.textContent = 'Modo oscuro';
+      }
+    }
+    
+    // Cargar tema al iniciar la página
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.body.setAttribute('data-theme', savedTheme);
+        
+        // Actualizar botón según el tema guardado
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        
+        if (savedTheme === 'dark') {
+          themeIcon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+          themeText.textContent = 'Modo claro';
         } else {
-          botonIniciar.disabled = false;
-          botonIniciar.classList.remove("opacity-50", "cursor-not-allowed");
-          botonDetener.disabled = true;
-          botonDetener.classList.add("opacity-50", "cursor-not-allowed");
+          themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+          themeText.textContent = 'Modo oscuro';
         }
-      });
-  }
-
-  function cargarDispositivos() {
-fetch('/datos_dispositivos')  // ✅ nueva ruta para dispositivos
-  .then(res => res.json())
-  .then(data => {
-    const tabla = document.getElementById('tabla-dispositivos');
-    tabla.innerHTML = '';
-    data.forEach(item => {
-      tabla.insertAdjacentHTML("beforeend", `
-        <tr class="bg-white hover:bg-gray-50 transition">
-          <td class="px-6 py-3 rounded-l-lg">${item.direccion_ip || '-'}</td>
-          <td class="px-6 py-3">${item.direccion_mac || '-'}</td>
-          <td class="px-6 py-3">${item.nombre_host || '-'}</td>
-          <td class="px-6 py-3">${item.sistema_operativo || '-'}</td>
-          <td class="px-6 py-3">${item.puerto || '-'}</td>
-          <td class="px-6 py-3">${new Date(item.fecha_escaneo).toLocaleString()}</td>
-          <td class="px-6 py-3 rounded-r-lg">
-            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full 
-              ${item.estado_dispositivo === 'activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-              ${item.estado_dispositivo || 'desconocido'}
-            </span>
-          </td>
-        </tr>`);
+      }
     });
-  });
-}
+    
+    // Función para mostrar toast de notificación
+    function showToast(title, message, type = 'success') {
+      const toast = document.getElementById('toast-notification');
+      const toastTitle = document.getElementById('toast-title');
+      const toastMessage = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+      
+      // Configurar el contenido
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      
+      // Configurar el ícono según el tipo
+      if (type === 'success') {
+        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900';
+        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 dark:text-green-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>';
+      } else if (type === 'error') {
+        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900';
+        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>';
+      } else if (type === 'warning') {
+        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900';
+        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 dark:text-yellow-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>';
+      } else if (type === 'info') {
+        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900';
+        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>';
+      }
+      
+      // Mostrar el toast
+      toast.classList.remove('translate-y-[-100%]', 'opacity-0');
+      
+      // Ocultar automáticamente después de 5 segundos
+      setTimeout(hideToast, 5000);
+    }
+    
+    // Función para ocultar toast
+    function hideToast() {
+      const toast = document.getElementById('toast-notification');
+      toast.classList.add('translate-y-[-100%]', 'opacity-0');
+    }
+    
+    // Función para abrir modal de detalles
+    function openDeviceModal(deviceId) {
+      // Aquí se cargarían los datos del dispositivo (esta es una función auxiliar que complementaría tu JS)
+      document.getElementById('device-modal').classList.remove('hidden');
+    }
+    
+    // Función para cerrar modal
+    function closeDeviceModal() {
+      document.getElementById('device-modal').classList.add('hidden');
+    }
+    
+    // Estas funciones serán llamadas por tu JavaScript existente
+    function iniciarEscaneo() {
+      // Tu lógica de escaneo actual se mantendrá igual
+      showToast('Escaneo iniciado', 'El proceso de escaneo de dispositivos ha comenzado', 'info');
+    }
+    
+    function detenerEscaneo() {
+      // Tu lógica de detener escaneo actual se mantendrá igual
+      showToast('Escaneo detenido', 'El proceso de escaneo de dispositivos ha sido detenido', 'warning');
+    }
+  </script>
 
-  function iniciarEscaneo() {
-    fetch('/iniciar_escaneo_dispositivos', { method: 'POST' })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.mensaje);
-        actualizarBotones();
-      })
-      .catch(() => alert("❌ Error al iniciar escaneo"));
-  }
-
-  function detenerEscaneo() {
-    fetch('/detener_escaneo_dispositivos', { method: 'POST' })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.mensaje);
-        actualizarBotones();
-      })
-      .catch(() => alert("❌ Error al detener escaneo"));
-  }
-
-  setInterval(() => {
-    cargarDispositivos();
-    actualizarBotones();
-  }, 1000);
-
-  cargarDispositivos();
-  actualizarBotones();
+  <!-- Mantener la referencia al script original para conservar la funcionalidad -->
+  <script defer src="{{ url_for('static', filename='js/dispositivos.js') }}"></script>
 
 
-  
-  
-</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
-
 </html>
-
-
-
-
