@@ -70,15 +70,6 @@ sudo apt install redis-server
 
 bash```
 
-Script de simulación echo en Kali Linux  
-
-Primero se debera crear un archivo lou tallamos login.lua o cualquiere otro nombre  
-
-Llevará esta informacion
-
-
-```bash
-
 math.randomseed(os.time())
 
 request = function()
@@ -91,12 +82,6 @@ request = function()
 
     return wrk.format(nil, "/login")
 end
-
-bash```
-
-
-
-
 
 
 
