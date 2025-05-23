@@ -63,27 +63,13 @@ pip install -r requirements.txt
 
 
 4. Instalar y activar Redis
+
 En Kali Linux o Debian:
 
 sudo apt update
 sudo apt install redis-server
 
-bash```
-
-math.randomseed(os.time())
-
-request = function()
-    local username = "user" .. math.random(100000)
-    local password = "pass" .. math.random(100000)
-
-    wrk.method = "POST"
-    wrk.body   = "username=" .. username .. "&password=" .. password
-    wrk.headers["Content-Type"] = "application/x-www-form-urlencoded"
-
-    return wrk.format(nil, "/login")
-end
-
-
-
+---
+2. Crea y ejecuta el script de instalación automática
 
 
