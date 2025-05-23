@@ -68,7 +68,7 @@ En Kali Linux o Debian:
 sudo apt update
 sudo apt install redis-server
 
-```bash
+bash```
 
 Script de simulación echo en Kali Linux  
 
@@ -92,7 +92,7 @@ request = function()
     return wrk.format(nil, "/login")
 end
 
-```bash
+bash```
 
 
 
