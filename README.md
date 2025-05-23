@@ -68,7 +68,31 @@ En Kali Linux o Debian:
 sudo apt update
 sudo apt install redis-server
 
+```bash
 
+Script de simulación echo en Kali Linux  
+
+Primero se debera crear un archivo lou tallamos login.lua o cualquiere otro nombre  
+
+Llevará esta informacion
+
+
+```bash
+
+math.randomseed(os.time())
+
+request = function()
+    local username = "user" .. math.random(100000)
+    local password = "pass" .. math.random(100000)
+
+    wrk.method = "POST"
+    wrk.body   = "username=" .. username .. "&password=" .. password
+    wrk.headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    return wrk.format(nil, "/login")
+end
+
+```bash
 
 
 
