@@ -7,14 +7,11 @@
   <meta name="theme-color" content="#4f46e5">
   <title>Sistema de Monitoreo de Red | IDS</title>
 
-  <!-- Fuentes optimizadas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -25,171 +22,71 @@
             sans: ['Inter', 'sans-serif'],
           },
           colors: {
-            primary: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              200: '#c7d2fe',
-              300: '#a5b4fc',
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              800: '#3730a3',
-              900: '#312e81',
-              950: '#1e1b4b',
+            primary: { /* Tu paleta de colores primary */
+              50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8',
+              500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81', 950: '#1e1b4b',
             },
           },
-          animation: {
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          }
+          animation: { 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', }
         }
       }
     };
   </script>
 
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest" defer></script>
 
-  <!-- Socket.IO -->
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-
-  <!-- Estilos personalizados -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/temas.css') }}">
   
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+  <script src="https://unpkg.com/@popperjs/core@2" defer></script>
+  <script src="https://unpkg.com/tippy.js@6" defer></script>
+
+
   <style>
     /* Scrollbar personalizado */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: rgba(79, 70, 229, 0.5);
-      border-radius: 4px;
-      transition: all 0.3s;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(79, 70, 229, 0.8);
-    }
-    
-    .dark ::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
-    }
-    
-    .dark ::-webkit-scrollbar-thumb {
-      background: rgba(165, 180, 252, 0.5);
-    }
-    
-    .dark ::-webkit-scrollbar-thumb:hover {
-      background: rgba(165, 180, 252, 0.8);
-    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(79, 70, 229, 0.5); border-radius: 4px; transition: all 0.3s; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(79, 70, 229, 0.8); }
+    .dark ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+    .dark ::-webkit-scrollbar-thumb { background: rgba(165, 180, 252, 0.5); }
+    .dark ::-webkit-scrollbar-thumb:hover { background: rgba(165, 180, 252, 0.8); }
 
-    /* Tabla responsiva */
-    .table-container {
-      max-height: 60vh;
-      overflow-y: auto;
-      position: relative;
-      scrollbar-color: rgba(79, 70, 229, 0.5) rgba(0, 0, 0, 0.05);
-      scrollbar-width: thin;
-    }
+    /* Tabla responsiva y sticky header */
+    .table-container { max-height: 60vh; overflow-y: auto; position: relative; scrollbar-color: rgba(79, 70, 229, 0.5) rgba(0, 0, 0, 0.05); scrollbar-width: thin; }
+    @media (max-width: 1024px) { .table-container { max-height: 50vh; } }
+    .table-container thead th { position: sticky; top: 0; z-index: 10; /* TailwindCSS se encarga del bg */ }
+    .table-container table tr { transition: background-color 0.2s; }
+    .table-container table tr:hover { background-color: rgba(79, 70, 229, 0.05); /* Ajusta con clases de Tailwind si prefieres */ }
+    .dark .table-container table tr:hover { background-color: rgba(165, 180, 252, 0.05); /* Ajusta con clases de Tailwind */ }
     
-    @media (max-width: 1024px) {
-      .table-container {
-        max-height: 50vh;
-      }
-    }
-    
-    #mensajeEstado {
-      font-size: 1.1rem;
-      font-weight: 600;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-    
-    .table-container thead th {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    
-    .table-container table tr {
-      transition: background-color 0.2s;
-    }
-    
-    .table-container table tr:hover {
-      background-color: rgba(79, 70, 229, 0.05);
-    }
-    
-    .dark .table-container table tr:hover {
-      background-color: rgba(165, 180, 252, 0.05);
-    }
-    
-    body {
-      transition: background-color 0.5s, color 0.5s;
-      scroll-behavior: smooth;
-    }
-    
-    /* Animaciones y transiciones */
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
+    #mensajeEstado { font-size: 1rem; font-weight: 600; padding: 0.75rem; border-radius: 0.5rem; text-align: center; transition: all 0.3s ease; }
+    body { transition: background-color 0.5s, color 0.5s; scroll-behavior: smooth; }
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     /* Estado de captura */
-    .state-active {
-      background-color: rgba(16, 185, 129, 0.1);
-      border-left: 4px solid #10b981;
-    }
-    
-    .state-inactive {
-      background-color: rgba(239, 68, 68, 0.1);
-      border-left: 4px solid #ef4444;
-    }
-    
-    .dark .state-active {
-      background-color: rgba(16, 185, 129, 0.2);
-    }
-    
-    .dark .state-inactive {
-      background-color: rgba(239, 68, 68, 0.2);
-    }
-    
-    /* Tooltip para filas largas */
-    .truncate-cell {
-      max-width: 150px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .state-active { background-color: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; }
+    .state-inactive { background-color: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; }
+    .dark .state-active { background-color: rgba(16, 185, 129, 0.2); }
+    .dark .state-inactive { background-color: rgba(239, 68, 68, 0.2); }
+
+    /* Tooltip para filas largas (si usas Tippy.js) */
+    .truncate-cell { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: help; }
   </style>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col md:flex-row font-sans transition-colors duration-500">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col md:flex-row font-sans transition-colors duration-300">
   
-  <!-- PANEL LATERAL -->
-  <aside class="w-full md:w-64 bg-primary-900 text-white flex flex-col md:min-h-screen shadow-lg z-20">
+  <aside class="w-full md:w-64 bg-primary-900 text-white flex flex-col md:min-h-screen shadow-lg z-30 md:sticky md:top-0">
     <div class="p-4 text-center text-xl font-bold border-b border-primary-700 flex items-center justify-center gap-2">
       <span class="text-2xl">🔐</span>
       <span>IDS System</span>
     </div>
     
     <div class="md:hidden flex justify-end p-2">
-      <button id="menuToggle" class="text-white p-2 focus:outline-none">
+      <button id="menuToggle" class="text-white p-2 focus:outline-none" aria-label="Toggle menu">
         <i data-lucide="menu" class="w-6 h-6"></i>
       </button>
     </div>
@@ -207,8 +104,7 @@
       <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
         <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
       </a>
-      <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-3 p-3 bg-primary-700 text-white font-medium rounded-lg shadow-md transition-all duration-200">
-        <i data-lucide="activity" class="w-5 h-5"></i><span>Monitoreo</span>
+      <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-3 p-3 bg-primary-700 text-white font-medium rounded-lg shadow-md transition-all duration-200"> <i data-lucide="activity" class="w-5 h-5"></i><span>Monitoreo</span>
       </a>
       <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
         <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
@@ -218,51 +114,47 @@
         <div class="border-t border-primary-700 my-2"></div>
       </div>
       
-      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200">
+      <a href="{{ url_for('eventos_bp.eventos_recientes') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'eventos_bp.eventos_recientes' else '' }}">
         <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
       </a>
-      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200">
+      <a href="{{ url_for('reportes_bp.mostrar_dashboard_reportes') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'reportes_bp.mostrar_dashboard_reportes' else '' }}">
         <i data-lucide="bar-chart-2" class="w-5 h-5"></i><span>Reportes</span>
       </a>
-      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200">
-        <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
+      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200"> <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
       </a>
       
-      <div class="pt-2 mt-auto">
-        <div class="border-t border-primary-700 my-2"></div>
-        <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 text-red-200">
+      <div class="pt-2 mt-auto"> <div class="border-t border-primary-700 my-2"></div>
+        <a href="{{ url_for('login.logout') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 text-red-300 hover:text-red-100">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
         </a>
       </div>
     </nav>
   </aside>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-4 md:p-6 overflow-hidden">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+  <main class="flex-1 p-4 md:p-6 overflow-y-auto"> <header class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <div>
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary-700 dark:text-primary-300 tracking-tight">
           Monitoreo de Red
         </h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-1">
-          Control y análisis de tráfico en tiempo real
+        <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm md:text-base">
+          Control y análisis de tráfico para la detección de intrusiones.
         </p>
       </div>
       
       <div class="flex items-center gap-3">
-        <span id="currentDateTime" class="text-sm text-gray-600 dark:text-gray-400 hidden md:inline-block"></span>
-        <button id="temaSwitch" class="flex items-center justify-center transition duration-300 ease-in-out bg-gray-800 dark:bg-gray-700 text-white px-3 py-2 rounded-full shadow hover:bg-gray-700 dark:hover:bg-gray-600">
+        <span id="currentDateTime" class="text-xs md:text-sm text-gray-600 dark:text-gray-400 hidden md:inline-block"></span>
+        <button id="temaSwitch" title="Cambiar Tema" class="flex items-center justify-center transition duration-300 ease-in-out bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-full shadow hover:bg-gray-300 dark:hover:bg-gray-600">
           <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
           <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
         </button>
       </div>
-    </div>
+    </header>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-primary-600">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Paquetes Capturados</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Paquetes Totales</p>
             <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="paquetesTotal">0</h3>
           </div>
           <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
@@ -270,193 +162,109 @@
           </div>
         </div>
       </div>
-      
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-green-600">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-blue-500">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Tráfico Normal</p>
-            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="traficoNormal">0</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Paquetes TCP</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="paquetesTCP">0</h3>
+          </div>
+          <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+            <i data-lucide="arrow-right-left" class="w-6 h-6 text-blue-500 dark:text-blue-400"></i>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Paquetes UDP</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="paquetesUDP">0</h3>
           </div>
           <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full">
-            <i data-lucide="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+            <i data-lucide="send" class="w-6 h-6 text-green-500 dark:text-green-400"></i>
           </div>
         </div>
       </div>
-      
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-amber-600">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-amber-500">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Alertas</p>
-            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="alertasTotal">0</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Alertas (Hoy)</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="alertasHoy">0</h3>
           </div>
           <div class="bg-amber-100 dark:bg-amber-900 p-3 rounded-full">
-            <i data-lucide="alert-circle" class="w-6 h-6 text-amber-600 dark:text-amber-400"></i>
+            <i data-lucide="alert-triangle" class="w-6 h-6 text-amber-500 dark:text-amber-400"></i>
           </div>
         </div>
       </div>
-      
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-red-600">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Amenazas</p>
-            <h3 class="text-2xl font-bold text-gray-800 dark:text-white" id="amenazasTotal">0</h3>
-          </div>
-          <div class="bg-red-100 dark:bg-red-900 p-3 rounded-full">
-            <i data-lucide="shield-alert" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
 
-    <div class="flex flex-wrap justify-center mb-6 gap-3">
-      <button id="btnIniciar" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
+    <section class="flex flex-wrap justify-center mb-6 gap-3">
+      <button id="btnIniciar" title="Iniciar captura de paquetes" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
         <i data-lucide="play" class="w-5 h-5"></i> Iniciar Captura
       </button>
-      <button id="btnDetener" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2 opacity-50 cursor-not-allowed" disabled>
+      <button id="btnDetener" title="Detener captura de paquetes" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2 opacity-50 cursor-not-allowed" disabled>
         <i data-lucide="square" class="w-5 h-5"></i> Detener Captura
       </button>
-      <button id="btnFiltrar" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
+      <button id="btnFiltrar" title="Abrir filtros avanzados" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
         <i data-lucide="filter" class="w-5 h-5"></i> Filtros
       </button>
-      <button id="btnExportar" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
+      <button id="btnExportar" title="Exportar datos de la tabla a CSV" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
         <i data-lucide="download" class="w-5 h-5"></i> Exportar
       </button>
-      <button id="btnRegresar" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow transition-all duration-300 flex items-center gap-2">
-        <i data-lucide="arrow-left" class="w-5 h-5"></i> Regresar
-      </button>
-    </div>
+    </section>
 
-    <div id="mensajeEstado" class="state-inactive mb-6">
+    <div id="mensajeEstado" class="state-inactive mb-6 py-3 px-4 text-sm">
       <span class="inline-flex items-center gap-2">
         <i data-lucide="pause-circle" class="w-5 h-5"></i>
-        Captura detenida
+        Captura detenida. Presiona "Iniciar Captura" para comenzar.
       </span>
     </div>
 
-    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+    <section class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
       <div class="w-full md:w-1/2">
         <div class="relative">
-          <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5"></i>
+          <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5 pointer-events-none"></i>
           <input type="text" id="buscador" placeholder="Buscar por IP, puerto, protocolo..." class="pl-10 p-3 border border-gray-300 dark:border-gray-700 rounded-lg w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
         </div>
       </div>
-      
       <div class="flex flex-wrap gap-2 w-full md:w-auto">
-        <select id="filtroProtocolo" class="p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
+        <select id="filtroProtocolo" aria-label="Filtrar por protocolo" class="p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300 appearance-none pr-8 bg-no-repeat" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%236b7280\'%3E%3Cpath fill-rule=\'evenodd\' d=\'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\' clip-rule=\'evenodd\'/%3E%3C/svg%3E'); background-position: right 0.75rem center; background-size: 1.5em 1.5em;">
           <option value="">Todos los protocolos</option>
-          <option value="TCP">TCP</option>
-          <option value="UDP">UDP</option>
-          <option value="ICMP">ICMP</option>
-          <option value="HTTP">HTTP</option>
-          <option value="HTTPS">HTTPS</option>
-          <option value="DNS">DNS</option>
-        </select>
-        
-        <select id="filtroTamaño" class="p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
+          </select>
+        <select id="filtroTamaño" aria-label="Filtrar por tamaño" class="p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white transition-all duration-300 appearance-none pr-8 bg-no-repeat" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%236b7280\'%3E%3Cpath fill-rule=\'evenodd\' d=\'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\' clip-rule=\'evenodd\'/%3E%3C/svg%3E'); background-position: right 0.75rem center; background-size: 1.5em 1.5em;">
           <option value="">Todos los tamaños</option>
-          <option value="pequeño">Pequeños (&lt; 100 bytes)</option>
-          <option value="mediano">Medianos (100-1000 bytes)</option>
-          <option value="grande">Grandes (&gt; 1000 bytes)</option>
+          <option value="pequeño">Pequeños (&lt;100 B)</option>
+          <option value="mediano">Medianos (100-1000 B)</option>
+          <option value="grande">Grandes (&gt;1000 B)</option>
         </select>
       </div>
-    </div>
+    </section>
 
-    <div class="table-container bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg shadow-lg overflow-hidden mb-6">
+    <section class="table-container bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg shadow-lg overflow-hidden mb-6">
       <table class="w-full text-sm text-left border-collapse">
-        <thead class="bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200 uppercase text-xs font-semibold sticky top-0">
+        <thead class="bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200 uppercase text-xs font-semibold">
           <tr>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="id">
-              <div class="flex items-center gap-1">
-                ID <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="ip_origen">
-              <div class="flex items-center gap-1">
-                IP Origen <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="ip_destino">
-              <div class="flex items-center gap-1">
-                IP Destino <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="mac_origen">
-              <div class="flex items-center gap-1">
-                MAC Origen <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="mac_destino">
-              <div class="flex items-center gap-1">
-                MAC Destino <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="puerto_origen">
-              <div class="flex items-center gap-1">
-                Puerto Origen <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="puerto_destino">
-              <div class="flex items-center gap-1">
-                Puerto Destino <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="protocolo">
-              <div class="flex items-center gap-1">
-                Protocolo <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="tamaño">
-              <div class="flex items-center gap-1">
-                Tamaño <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="fecha">
-              <div class="flex items-center gap-1">
-                Fecha <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
-            <th class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort="ttl">
-              <div class="flex items-center gap-1">
-                TTL <i data-lucide="chevron-down" class="w-4 h-4"></i>
-              </div>
-            </th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="idescanear_red">ID <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="iporigen">IP Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="ipdestino">IP Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors hidden md:table-cell" data-sort-key="mac_origen">MAC Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors hidden md:table-cell" data-sort-key="mac_destino">MAC Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="puerto_origen">P. Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="puerto_destino">P. Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="protocolo">Protocolo <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-right" data-sort-key="tamano">Tamaño <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="fecha_captura">Fecha <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="ttl">TTL <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+            <th scope="col" class="p-3 text-center">Acciones</th>
           </tr>
         </thead>
         <tbody id="packetTable" class="text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
-          {% for p in paquetes %}
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
-            <td class="p-2 text-center">{{ p[0] or 'N/A' }}</td>
-            <td class="p-2">{{ p[1] or 'N/A' }}</td>
-            <td class="p-2">{{ p[2] or 'N/A' }}</td>
-            <td class="p-2 truncate-cell" title="{{ p[3] or 'N/A' }}">{{ p[3] or 'N/A' }}</td>
-            <td class="p-2 truncate-cell" title="{{ p[4] or 'N/A' }}">{{ p[4] or 'N/A' }}</td>
-            <td class="p-2 text-center">{{ p[5] or 'N/A' }}</td>
-            <td class="p-2 text-center">{{ p[6] or 'N/A' }}</td>
-            <td class="p-2">
-              {% if p[7] == 'TCP' %}
-              <span class="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-xs font-medium">TCP</span>
-              {% elif p[7] == 'UDP' %}
-              <span class="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">UDP</span>
-              {% elif p[7] == 'ICMP' %}
-              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 rounded-full text-xs font-medium">ICMP</span>
-              {% elif p[7] == 'HTTP' %}
-              <span class="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full text-xs font-medium">HTTP</span>
-              {% elif p[7] == 'HTTPS' %}
-              <span class="px-2 py-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full text-xs font-medium">HTTPS</span>
-              {% else %}
-              <span class="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-full text-xs font-medium">{{ p[7] or 'N/A' }}</span>
-              {% endif %}
-            </td>
-            <td class="p-2 text-right">{{ p[8] or 'N/A' }}</td>
-            <td class="p-2">{{ p[9] or 'N/A' }}</td>
-            <td class="p-2 text-center">{{ p[10] or 'N/A' }}</td>
-          </tr>
-          {% endfor %}
+          <tr><td colspan="12" class="text-center p-4">Cargando datos o inicia la captura...</td></tr>
         </tbody>
       </table>
-    </div>
+       <div id="noResultsMessage" class="text-center p-4 text-gray-500 dark:text-gray-400 hidden">No se encontraron paquetes que coincidan con los filtros.</div>
+    </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">Tráfico en Tiempo Real</h3>
@@ -466,251 +274,88 @@
             <button class="text-xs bg-primary-100 dark:bg-primary-800 px-2 py-1 rounded text-primary-700 dark:text-primary-200 font-medium" data-time="15m">15m</button>
           </div>
         </div>
-        <div class="h-64">
-          <canvas id="trafficChart"></canvas>
-        </div>
+        <div class="h-64"><canvas id="trafficChart"></canvas></div>
       </div>
-      
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">Protocolos Detectados</h3>
-          <div class="flex gap-2">
-            <button class="text-xs bg-primary-100 dark:bg-primary-800 px-2 py-1 rounded text-primary-700 dark:text-primary-200 font-medium" data-chart="pie">Circular</button>
-            <button class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-chart="bar">Barras</button>
+           <div class="flex gap-2">
+            <button class="text-xs bg-primary-100 dark:bg-primary-800 px-2 py-1 rounded text-primary-700 dark:text-primary-200 font-medium" data-chart-type="pie" data-chart-target="protocolChart">Circular</button>
+            <button class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" data-chart-type="bar" data-chart-target="protocolChart">Barras</button>
           </div>
         </div>
-        <div class="h-64">
-          <canvas id="protocolChart"></canvas>
-        </div>
+        <div class="h-64"><canvas id="protocolChart"></canvas></div>
       </div>
-    </div>
+    </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
-        <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Distribución por Puertos</h3>
-        <div class="h-64">
-          <canvas id="portChart"></canvas>
-        </div>
+        <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Distribución por Puertos (Destino)</h3>
+        <div class="h-64"><canvas id="portChart"></canvas></div>
       </div>
-      
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
-        <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Actividad por IP</h3>
-        <div class="h-64">
-          <canvas id="ipChart"></canvas>
-        </div>
+        <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Actividad por IP (Origen)</h3>
+        <div class="h-64"><canvas id="ipChart"></canvas></div>
       </div>
-      
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
         <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-3">Tamaño de Paquetes</h3>
-        <div class="h-64">
-          <canvas id="sizeChart"></canvas>
-        </div>
+        <div class="h-64"><canvas id="sizeChart"></canvas></div>
       </div>
-    </div>
+    </section>
     
-    <!-- Contenedor de Alertas -->
-    <div class="mb-6">
+    <section class="mb-6">
       <div class="flex justify-between items-center mb-3">
-        <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300">Alertas Recientes</h3>
-        <a href="{{ url_for('login.alertas') }}" class="text-primary-600 dark:text-primary-400 hover:underline text-sm flex items-center">
-          Ver todas <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+        <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300">Alertas Recientes del IDS</h3>
+        <a href="{{ url_for('reportes_bp.mostrar_dashboard_reportes') }}" class="text-primary-600 dark:text-primary-400 hover:underline text-sm flex items-center">
+          Ver todas las alertas <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
         </a>
       </div>
-      
-      <div id="alertasContainer" class="space-y-3">
-        <!-- Las alertas se cargarán dinámicamente aquí -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-amber-500 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="bg-amber-100 dark:bg-amber-900 p-2 rounded-full">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
-            </div>
-            <div>
-              <h4 class="font-medium text-gray-800 dark:text-gray-200">Tráfico UDP inusual</h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Desde 192.168.1.45 - Hace 5 minutos</p>
-            </div>
-          </div>
-          <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
+      <div id="alertasContainer" class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="text-center p-4 text-gray-500 dark:text-gray-400">No hay alertas recientes o la captura está detenida.</div>
       </div>
-    </div>
+    </section>
   </main>
 
-  <!-- PANEL DE DETALLES (oculto por defecto) -->
-  <div id="detallesPanel" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-lg shadow-2xl p-6 max-h-[90vh] overflow-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-primary-700 dark:text-primary-300">Detalles del Paquete</h3>
-        <button id="cerrarDetalles" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+  <div id="detallesPanel" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] hidden p-4">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-lg shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300">Detalles del Paquete</h3>
+        <button id="cerrarDetalles" aria-label="Cerrar detalles" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
       </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Información Básica</h4>
-          <div class="space-y-2">
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">ID:</span>
-              <span id="detalleId" class="font-medium text-gray-800 dark:text-gray-200">12345</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">Protocolo:</span>
-              <span id="detalleProtocolo" class="font-medium text-gray-800 dark:text-gray-200">TCP</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">Tamaño:</span>
-              <span id="detalleTamaño" class="font-medium text-gray-800 dark:text-gray-200">1024 bytes</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">Fecha captura:</span>
-              <span id="detalleFecha" class="font-medium text-gray-800 dark:text-gray-200">2025-05-02 15:30:45</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">TTL:</span>
-              <span id="detalleTTL" class="font-medium text-gray-800 dark:text-gray-200">64</span>
-            </div>
-          </div>
-        </div>
-        
-        <div>
-          <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Direcciones</h4>
-          <div class="space-y-2">
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">IP Origen:</span>
-              <span id="detalleIPOrigen" class="font-medium text-gray-800 dark:text-gray-200">192.168.1.100</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">IP Destino:</span>
-              <span id="detalleIPDestino" class="font-medium text-gray-800 dark:text-gray-200">10.0.0.1</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">MAC Origen:</span>
-              <span id="detalleMACOrigen" class="font-medium text-gray-800 dark:text-gray-200">00:1A:2B:3C:4D:5E</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">MAC Destino:</span>
-              <span id="detalleMACDestino" class="font-medium text-gray-800 dark:text-gray-200">00:5E:4D:3C:2B:1A</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">Puerto Origen:</span>
-              <span id="detallePuertoOrigen" class="font-medium text-gray-800 dark:text-gray-200">54321</span>
-            </div>
-            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
-              <span class="text-gray-600 dark:text-gray-400">Puerto Destino:</span>
-              <span id="detallePuertoDestino" class="font-medium text-gray-800 dark:text-gray-200">80</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="mb-6">
-        <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Análisis de Seguridad</h4>
-        <div id="detalleAnalisis" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="bg-green-100 dark:bg-green-900 p-2 rounded-full">
-              <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
-            </div>
-            <span class="text-green-600 dark:text-green-400 font-medium">Tráfico Normal</span>
-          </div>
-          <p class="text-gray-700 dark:text-gray-300">No se detectaron anomalías en este paquete.</p>
-        </div>
-      </div>
-      
-      <div>
-        <h4 class="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">Contenido del Paquete</h4>
-        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-          <pre id="detalleContenido" class="text-xs font-mono whitespace-pre-wrap overflow-x-auto text-gray-800 dark:text-gray-200">
-0000   45 00 00 28 ab cd 40 00 40 06 a6 ec c0 a8 01 64
-0010   0a 00 00 01 d4 31 00 50 a1 b2 c3 d4 e5 f6 a7 b8
-0020   50 10 01 00 ce 9c 00 00
-          </pre>
-        </div>
-      </div>
-      
-      <div class="mt-6 flex justify-end gap-3">
-        <button class="bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg transition-colors duration-300 flex items-center gap-2">
-          <i data-lucide="printer" class="w-5 h-5"></i> Imprimir
-        </button>
-        <button class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center gap-2">
-          <i data-lucide="download" class="w-5 h-5"></i> Exportar
-        </button>
+      <div id="contenidoDetallesPaquete" class="space-y-4">
+        <p class="text-center text-gray-500 dark:text-gray-400">Cargando detalles...</p>
       </div>
     </div>
   </div>
 
-  <!-- PANEL DE FILTROS (oculto por defecto) -->
-  <div id="filtrosPanel" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div id="filtrosPanel" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] hidden p-4">
     <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-lg shadow-2xl p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-primary-700 dark:text-primary-300">Filtros Avanzados</h3>
-        <button id="cerrarFiltros" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300">Filtros Avanzados</h3>
+        <button id="cerrarFiltros" aria-label="Cerrar filtros" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
       </div>
-      
       <form id="formFiltros" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="filtroIPOrigen" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IP Origen</label>
-            <input type="text" id="filtroIPOrigen" placeholder="Ej: 192.168.1.100" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-          </div>
-          <div>
-            <label for="filtroIPDestino" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IP Destino</label>
-            <input type="text" id="filtroIPDestino" placeholder="Ej: 10.0.0.1" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label for="filtroIPOrigen" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IP Origen</label><input type="text" id="filtroIPOrigen" placeholder="Ej: 192.168.1.100" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"></div>
+          <div><label for="filtroIPDestino" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IP Destino</label><input type="text" id="filtroIPDestino" placeholder="Ej: 10.0.0.1" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"></div>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="filtroPuertoOrigen" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Puerto Origen</label>
-            <input type="number" id="filtroPuertoOrigen" placeholder="Ej: 8080" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-          </div>
-          <div>
-            <label for="filtroPuertoDestino" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Puerto Destino</label>
-            <input type="number" id="filtroPuertoDestino" placeholder="Ej: 80" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label for="filtroPuertoOrigen" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Puerto Origen</label><input type="number" id="filtroPuertoOrigen" placeholder="Ej: 8080" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"></div>
+          <div><label for="filtroPuertoDestino" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Puerto Destino</label><input type="number" id="filtroPuertoDestino" placeholder="Ej: 80" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"></div>
         </div>
+        <div><label for="filtroProtocoloAvanzado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Protocolo</label><select id="filtroProtocoloAvanzado" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"><option value="">Todos</option></select></div>
+        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rango de tamaño (bytes)</label><div class="flex items-center space-x-4"><input type="number" id="filtroTamañoMin" placeholder="Mínimo" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"><span class="text-gray-500 dark:text-gray-400">a</span><input type="number" id="filtroTamañoMax" placeholder="Máximo" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"></div></div>
+        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rango de fechas</label><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><input type="datetime-local" id="filtroFechaInicio" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"><input type="datetime-local" id="filtroFechaFin" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md focus:ring-primary-500 focus:border-primary-500"></div></div>
         
-        <div>
-          <label for="filtroProtocoloAvanzado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Protocolo</label>
-          <select id="filtroProtocoloAvanzado" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-            <option value="">Todos los protocolos</option>
-            <option value="TCP">TCP</option>
-            <option value="UDP">UDP</option>
-            <option value="ICMP">ICMP</option>
-            <option value="HTTP">HTTP</option>
-            <option value="HTTPS">HTTPS</option>
-            <option value="DNS">DNS</option>
-            <option value="ARP">ARP</option>
-            <option value="NTP">NTP</option>
-            <option value="SMTP">SMTP</option>
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rango de tamaño (bytes)</label>
-          <div class="flex items-center space-x-4">
-            <input type="number" id="filtroTamañoMin" placeholder="Mínimo" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-            <span class="text-gray-500">a</span>
-            <input type="number" id="filtroTamañoMax" placeholder="Máximo" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rango de fechas</label>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="datetime-local" id="filtroFechaInicio" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-            <input type="datetime-local" id="filtroFechaFin" class="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md">
-          </div>
-        </div>
-        
-        <div class="flex justify-between pt-4">
-          <button type="button" id="limpiarFiltros" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300">
+        <div class="flex justify-between items-center pt-4">
+          <button type="button" id="limpiarFiltros" class="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-300 text-sm">
             Limpiar Filtros
           </button>
-          <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300">
+          <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 text-sm">
             Aplicar Filtros
           </button>
         </div>
@@ -718,105 +363,539 @@
     </div>
   </div>
 
-  <!-- Script para fecha y hora actual -->
   <script>
-    function actualizarFechaHora() {
-      const ahora = new Date();
-      const opciones = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      };
-      document.getElementById('currentDateTime').textContent = ahora.toLocaleDateString('es-ES', opciones);
+    // Variables globales
+    let trafficChartInstance, protocolChartInstance, portChartInstance, ipChartInstance, sizeChartInstance;
+    let todosLosPaquetes = []; 
+    let paquetesFiltradosYOrdenados = [];
+    let capturaActivaLocal = false;
+    let intervaloActualizacion;
+    const INTERVALO_POLLING_MS = 5000; 
+
+    const MAPA_PROTOCOLOS = {
+        "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP", "47": "GRE", 
+        "50": "ESP", "51": "AH", "88": "EIGRP", "89": "OSPF", "58": "ICMPv6"
+    };
+    const OPCIONES_PROTOCOLO_FILTRO = ["TCP", "UDP", "ICMP", "HTTP", "HTTPS", "DNS", "ARP", "NTP", "SMTP", "IGMP", "OSPF", "GRE", "ESP", "AH"];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        inicializarTema();
+        inicializarIconosLucide();
+        configurarEventListenersGenerales();
+        inicializarGraficos();
+        cargarDatosInicialesYConfigurarPolling();
+        actualizarFechaHora();
+        setInterval(actualizarFechaHora, 1000);
+        popularSelectFiltroProtocolos();
+    });
+
+    function inicializarIconosLucide() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        } else {
+            console.warn("Lucide icons no está disponible.");
+        }
+    }
+
+    function popularSelectFiltroProtocolos() {
+        const selectProtocolo = document.getElementById('filtroProtocoloAvanzado');
+        const selectProtocoloRapido = document.getElementById('filtroProtocolo');
+        
+        const agregarOpcion = (sel, val, txt) => {
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = txt;
+            sel.appendChild(option);
+        };
+
+        if (selectProtocolo) {
+            OPCIONES_PROTOCOLO_FILTRO.forEach(p => agregarOpcion(selectProtocolo, p, p));
+        }
+        if (selectProtocoloRapido) {
+            // Llenar con los protocolos más comunes para el filtro rápido
+            ["TCP", "UDP", "ICMP", "HTTP", "HTTPS", "DNS"].forEach(p => agregarOpcion(selectProtocoloRapido, p, p));
+        }
     }
     
-    // Actualizar la fecha y hora cada segundo
-    actualizarFechaHora();
-    setInterval(actualizarFechaHora, 1000);
-    
-    // Manejo del menú en dispositivos móviles
-    document.getElementById('menuToggle').addEventListener('click', function() {
-      const menu = document.getElementById('sideMenu');
-      menu.classList.toggle('hidden');
-    });
-    
-    // Inicializar los iconos de Lucide
-    document.addEventListener('DOMContentLoaded', function() {
-      lucide.createIcons();
-      
-      // Funcionalidad para el cambio de tema
-      const temaSwitch = document.getElementById('temaSwitch');
-      temaSwitch.addEventListener('click', function() {
-        document.documentElement.classList.toggle('dark');
+    function actualizarFechaHora() {
+      const ahora = new Date();
+      const opciones = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+      const el = document.getElementById('currentDateTime');
+      if(el) el.textContent = ahora.toLocaleDateString('es-ES', opciones);
+    }
+
+    function configurarEventListenersGenerales() {
+        document.getElementById('menuToggle')?.addEventListener('click', () => document.getElementById('sideMenu')?.classList.toggle('hidden'));
+        document.getElementById('temaSwitch')?.addEventListener('click', toggleTema);
         
-        // Guardar preferencia en localStorage
-        if (document.documentElement.classList.contains('dark')) {
-          localStorage.setItem('theme', 'dark');
-        } else {
-          localStorage.setItem('theme', 'light');
-        }
-      });
-      
-      // Mostrar panel de detalles al hacer clic en una fila
-      const filas = document.querySelectorAll('#packetTable tr');
-      filas.forEach(fila => {
-        fila.addEventListener('click', function() {
-          document.getElementById('detallesPanel').classList.remove('hidden');
+        document.getElementById('btnIniciar')?.addEventListener('click', manejarInicioCaptura);
+        document.getElementById('btnDetener')?.addEventListener('click', manejarDetencionCaptura);
+        document.getElementById('btnFiltrar')?.addEventListener('click', () => document.getElementById('filtrosPanel')?.classList.remove('hidden'));
+        document.getElementById('btnExportar')?.addEventListener('click', exportarDatosCSV);
+        
+        document.getElementById('cerrarDetalles')?.addEventListener('click', () => document.getElementById('detallesPanel')?.classList.add('hidden'));
+        document.getElementById('cerrarFiltros')?.addEventListener('click', () => document.getElementById('filtrosPanel')?.classList.add('hidden'));
+        
+        document.getElementById('buscador')?.addEventListener('input', aplicarFiltrosRapidos);
+        document.getElementById('filtroProtocolo')?.addEventListener('change', aplicarFiltrosRapidos);
+        document.getElementById('filtroTamaño')?.addEventListener('change', aplicarFiltrosRapidos);
+
+        document.getElementById('formFiltros')?.addEventListener('submit', (e) => { e.preventDefault(); aplicarFiltrosAvanzados(); });
+        document.getElementById('limpiarFiltros')?.addEventListener('click', limpiarFormularioFiltros);
+
+        document.querySelectorAll('#packetTable thead th[data-sort-key]').forEach(th => {
+            th.addEventListener('click', () => manejarOrdenamientoTabla(th));
         });
-      });
-      
-      // Cerrar panel de detalles
-      document.getElementById('cerrarDetalles').addEventListener('click', function() {
-        document.getElementById('detallesPanel').classList.add('hidden');
-      });
-      
-      // Mostrar panel de filtros
-      document.getElementById('btnFiltrar').addEventListener('click', function() {
-        document.getElementById('filtrosPanel').classList.remove('hidden');
-      });
-      
-      // Cerrar panel de filtros
-      document.getElementById('cerrarFiltros').addEventListener('click', function() {
-        document.getElementById('filtrosPanel').classList.add('hidden');
-      });
-      
-      // Botones de inicio y detención
-      document.getElementById('btnIniciar').addEventListener('click', function() {
-        this.disabled = true;
-        this.classList.add('opacity-50', 'cursor-not-allowed');
-        document.getElementById('btnDetener').disabled = false;
-        document.getElementById('btnDetener').classList.remove('opacity-50', 'cursor-not-allowed');
         
-        document.getElementById('mensajeEstado').className = 'state-active mb-6';
-        document.getElementById('mensajeEstado').innerHTML = '<span class="inline-flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5"></i>Captura en curso</span>';
-        lucide.createIcons();
-      });
-      
-      document.getElementById('btnDetener').addEventListener('click', function() {
-        this.disabled = true;
-        this.classList.add('opacity-50', 'cursor-not-allowed');
-        document.getElementById('btnIniciar').disabled = false;
-        document.getElementById('btnIniciar').classList.remove('opacity-50', 'cursor-not-allowed');
-        
-        document.getElementById('mensajeEstado').className = 'state-inactive mb-6';
-        document.getElementById('mensajeEstado').innerHTML = '<span class="inline-flex items-center gap-2"><i data-lucide="pause-circle" class="w-5 h-5"></i>Captura detenida</span>';
-        lucide.createIcons();
-      });
-    });
+        document.getElementById('packetTable')?.addEventListener('click', (event) => {
+            const fila = event.target.closest('tr');
+            const actionButton = event.target.closest('button'); // Para el botón de detalles
+            
+            if (actionButton && fila && fila.dataset.paqueteId) {
+                 const paqueteId = parseInt(fila.dataset.paqueteId);
+                 const paquete = todosLosPaquetes.find(p => p.idescanear_red === paqueteId);
+                 if (paquete) mostrarDetallesPaquete(paquete);
+            } else if (fila && fila.dataset.paqueteId && !actionButton) { // Clic en la fila pero no en un botón
+                 // Si quieres que hacer clic en la fila también muestre detalles:
+                 // const paqueteId = parseInt(fila.dataset.paqueteId);
+                 // const paquete = todosLosPaquetes.find(p => p.idescanear_red === paqueteId);
+                 // if (paquete) mostrarDetallesPaquete(paquete);
+            }
+        });
+        document.querySelectorAll('.bg-white [data-time]').forEach(button => {
+            button.addEventListener('click', (e) => cambiarRangoTiempoGraficoTrafico(e.target.dataset.time));
+        });
+        document.querySelectorAll('.bg-white [data-chart-type]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const chartType = e.target.dataset.chartType;
+                const chartTargetId = e.target.dataset.chartTarget;
+                cambiarTipoGrafico(chartTargetId, chartType);
+            });
+        });
+    }
+
+    async function manejarInicioCaptura() {
+        try {
+            mostrarMensaje("⚙️ Iniciando captura...", "info", 0); // Mensaje sin auto-cierre
+            const response = await fetch('/iniciar_captura', { method: 'POST' });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                capturaActivaLocal = true;
+                actualizarEstadoCapturaUI(true);
+                mostrarMensaje(`✅ ${data.mensaje || 'Captura iniciada.'}`, "success");
+                localStorage.setItem('capturaActiva', 'true');
+                if (intervaloActualizacion) clearInterval(intervaloActualizacion);
+                intervaloActualizacion = setInterval(solicitarNuevosDatos, INTERVALO_POLLING_MS);
+                solicitarNuevosDatos(); 
+            } else {
+                mostrarMensaje(`⚠️ ${data.mensaje || 'No se pudo iniciar la captura.'}`, "warning");
+                actualizarEstadoCapturaUI(false);
+            }
+        } catch (error) {
+            console.error("❌ Error al iniciar captura:", error);
+            mostrarMensaje("❌ Error de red al intentar iniciar la captura.", "error");
+            actualizarEstadoCapturaUI(false);
+        }
+    }
+
+    async function manejarDetencionCaptura() {
+        try {
+            mostrarMensaje("⚙️ Deteniendo captura...", "info", 0);
+            const response = await fetch('/detener_captura', { method: 'POST' });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                capturaActivaLocal = false;
+                actualizarEstadoCapturaUI(false);
+                mostrarMensaje(`🛑 ${data.mensaje || 'Captura detenida.'}`, "info");
+                localStorage.setItem('capturaActiva', 'false');
+                if (intervaloActualizacion) clearInterval(intervaloActualizacion);
+            } else {
+                mostrarMensaje(`⚠️ ${data.mensaje || 'No se pudo detener la captura.'}`, "warning");
+            }
+        } catch (error) {
+            console.error("❌ Error al detener captura:", error);
+            mostrarMensaje("❌ Error de red al intentar detener la captura.", "error");
+        }
+    }
     
-    // Comprobar tema guardado
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    async function cargarDatosInicialesYConfigurarPolling() {
+        try {
+            // Este endpoint debería idealmente devolver el estado de captura del servidor
+            // y los paquetes iniciales.
+            const response = await fetch('/datos_red'); 
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            
+            const data = await response.json();
+            let paquetesRecibidos = [];
+            let capturaActivaServidor = false; // Default
+
+            if (data && typeof data === 'object' && data !== null) {
+                if (Array.isArray(data.paquetes)) {
+                    paquetesRecibidos = data.paquetes;
+                } else if (Array.isArray(data)) { // Fallback si solo devuelve array de paquetes
+                    paquetesRecibidos = data;
+                }
+                if (typeof data.captura_activa_servidor === 'boolean') {
+                    capturaActivaServidor = data.captura_activa_servidor;
+                }
+            } else if (Array.isArray(data)) { // Si la respuesta es solo un array de paquetes
+                 paquetesRecibidos = data;
+            }
+
+            todosLosPaquetes = paquetesRecibidos.sort((a, b) => b.idescanear_red - a.idescanear_red);
+            aplicarFiltrosRapidos(); // Para mostrar la tabla con los filtros actuales
+            actualizarTodosLosGraficos(todosLosPaquetes); 
+            actualizarContadoresGlobales(todosLosPaquetes);
+            console.log("📊 Datos iniciales cargados y gráficos actualizados.");
+            
+            // Sincronizar estado de captura
+            capturaActivaLocal = capturaActivaServidor; // Confiar en el servidor si provee el estado
+            localStorage.setItem('capturaActiva', capturaActivaLocal.toString());
+            actualizarEstadoCapturaUI(capturaActivaLocal);
+
+            if (capturaActivaLocal) {
+                if (intervaloActualizacion) clearInterval(intervaloActualizacion);
+                intervaloActualizacion = setInterval(solicitarNuevosDatos, INTERVALO_POLLING_MS);
+                mostrarMensaje("🔄 Captura activa, actualizando datos periódicamente...", "info", 3000);
+            }
+
+        } catch (error) {
+            console.error("❌ Error al cargar datos iniciales o configurar polling:", error);
+            mostrarMensaje("⚠️ Error al cargar datos iniciales. La captura puede estar detenida.", "warning");
+            actualizarEstadoCapturaUI(false);
+        }
+    }
+
+    async function solicitarNuevosDatos() {
+        if (!capturaActivaLocal) {
+            if (intervaloActualizacion) clearInterval(intervaloActualizacion);
+            return;
+        }
+        try {
+            const response = await fetch('/datos_red');
+            if (!response.ok) {
+                if (response.status === 409) { // Servidor indica que la captura se detuvo
+                    manejarDetencionCaptura(); 
+                    return;
+                }
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            const data = await response.json();
+            let paquetesRecibidos = [];
+            if (data && Array.isArray(data.paquetes)) {
+                paquetesRecibidos = data.paquetes;
+            } else if (Array.isArray(data)) {
+                paquetesRecibidos = data;
+            }
+
+            if (paquetesRecibidos.length > 0) {
+                // Una forma simple de actualizar: reemplazar todos los paquetes.
+                // Para grandes volúmenes, sería mejor solo añadir los nuevos.
+                todosLosPaquetes = paquetesRecibidos.sort((a,b) => b.idescanear_red - a.idescanear_red); 
+                aplicarFiltrosRapidos();
+                actualizarTodosLosGraficos(paquetesFiltradosYOrdenados.length > 0 ? paquetesFiltradosYOrdenados : todosLosPaquetes);
+                actualizarContadoresGlobales(todosLosPaquetes);
+            }
+        } catch (error) {
+            console.error("❌ Error durante el polling:", error);
+        }
+    }
+
+    function actualizarEstadoCapturaUI(activa) {
+        const btnIniciar = document.getElementById("btnIniciar");
+        const btnDetener = document.getElementById("btnDetener");
+        const mensajeEstado = document.getElementById("mensajeEstado");
+
+        if (btnIniciar) { btnIniciar.disabled = activa; btnIniciar.classList.toggle("opacity-50", activa); btnIniciar.classList.toggle("cursor-not-allowed", activa); }
+        if (btnDetener) { btnDetener.disabled = !activa; btnDetener.classList.toggle("opacity-50", !activa); btnDetener.classList.toggle("cursor-not-allowed", !activa); }
+        if (mensajeEstado) {
+            mensajeEstado.className = activa ? "state-active mb-6 py-3 px-4 text-sm" : "state-inactive mb-6 py-3 px-4 text-sm";
+            mensajeEstado.innerHTML = activa 
+                ? `<span class="inline-flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5"></i>Captura en curso. Actualizando...</span>`
+                : `<span class="inline-flex items-center gap-2"><i data-lucide="pause-circle" class="w-5 h-5"></i>Captura detenida.</span>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons({nodes: [mensajeEstado.querySelector('i')]});
+        }
+    }
+    
+    let sortConfig = { key: 'idescanear_red', direction: 'desc' };
+    function manejarOrdenamientoTabla(thElement) {
+        const newKey = thElement.dataset.sortKey;
+        let newDirection = 'asc';
+        if (sortConfig.key === newKey && sortConfig.direction === 'asc') { newDirection = 'desc'; }
+        sortConfig = { key: newKey, direction: newDirection };
+        document.querySelectorAll('#packetTable thead th[data-sort-key] i').forEach(icon => icon.setAttribute('data-lucide', 'arrow-up-down'));
+        const currentIcon = thElement.querySelector('i');
+        if(currentIcon) currentIcon.setAttribute('data-lucide', newDirection === 'asc' ? 'arrow-up' : 'arrow-down');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        renderizarTabla();
+    }
+
+    function ordenarPaquetes(paquetesAOrdenar) {
+        return [...paquetesAOrdenar].sort((a, b) => {
+            let valA = a[sortConfig.key]; let valB = b[sortConfig.key];
+            if (['idescanear_red', 'tamano', 'ttl', 'puerto_origen', 'puerto_destino'].includes(sortConfig.key)) { valA = Number(valA); valB = Number(valB); }
+            else if (sortConfig.key === 'fecha_captura') { valA = new Date(valA).getTime(); valB = new Date(valB).getTime(); }
+            else if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
+            if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    function renderizarTabla() {
+        const tablaBody = document.getElementById('packetTable');
+        const mensajeSinResultados = document.getElementById('noResultsMessage');
+        if (!tablaBody || !mensajeSinResultados) return;
+        tablaBody.innerHTML = '';
+        paquetesFiltradosYOrdenados = ordenarPaquetes(filtrarPaquetesConFiltrosRapidos(todosLosPaquetes));
+        if (paquetesFiltradosYOrdenados.length === 0) {
+            mensajeSinResultados.classList.remove('hidden');
+            tablaBody.innerHTML = `<tr><td colspan="12" class="text-center p-4">No hay paquetes que coincidan.</td></tr>`;
+        } else {
+            mensajeSinResultados.classList.add('hidden');
+            paquetesFiltradosYOrdenados.forEach(paquete => tablaBody.appendChild(crearFilaDePaquete(paquete)));
+        }
+        if (typeof tippy !== 'undefined') inicializarTooltipsTabla();
+    }
+    
+    function crearFilaDePaquete(paquete) {
+        const fila = document.createElement('tr');
+        fila.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150';
+        fila.dataset.paqueteId = paquete.idescanear_red;
+        const fechaFormateada = paquete.fecha_captura ? new Date(paquete.fecha_captura).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'medium'}) : 'N/A';
+        const protocoloLegible = MAPA_PROTOCOLOS[String(paquete.protocolo)] || paquete.protocolo_nombre || String(paquete.protocolo) || "N/A";
+        let protocoloBadgeClass = "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        if (protocoloLegible === 'TCP') protocoloBadgeClass = "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+        else if (protocoloLegible === 'UDP') protocoloBadgeClass = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+        else if (protocoloLegible === 'ICMP') protocoloBadgeClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+
+        fila.innerHTML = `
+            <td class="p-2 text-center text-xs">${paquete.idescanear_red || 'N/A'}</td>
+            <td class="p-2 text-xs truncate-cell" title="${paquete.iporigen || 'N/A'}">${paquete.iporigen || 'N/A'}</td>
+            <td class="p-2 text-xs truncate-cell" title="${paquete.ipdestino || 'N/A'}">${paquete.ipdestino || 'N/A'}</td>
+            <td class="p-2 text-xs truncate-cell hidden md:table-cell" title="${paquete.mac_origen || 'N/A'}">${paquete.mac_origen || 'N/A'}</td>
+            <td class="p-2 text-xs truncate-cell hidden md:table-cell" title="${paquete.mac_destino || 'N/A'}">${paquete.mac_destino || 'N/A'}</td>
+            <td class="p-2 text-center text-xs">${paquete.puerto_origen || 'N/A'}</td>
+            <td class="p-2 text-center text-xs">${paquete.puerto_destino || 'N/A'}</td>
+            <td class="p-2 text-xs"><span class="px-2 py-0.5 rounded-full font-medium ${protocoloBadgeClass}">${protocoloLegible}</span></td>
+            <td class="p-2 text-right text-xs">${paquete.tamano !== null ? paquete.tamano + ' B' : 'N/A'}</td>
+            <td class="p-2 text-xs">${fechaFormateada}</td>
+            <td class="p-2 text-center text-xs">${paquete.ttl || 'N/A'}</td>
+            <td class="p-2 text-center"><button class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-200" title="Ver Detalles"><i data-lucide="eye" class="w-4 h-4 pointer-events-none"></i></button></td>`;
+        if (typeof lucide !== 'undefined') { const eyeIcon = fila.querySelector('i[data-lucide="eye"]'); if(eyeIcon) lucide.createIcons({nodes: [eyeIcon]}); }
+        return fila;
+    }
+    
+    function mostrarDetallesPaquete(paquete) {
+        const panel = document.getElementById('detallesPanel');
+        const contenido = document.getElementById('contenidoDetallesPaquete');
+        if (!panel || !contenido) return;
+        const fechaFormateada = paquete.fecha_captura ? new Date(paquete.fecha_captura).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'medium'}) : 'N/A';
+        const protocoloLegible = MAPA_PROTOCOLOS[String(paquete.protocolo)] || paquete.protocolo_nombre || String(paquete.protocolo) || "N/A";
+        contenido.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">ID:</strong> ${paquete.idescanear_red || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">Fecha:</strong> ${fechaFormateada}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">IP Origen:</strong> ${paquete.iporigen || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">IP Destino:</strong> ${paquete.ipdestino || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">P. Origen:</strong> ${paquete.puerto_origen || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">P. Destino:</strong> ${paquete.puerto_destino || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">MAC Origen:</strong> ${paquete.mac_origen || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">MAC Destino:</strong> ${paquete.mac_destino || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">Protocolo:</strong> ${protocoloLegible} (${paquete.protocolo || 'N/A'})</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">Tamaño:</strong> ${paquete.tamano !== null ? paquete.tamano + ' bytes' : 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">TTL:</strong> ${paquete.ttl || 'N/A'}</div>
+                <div><strong class="text-gray-500 dark:text-gray-400 w-28 inline-block">Flags TCP:</strong> ${paquete.flags_tcp || 'N/A'}</div>
+            </div>
+            <div class="mt-4">
+                <h4 class="text-md font-medium mb-1 text-gray-700 dark:text-gray-300">Payload (preview):</h4>
+                <pre class="text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto p-3 bg-gray-100 dark:bg-gray-700 rounded-md max-h-40">${paquete.payload ? paquete.payload.substring(0, 200) + (paquete.payload.length > 200 ? '...' : '') : 'N/A'}</pre>
+            </div>`;
+        panel.classList.remove('hidden');
+    }
+    
+    function aplicarFiltrosRapidos() { renderizarTabla(); actualizarTodosLosGraficos(paquetesFiltradosYOrdenados); actualizarContadoresGlobales(todosLosPaquetes); }
+    function filtrarPaquetesConFiltrosRapidos(paquetes) {
+        const busqueda = document.getElementById('buscador')?.value.toLowerCase() || "";
+        const protocoloSel = document.getElementById('filtroProtocolo')?.value || "";
+        const tamañoSel = document.getElementById('filtroTamaño')?.value || "";
+        return paquetes.filter(p => {
+            const textoPaquete = `${p.idescanear_red} ${p.iporigen} ${p.ipdestino} ${p.mac_origen} ${p.mac_destino} ${p.puerto_origen} ${p.puerto_destino} ${MAPA_PROTOCOLOS[String(p.protocolo)] || p.protocolo_nombre || String(p.protocolo)} ${p.tamano} ${p.ttl}`.toLowerCase();
+            const cumpleBusqueda = !busqueda || textoPaquete.includes(busqueda);
+            const cumpleProtocolo = !protocoloSel || (MAPA_PROTOCOLOS[String(p.protocolo)] || p.protocolo_nombre) === protocoloSel;
+            const cumpleTamaño = !tamañoSel || (tamañoSel === 'pequeño' && p.tamano < 100) || (tamañoSel === 'mediano' && p.tamano >= 100 && p.tamano <= 1000) || (tamañoSel === 'grande' && p.tamano > 1000);
+            return cumpleBusqueda && cumpleProtocolo && cumpleTamaño;
+        });
+    }
+    function aplicarFiltrosAvanzados() {
+        const filtros = {
+            ipOrigen: document.getElementById('filtroIPOrigen').value, ipDestino: document.getElementById('filtroIPDestino').value,
+            puertoOrigen: document.getElementById('filtroPuertoOrigen').value, puertoDestino: document.getElementById('filtroPuertoDestino').value,
+            protocolo: document.getElementById('filtroProtocoloAvanzado').value, tamañoMin: document.getElementById('filtroTamañoMin').value,
+            tamañoMax: document.getElementById('filtroTamañoMax').value, fechaInicio: document.getElementById('filtroFechaInicio').value,
+            fechaFin: document.getElementById('filtroFechaFin').value
+        };
+        let datosFiltradosAvanzados = todosLosPaquetes.filter(p => 
+            (!filtros.ipOrigen || (p.iporigen && p.iporigen.includes(filtros.ipOrigen))) &&
+            (!filtros.ipDestino || (p.ipdestino && p.ipdestino.includes(filtros.ipDestino))) &&
+            (!filtros.puertoOrigen || p.puerto_origen == filtros.puertoOrigen) &&
+            (!filtros.puertoDestino || p.puerto_destino == filtros.puertoDestino) &&
+            (!filtros.protocolo || (MAPA_PROTOCOLOS[String(p.protocolo)] || p.protocolo_nombre) == filtros.protocolo) &&
+            (!filtros.tamañoMin || p.tamano >= parseInt(filtros.tamañoMin)) &&
+            (!filtros.tamañoMax || p.tamano <= parseInt(filtros.tamañoMax)) &&
+            (!filtros.fechaInicio || new Date(p.fecha_captura) >= new Date(filtros.fechaInicio)) &&
+            (!filtros.fechaFin || new Date(p.fecha_captura) <= new Date(filtros.fechaFin))
+        );
+        paquetesFiltradosYOrdenados = ordenarPaquetes(datosFiltradosAvanzados);
+        renderizarTablaFiltrada(paquetesFiltradosYOrdenados);
+        actualizarTodosLosGraficos(paquetesFiltradosYOrdenados);
+        document.getElementById('filtrosPanel')?.classList.add('hidden');
+        mostrarMensaje(`🔎 Filtros avanzados aplicados: ${paquetesFiltradosYOrdenados.length} paquetes.`, "info");
+    }
+    function renderizarTablaFiltrada(datos) {
+        const tablaBody = document.getElementById('packetTable'); const mensajeSinResultados = document.getElementById('noResultsMessage');
+        if (!tablaBody || !mensajeSinResultados) return; tablaBody.innerHTML = '';
+        if (datos.length === 0) { mensajeSinResultados.classList.remove('hidden'); tablaBody.innerHTML = `<tr><td colspan="12" class="text-center p-4">No hay paquetes con filtros aplicados.</td></tr>`; }
+        else { mensajeSinResultados.classList.add('hidden'); datos.forEach(paquete => tablaBody.appendChild(crearFilaDePaquete(paquete))); }
+        if (typeof tippy !== 'undefined') inicializarTooltipsTabla();
+    }
+    function limpiarFormularioFiltros() { document.getElementById('formFiltros')?.reset(); aplicarFiltrosRapidos(); mostrarMensaje("🧹 Filtros avanzados limpiados.", "info");}
+
+    function inicializarGraficos() {
+        const commonOptions = (title) => ({ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: title.includes('Protocolos'), position: 'top', labels:{color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'} }, title: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563' }, grid: { color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} }, x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563' }, grid: { display:false } } } });
+        const getColor = (opacity = 1) => document.documentElement.classList.contains('dark') ? `rgba(165, 180, 252, ${opacity})` : `rgba(99, 102, 241, ${opacity})`; // primary-300 dark, primary-500 light
+
+        trafficChartInstance = new Chart(document.getElementById('trafficChart').getContext('2d'), { type: 'line', data: { labels: [], datasets: [{ label: 'Paquetes / Tiempo', data: [], borderColor: getColor(), backgroundColor: getColor(0.2), tension: 0.1, fill: true }] }, options: commonOptions('Tráfico en Tiempo Real') });
+        const protocolColors = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6', '#10b981', '#d946ef'];
+        protocolChartInstance = new Chart(document.getElementById('protocolChart').getContext('2d'), { type: 'pie', data: { labels: [], datasets: [{ data: [], backgroundColor: protocolColors }] }, options: commonOptions('Protocolos Detectados') });
+        portChartInstance = new Chart(document.getElementById('portChart').getContext('2d'), { type: 'bar', data: { labels: [], datasets: [{ label: 'Uso de Puertos', data: [], backgroundColor: getColor(0.6), borderColor: getColor() }] }, options: commonOptions('Distribución por Puertos') });
+        ipChartInstance = new Chart(document.getElementById('ipChart').getContext('2d'), { type: 'bar', data: { labels: [], datasets: [{ label: 'Paquetes por IP Origen', data: [], backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(250, 204, 21, 0.6)' : 'rgba(234, 179, 8, 0.6)', borderColor: document.documentElement.classList.contains('dark') ? 'rgb(250, 204, 21)' : 'rgb(234, 179, 8)' }] }, options: commonOptions('Actividad por IP') });
+        sizeChartInstance = new Chart(document.getElementById('sizeChart').getContext('2d'), { type: 'bar', data: { labels: [], datasets: [{ label: 'Cantidad de Paquetes', data: [], backgroundColor: [getColor(0.4), getColor(0.6), getColor(0.8)], borderColor: [getColor(),getColor(),getColor()] }] }, options: commonOptions('Tamaño de Paquetes') });
+    }
+    function actualizarTodosLosGraficos(datosParaGraficos) {
+        if (!datosParaGraficos || datosParaGraficos.length === 0) return;
+        const datosTrafico = datosParaGraficos.slice(0, 50).reverse(); 
+        trafficChartInstance.data.labels = datosTrafico.map(d => d.fecha_captura ? new Date(d.fecha_captura).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A');
+        trafficChartInstance.data.datasets[0].data = datosTrafico.map(d => d.tamano || 0);
+        trafficChartInstance.update('none');
+        const conteoProtocolos = datosParaGraficos.reduce((acc, d) => { const proto = MAPA_PROTOCOLOS[String(d.protocolo)] || d.protocolo_nombre || String(d.protocolo) || "N/A"; acc[proto] = (acc[proto] || 0) + 1; return acc; }, {});
+        protocolChartInstance.data.labels = Object.keys(conteoProtocolos);
+        protocolChartInstance.data.datasets[0].data = Object.values(conteoProtocolos);
+        protocolChartInstance.update('none');
+        const conteoPuertos = datosParaGraficos.reduce((acc, d) => { if(d.puerto_destino) {acc[d.puerto_destino] = (acc[d.puerto_destino] || 0) + 1;} return acc; }, {});
+        const topPuertos = Object.entries(conteoPuertos).sort((a,b) => b[1]-a[1]).slice(0,10);
+        portChartInstance.data.labels = topPuertos.map(p => `P:${p[0]}`);
+        portChartInstance.data.datasets[0].data = topPuertos.map(p => p[1]);
+        portChartInstance.update('none');
+        const conteoIPs = datosParaGraficos.reduce((acc, d) => { if(d.iporigen) {acc[d.iporigen] = (acc[d.iporigen] || 0) + 1;} return acc; }, {});
+        const topIPs = Object.entries(conteoIPs).sort((a,b) => b[1]-a[1]).slice(0,10);
+        ipChartInstance.data.labels = topIPs.map(ip => ip[0]);
+        ipChartInstance.data.datasets[0].data = topIPs.map(ip => ip[1]);
+        ipChartInstance.update('none');
+        const conteoTamaños = datosParaGraficos.reduce((acc, d) => { const size = d.tamano || 0; if (size < 100) acc.pequeño++; else if (size <= 1000) acc.mediano++; else acc.grande++; return acc; }, { pequeño: 0, mediano: 0, grande: 0 });
+        sizeChartInstance.data.labels = ['Pequeño (<100B)', 'Mediano (100-1000B)', 'Grande (>1000B)'];
+        sizeChartInstance.data.datasets[0].data = [conteoTamaños.pequeño, conteoTamaños.mediano, conteoTamaños.grande];
+        sizeChartInstance.update('none');
+    }
+    function cambiarRangoTiempoGraficoTrafico(rango) {
+        const ahora = new Date(); let tiempoLimite;
+        switch(rango) { case '1m': tiempoLimite = new Date(ahora.getTime() - 1 * 60 * 1000); break; case '5m': tiempoLimite = new Date(ahora.getTime() - 5 * 60 * 1000); break; case '15m': tiempoLimite = new Date(ahora.getTime() - 15 * 60 * 1000); break; default: tiempoLimite = new Date(ahora.getTime() - 15 * 60 * 1000); }
+        const datosFiltrados = todosLosPaquetes.filter(p => new Date(p.fecha_captura) >= tiempoLimite);
+        const datosTrafico = datosFiltrados.slice(-50).reverse(); 
+        trafficChartInstance.data.labels = datosTrafico.map(d => d.fecha_captura ? new Date(d.fecha_captura).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'N/A');
+        trafficChartInstance.data.datasets[0].data = datosTrafico.map(d => d.tamano || 0);
+        trafficChartInstance.update();
+    }
+    function cambiarTipoGrafico(chartId, nuevoTipo) {
+        const chartInstance = Chart.getChart(chartId);
+        if (chartInstance && chartInstance.config.type !== nuevoTipo) {
+            chartInstance.config.type = nuevoTipo;
+            const isPieOrDoughnut = nuevoTipo === 'pie' || nuevoTipo === 'doughnut';
+            chartInstance.options.scales = isPieOrDoughnut ? {} : { y: { beginAtZero: true, ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563' }, grid: { color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} }, x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563' }, grid: {display:false} } };
+            chartInstance.options.plugins.legend.display = isPieOrDoughnut; // Leyenda solo para pie/doughnut
+            chartInstance.update();
+        }
+    }
+
+    function actualizarContadoresGlobales(paquetes) {
+        document.getElementById('paquetesTotal').textContent = paquetes.length;
+        document.getElementById('paquetesTCP').textContent = paquetes.filter(p => (MAPA_PROTOCOLOS[String(p.protocolo)] || p.protocolo_nombre) === 'TCP').length;
+        document.getElementById('paquetesUDP').textContent = paquetes.filter(p => (MAPA_PROTOCOLOS[String(p.protocolo)] || p.protocolo_nombre) === 'UDP').length;
+        // Este contador de alertas es un ejemplo, necesitarías una fuente real de datos de alertas
+        // Por ahora, lo baso en un filtro de tamaño como ejemplo de "amenaza"
+        const alertasHoyEjemplo = paquetes.filter(p => p.tamano > 1500).length; // Ejemplo de alerta
+        document.getElementById('alertasHoy').textContent = alertasHoyEjemplo;
+    }
+
+    function exportarDatosCSV() {
+        if (todosLosPaquetes.length === 0) { mostrarMensaje("ℹ️ No hay datos para exportar.", "info"); return; }
+        const datosAExportar = (paquetesFiltradosYOrdenados.length > 0 ? paquetesFiltradosYOrdenados : todosLosPaquetes).map(p => ({
+            ID: p.idescanear_red, IP_Origen: p.iporigen, IP_Destino: p.ipdestino, MAC_Origen: p.mac_origen, MAC_Destino: p.mac_destino,
+            Puerto_Origen: p.puerto_origen, Puerto_Destino: p.puerto_destino, Protocolo: MAPA_PROTOCOLOS[String(p.protocolo)] || p.protocolo_nombre || String(p.protocolo),
+            Tamaño_Bytes: p.tamano, Fecha_Captura: p.fecha_captura ? new Date(p.fecha_captura).toISOString() : 'N/A', TTL: p.ttl,
+            Payload_Preview: p.payload ? p.payload.substring(0,100).replace(/(\r\n|\n|\r)/gm," ") : 'N/A'
+        }));
+        try {
+            const csv = Papa.unparse(datosAExportar); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a"); const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url); link.setAttribute("download", `monitoreo_red_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden'; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url);
+            mostrarMensaje("✅ Datos exportados a CSV.", "success");
+        } catch (error) { console.error("❌ Error al exportar CSV:", error); mostrarMensaje("❌ Error al exportar datos.", "error"); }
+    }
+    
+    function inicializarTooltipsTabla() {
+        if (typeof tippy !== 'undefined') {
+            document.querySelectorAll('#packetTable .truncate-cell').forEach(cell => {
+                if (cell._tippy) cell._tippy.destroy();
+                tippy(cell, { content: cell.getAttribute('title') || cell.textContent, placement: 'top', arrow: true, animation: 'fade', theme: document.documentElement.classList.contains('dark') ? 'light-border' : 'translucent' });
+            });
+        }
+    }
+
+    function inicializarTema() {
+        const temaGuardado = localStorage.getItem('theme'); const prefiereOscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (temaGuardado === 'dark' || (!temaGuardado && prefiereOscuro)) { document.documentElement.classList.add('dark'); }
+        else { document.documentElement.classList.remove('dark'); }
+        Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563';
+        Chart.defaults.borderColor = document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+    }
+
+    function toggleTema() {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563';
+        Chart.defaults.borderColor = document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+        [trafficChartInstance, protocolChartInstance, portChartInstance, ipChartInstance, sizeChartInstance].forEach(chart => { if (chart) chart.update('none'); });
+        if (typeof tippy !== 'undefined') inicializarTooltipsTabla();
+    }
+
+    function mostrarMensaje(texto, tipo = "info", duracion = 3000) {
+        const el = document.getElementById("mensajeEstado");
+        if (el) {
+            let icono = 'info';
+            if (tipo === 'success') icono = 'check-circle';
+            else if (tipo === 'error') icono = 'x-circle';
+            else if (tipo === 'warning') icono = 'alert-triangle';
+            
+            el.innerHTML = `<span class="inline-flex items-center gap-2"><i data-lucide="${icono}" class="w-5 h-5"></i>${texto}</span>`;
+            el.className = `${tipo === "error" || tipo === "warning" ? "state-inactive" : "state-active"} mb-6 py-3 px-4 text-sm`;
+            if (tipo === "error" || tipo === "warning") el.classList.replace("state-active", "state-inactive");
+            else el.classList.replace("state-inactive", "state-active");
+            
+            if (typeof lucide !== 'undefined') { const i = el.querySelector('i'); if(i) lucide.createIcons({nodes: [i]});}
+            
+            if(el.mensajeTimeout) clearTimeout(el.mensajeTimeout);
+            if(duracion > 0) {
+                el.mensajeTimeout = setTimeout(() => {
+                    el.innerHTML = '<span class="inline-flex items-center gap-2"><i data-lucide="pause-circle" class="w-5 h-5"></i>Captura detenida.</span>';
+                    el.className = "state-inactive mb-6 py-3 px-4 text-sm";
+                     if (typeof lucide !== 'undefined') { const i = el.querySelector('i'); if(i) lucide.createIcons({nodes: [i]});}
+                }, duracion);
+            }
+        }
     }
   </script>
 
-  <!-- Cargar los scripts de las gráficas después de que la página esté lista -->
-  <script src="{{ url_for('static', filename='js/monitoreo.js') }}" defer></script>
 </body>
 </html>

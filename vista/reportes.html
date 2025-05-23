@@ -4,811 +4,437 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IDS Dashboard - Sistema de Reportes</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        /* === VARIABLES CSS === */
+        :root {
+            --bg-main: #f8fafc;        /* Gris muy claro */
+            --bg-card: #ffffff;        /* Blanco */
+            --text-primary: #1e293b;   /* Azul oscuro/gris */
+            --text-secondary: #64748b; /* Gris medio */
+            --border-color: #e2e8f0;   /* Borde gris claro */
+            --primary-blue: #3b82f6;   /* Azul principal */
+            --primary-blue-dark: #2563eb;/* Azul oscuro hover */
+            --primary-blue-light: #e0f2fe;/* Azul claro fondo */
+            --success-green: #22c55e;  /* Verde */
+            --success-green-light: #dcfce7; /* Verde claro */
+            --warning-yellow: #eab308; /* Amarillo */
+            --warning-yellow-light: #fef9c3;/* Amarillo claro */
+            --danger-red: #ef4444;     /* Rojo */
+            --danger-red-light: #fee2e2;  /* Rojo claro */
+            --sidebar-dark: #1e293b;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --modal-overlay-bg: rgba(0, 0, 0, 0.55);
+        }
+
         /* === ESTILOS GENERALES === */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6; }
+        .container { max-width: 1600px; margin: 1.5rem auto; padding: 0 1.5rem; }
+        h2, h4 { color: var(--text-primary); font-weight: 600; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
+        /* === HEADER === */
+        .header { background: var(--bg-card); padding: 1rem 1.5rem; box-shadow: var(--box-shadow); position: sticky; top: 0; z-index: 900; /* Menor que el modal */ border-bottom: 1px solid var(--border-color); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1600px; margin: 0 auto; flex-wrap: wrap; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 700; color: var(--sidebar-dark); text-decoration: none; }
+        .logo i { color: var(--primary-blue); }
+        .status-indicator { display: flex; align-items: center; gap: 8px; background: var(--success-green-light); padding: 0.5rem 1rem; border-radius: 50px; border: 1px solid var(--success-green); font-size: 0.85rem; font-weight: 500; color: #15803d; white-space: nowrap; margin-top: 5px; }
+        .status-dot { width: 9px; height: 9px; background: var(--success-green); border-radius: 50%; animation: pulse 1.5s infinite ease-in-out; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* === HEADER PRINCIPAL === */
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+        /* === BOTÓN VOLVER === */
+        .back-button-container { margin: 1.5rem 0; }
+        .btn-back { display: inline-flex; align-items: center; gap: 8px; padding: 0.6rem 1.3rem; background-color: var(--bg-card); color: var(--primary-blue); border: 1px solid var(--primary-blue); border-radius: var(--border-radius); text-decoration: none; font-weight: 500; transition: all 0.3s ease; box-shadow: var(--box-shadow); font-size: 0.9rem; }
+        .btn-back:hover { background-color: var(--primary-blue); color: var(--bg-card); transform: translateY(-1px); box-shadow: 0 6px 10px -2px rgb(59 130 246 / 0.3); }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        /* === NAVEGACIÓN (TABS) === */
+        .nav-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); padding: 0; }
+        .tab-button { padding: 0.8rem 1.5rem; border: none; background: none; color: var(--text-secondary); border-radius: 0; cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-button:hover { color: var(--primary-blue); }
+        .tab-button.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-        }
+        /* === SECCIONES Y TARJETAS === */
+        .report-section { display: none; animation: fadeIn 0.5s ease-out; }
+        .report-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .report-card { background: var(--bg-card); border-radius: var(--border-radius); padding: 2rem; box-shadow: var(--box-shadow); margin-bottom: 2rem; border: 1px solid var(--border-color); }
 
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #e8f5e8;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: 2px solid #4CAF50;
-        }
+        /* === REPORT HEADER === */
+        .report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .report-title { font-size: 1.3rem; color: var(--text-primary); display: flex; align-items: center; gap: 10px; font-weight: 600; flex-grow: 1; line-height: 1.3; }
+        .report-title i { color: var(--primary-blue); }
+        .btn-download { padding: 0.6rem 1.2rem; border: none; background: var(--success-green); color: white; border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease; font-weight: 500; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-download:hover { background: #16a34a; transform: translateY(-1px); }
 
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            background: #4CAF50;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
+        /* === TABLAS === */
+        .table-container { width: 100%; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: var(--bg-card); }
+        .data-table th, .data-table td { padding: 0.9rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; color: var(--text-secondary); }
+        .data-table th { background: #f9fafb; color: var(--text-primary); font-weight: 600; text-transform: none; font-size: 0.85rem; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover { background: #f9fafb; }
+        .data-table td:first-child { color: var(--text-primary); font-weight: 500; }
+        .clickable-row { cursor: pointer; transition: background-color 0.2s ease; }
+        .clickable-row:hover { background-color: #e9ecef !important; }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
+        /* === BADGES === */
+        .severity-badge { padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; display: inline-block; text-transform: uppercase; text-align: center; }
+        .nivel-Alta { background: var(--danger-red-light); color: var(--danger-red); }
+        .nivel-Media { background: var(--warning-yellow-light); color: var(--warning-yellow); }
+        .nivel-Baja { background: var(--success-green-light); color: var(--success-green); }
+        .nivel-NULL, .nivel-N\/A { background: #e2e8f0; color: #475569;}
 
-        /* === CONTENEDOR PRINCIPAL === */
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
+        /* === STATS y SEVERITY === */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--bg-card); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--box-shadow); text-align: left; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem; }
+        .stat-card i { font-size: 1.8rem; padding: 1rem; border-radius: 50%; }
+        .stat-card:nth-child(1) i { background: var(--primary-blue-light); color: var(--primary-blue); } .stat-card:nth-child(2) i { background: var(--danger-red-light); color: var(--danger-red); } .stat-card:nth-child(3) i { background: var(--warning-yellow-light); color: var(--warning-yellow); } .stat-card:nth-child(4) i { background: var(--success-green-light); color: var(--success-green); }
+        .stat-info .stat-number { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); } .stat-info .stat-label { color: var(--text-secondary); font-size: 0.9rem; }
+        #summary-severity { background: #f9fafb; padding: 1.5rem; border-radius: var(--border-radius); margin-top: 1.5rem; border: 1px solid var(--border-color); }
+        #summary-severity h4 { margin-bottom: 1rem; } #severity-list { list-style: none; padding: 0; }
+        #severity-list li { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0.2rem; border-bottom: 1px dashed var(--border-color); }
+        #severity-list li:last-child { border-bottom: none; } #severity-list li > span:first-child { font-weight: 500; }
+        #severity-list li > span:last-child { font-weight: 600; background-color: #e2e8f0; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; }
 
-        /* === NAVEGACIÓN DE REPORTES === */
-        .nav-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            background: rgba(255, 255, 255, 0.9);
+        /* === LOADING Y ERROR === */
+        .loading { text-align: center; padding: 3rem; font-size: 1rem; color: var(--primary-blue); font-weight: 500; }
+        .loading i { animation: spin 1.2s linear infinite; margin-right: 8px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .error-message { color: var(--danger-red); }
+
+        /* === MODALES (REVISADO) === */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--modal-overlay-bg);
+            display: none; /* Inicia oculto */
+            justify-content: center; align-items: center;
+            z-index: 2000; /* Z-index alto */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
             padding: 1rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
-        .tab-button {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            background: #f8f9fa;
-            color: #666;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            white-space: nowrap;
+        .modal-overlay.show {
+            display: flex; /* Se muestra con flex */
+            opacity: 1;
         }
-
-        .tab-button:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .tab-button.active {
-            background: #667eea;
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        /* === TARJETAS DE REPORTES === */
-        .report-section {
-            display: none;
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        .report-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .report-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            margin-bottom: 2rem;
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .report-title {
-            font-size: 1.5rem;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .report-title i {
-            color: #667eea;
-        }
-
-        /* === CONTROLES DE FILTROS === */
-        .filters {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .filter-group label {
-            font-size: 0.9rem;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .filter-input {
-            padding: 0.5rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .filter-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        /* === BOTONES DE ACCIÓN === */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.7rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-info {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        /* === TABLAS DE DATOS === */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .data-table th {
-            background: #667eea;
-            color: white;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .data-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        .data-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        /* === TARJETAS DE ESTADÍSTICAS === */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 550px;
             text-align: center;
-            transition: transform 0.3s ease;
+            box-shadow: var(--box-shadow-lg);
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+            position: relative; /* Para el botón de cierre */
         }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-content i.modal-icon { font-size: 3rem; color: var(--primary-blue); margin-bottom: 1rem; }
+        .modal-content h2 { font-size: 1.6rem; margin-bottom: 0.8rem; }
+        .modal-content p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 2rem; }
+        .btn-close-welcome-modal { padding: 0.7rem 2rem; border: none; background: var(--primary-blue); color: white; border-radius: var(--border-radius); cursor: pointer; transition: background 0.3s ease; font-weight: 500; font-size: 0.95rem; }
+        .btn-close-welcome-modal:hover { background: var(--primary-blue-dark); }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
+        /* Modal de Detalles */
+        #detailModal .modal-content { max-width: 900px; text-align: left; padding: 2rem; }
+        #detailModal .report-header { border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; align-items: center; }
+        #detailModal .report-title { font-size: 1.3rem; }
+        #detailModal .btn-download { font-size: 0.85rem; padding: 0.5rem 1rem; background: var(--primary-blue); }
+        #detailModal .btn-download:hover { background: var(--primary-blue-dark); }
+        #detailModalContent { margin-top: 1.5rem; margin-bottom: 1rem; max-height: 60vh; overflow-y: auto; }
+        .btn-close-detail-modal { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.6rem; color: #9ca3af; cursor: pointer; transition: color 0.3s ease; line-height: 1; padding: 5px; z-index: 10; font-weight: 300; }
+        .btn-close-detail-modal:hover { color: var(--text-primary); }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* === GRÁFICOS PLACEHOLDER === */
-        .chart-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin: 1rem 0;
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            font-style: italic;
-        }
-
-        /* === ALERTAS Y BADGES === */
-        .severity-badge {
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .severity-high {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef5350;
-        }
-
-        .severity-medium {
-            background: #fff3e0;
-            color: #ef6c00;
-            border: 1px solid #ff9800;
-        }
-
-        .severity-low {
-            background: #e8f5e8;
-            color: #2e7d32;
-            border: 1px solid #4caf50;
-        }
-
-        /* === RESPONSIVIDAD === */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 1rem;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .nav-tabs {
-                justify-content: center;
-            }
-            
-            .tab-button {
-                font-size: 0.9rem;
-                padding: 0.6rem 1rem;
-            }
-            
-            .report-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .filters {
-                flex-direction: column;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .data-table {
-                font-size: 0.9rem;
-            }
-            
-            .data-table th,
-            .data-table td {
-                padding: 0.5rem;
-            }
-        }
-
-        /* === ESTADO DE CARGA === */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 200px;
-            color: #667eea;
-        }
-
-        .loading i {
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        /* === MEDIA QUERIES === */
+        @media (max-width: 992px) { .tab-button { flex-grow: 0; } .report-header { flex-direction: column; align-items: flex-start; } .btn-download { width: 100%; text-align: center; justify-content: center; margin-top: 10px; } }
+        @media (max-width: 768px) { .header-content { flex-direction: column; gap: 1rem; text-align: center; } .nav-tabs { flex-direction: column; } .tab-button { width: 100%; justify-content: flex-start; border-bottom: 1px solid var(--border-color); } .tab-button.active { border-bottom: 3px solid var(--primary-blue); } .stats-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <!-- HEADER PRINCIPAL DEL SISTEMA -->
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-shield-alt"></i>
-                IDS Dashboard
+
+<header class="header">
+    <div class="header-content">
+        <a href="#" class="logo"><i class="fas fa-shield-virus"></i> CyberSentinel - Reportes</a>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Sistema Activo</span> |
+            <span id="last-update">Actualizando...</span>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="back-button-container">
+        <a href="/dashboard" class="btn-back"> <i class="fas fa-arrow-left"></i>
+            Volver al Panel Principal
+        </a>
+    </div>
+
+    <nav class="nav-tabs">
+        <button class="tab-button active" onclick="showReport('summary')"><i class="fas fa-chart-pie"></i> Resumen</button>
+        <button class="tab-button" onclick="showReport('threat-types')"><i class="fas fa-bug"></i> Tipos de Amenaza</button>
+        <button class="tab-button" onclick="showReport('chronological')"><i class="fas fa-clock"></i> Cronológico</button>
+        <button class="tab-button" onclick="showReport('suspicious-ips')"><i class="fas fa-network-wired"></i> IPs Sospechosas</button>
+        <button class="tab-button" onclick="showReport('vulnerable-devices')"><i class="fas fa-desktop"></i> Dispositivos Vulnerables</button>
+    </nav>
+
+    <section id="summary" class="report-section active">
+        <div class="report-card">
+            <div class="report-header" style="border: none; padding-bottom: 0; margin-bottom: 1rem;">
+                <h2 class="report-title"><i class="fas fa-chart-pie"></i> Resumen Ejecutivo</h2>
             </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span>Sistema Activo</span>
-                <span id="last-update">Última actualización: --:--</span>
+             <div class="stats-grid">
+                <div class="stat-card"> <i class="fas fa-bell"></i> <div class="stat-info"> <div class="stat-number" id="stat-total-alerts">--</div> <div class="stat-label">Alertas (24h)</div> </div> </div>
+                <div class="stat-card"> <i class="fas fa-biohazard"></i> <div class="stat-info"> <div class="stat-number" id="stat-top-threat">--</div> <div class="stat-label">Amenaza Principal</div> </div> </div>
+                <div class="stat-card"> <i class="fas fa-user-secret"></i> <div class="stat-info"> <div class="stat-number" id="stat-top-ip">--</div> <div class="stat-label">IP Atacante #1</div> </div> </div>
+                <div class="stat-card"> <i class="fas fa-laptop-code"></i> <div class="stat-info"> <div class="stat-number" id="stat-top-device">--</div> <div class="stat-label">Dispositivo #1</div> </div> </div>
+            </div>
+            <div id="summary-severity">
+                <h4>Distribución por Severidad (Clic para ver detalles):</h4>
+                <ul id="severity-list"><li class="loading"><i class="fas fa-spinner"></i> Cargando...</li></ul>
             </div>
         </div>
-    </header>
+    </section>
 
-    <div class="container">
-        <!-- NAVEGACIÓN ENTRE REPORTES -->
-        <nav class="nav-tabs">
-            <button class="tab-button active" onclick="showReport('threat-types')">
-                <i class="fas fa-bug"></i> Tipos de Amenaza
-            </button>
-            <button class="tab-button" onclick="showReport('chronological')">
-                <i class="fas fa-clock"></i> Cronológico
-            </button>
-            <button class="tab-button" onclick="showReport('suspicious-ips')">
-                <i class="fas fa-globe"></i> IPs Sospechosas
-            </button>
-            <button class="tab-button" onclick="showReport('vulnerable-devices')">
-                <i class="fas fa-desktop"></i> Dispositivos Vulnerables
-            </button>
-            <button class="tab-button" onclick="showReport('ids-rules')">
-                <i class="fas fa-cogs"></i> Reglas IDS
-            </button>
-            <button class="tab-button" onclick="showReport('system-usage')">
-                <i class="fas fa-users-cog"></i> Uso del Sistema
-            </button>
-            <button class="tab-button" onclick="showReport('summary')">
-                <i class="fas fa-chart-pie"></i> Resumen
-            </button>
-        </nav>
-
-        <!-- REPORTE 1: EVENTOS POR TIPO DE AMENAZA -->
-        <section id="threat-types" class="report-section active">
-            <div class="report-card">
-                <div class="report-header">
-                    <h2 class="report-title">
-                        <i class="fas fa-bug"></i>
-                        Reporte de Eventos por Tipo de Amenaza
-                    </h2>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="refreshThreatTypes()">
-                            <i class="fas fa-sync-alt"></i> Actualizar
-                        </button>
-                        <button class="btn btn-success" onclick="exportThreatTypes('csv')">
-                            <i class="fas fa-file-csv"></i> CSV
-                        </button>
-                        <button class="btn btn-info" onclick="exportThreatTypes('pdf')">
-                            <i class="fas fa-file-pdf"></i> PDF
-                        </button>
-                    </div>
-                </div>
-
-                <!-- FILTROS PARA TIPOS DE AMENAZA -->
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>Fecha Inicio:</label>
-                        <input type="date" class="filter-input" id="threat-date-start">
-                    </div>
-                    <div class="filter-group">
-                        <label>Fecha Fin:</label>
-                        <input type="date" class="filter-input" id="threat-date-end">
-                    </div>
-                    <div class="filter-group">
-                        <label>Tipo de Amenaza:</label>
-                        <select class="filter-input" id="threat-type-filter">
-                            <option value="">Todos</option>
-                            <option value="port_scan">Escaneo de Puertos</option>
-                            <option value="unauthorized_access">Acceso No Autorizado</option>
-                            <option value="syn_flood">SYN Flood</option>
-                            <option value="ttl_anomaly">TTL Anómalo</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary" onclick="applyThreatFilters()">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- ESTADÍSTICAS RÁPIDAS -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="total-threats">--</div>
-                        <div class="stat-label">Total de Amenazas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="most-common-threat">--</div>
-                        <div class="stat-label">Amenaza Más Común</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="threats-today">--</div>
-                        <div class="stat-label">Amenazas Hoy</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="high-severity-threats">--</div>
-                        <div class="stat-label">Severidad Alta</div>
-                    </div>
-                </div>
-
-                <!-- GRÁFICO DE TIPOS DE AMENAZA -->
-                <div class="chart-container">
-                    <!-- AQUÍ SE CONECTARÁ EL GRÁFICO DESDE SQL -->
-                    <div id="threat-chart">
-                        <i class="fas fa-chart-bar fa-3x"></i><br>
-                        Gráfico de Tipos de Amenaza<br>
-                        <small>Conectar con: SELECT threat_type, COUNT(*) as count FROM ids_events GROUP BY threat_type</small>
-                    </div>
-                </div>
-
-                <!-- TABLA DE DATOS -->
+    <section id="threat-types" class="report-section">
+        <div class="report-card">
+            <div class="report-header">
+                <h2 class="report-title"><i class="fas fa-bug"></i> Top Tipos de Amenaza</h2>
+                <button class="btn-download" data-report="threat_types"><i class="fas fa-download"></i> Descargar Resumen</button>
+            </div>
+             <div class="table-container">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Tipo de Amenaza</th>
-                            <th>Cantidad</th>
-                            <th>Porcentaje</th>
-                            <th>Última Detección</th>
-                            <th>Severidad Promedio</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Tipo de Amenaza</th><th>Cantidad</th></tr></thead>
                     <tbody id="threat-types-table">
-                        <!-- DATOS SE CARGARÁN DESDE SQL -->
-                        <tr>
-                            <td colspan="5" class="loading">
-                                <i class="fas fa-spinner"></i>
-                                Cargando datos desde la base de datos...
-                            </td>
-                        </tr>
+                        <tr><td colspan="2" class="loading"><i class="fas fa-spinner"></i> Cargando...</td></tr>
                     </tbody>
                 </table>
-            </div>
-        </section>
+             </div>
+        </div>
+    </section>
 
-        <!-- REPORTE 2: CRONOLÓGICO DE ALERTAS -->
-        <section id="chronological" class="report-section">
-            <div class="report-card">
-                <div class="report-header">
-                    <h2 class="report-title">
-                        <i class="fas fa-clock"></i>
-                        Reporte Cronológico de Alertas
-                    </h2>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="refreshChronological()">
-                            <i class="fas fa-sync-alt"></i> Actualizar
-                        </button>
-                        <button class="btn btn-success" onclick="exportChronological('csv')">
-                            <i class="fas fa-file-csv"></i> CSV
-                        </button>
-                        <button class="btn btn-info" onclick="exportChronological('pdf')">
-                            <i class="fas fa-file-pdf"></i> PDF
-                        </button>
-                    </div>
-                </div>
-
-                <!-- FILTROS CRONOLÓGICOS -->
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>Desde:</label>
-                        <input type="datetime-local" class="filter-input" id="chrono-datetime-start">
-                    </div>
-                    <div class="filter-group">
-                        <label>Hasta:</label>
-                        <input type="datetime-local" class="filter-input" id="chrono-datetime-end">
-                    </div>
-                    <div class="filter-group">
-                        <label>Severidad:</label>
-                        <select class="filter-input" id="chrono-severity-filter">
-                            <option value="">Todas</option>
-                            <option value="high">Alta</option>
-                            <option value="medium">Media</option>
-                            <option value="low">Baja</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Registros por página:</label>
-                        <select class="filter-input" id="chrono-limit">
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                            <option value="500">500</option>
-                            <option value="1000">1000</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary" onclick="applyChronoFilters()">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- LÍNEA DE TIEMPO -->
-                <div class="chart-container">
-                    <div id="timeline-chart">
-                        <i class="fas fa-chart-line fa-3x"></i><br>
-                        Timeline de Alertas<br>
-                        <small>Conectar con: SELECT DATE(timestamp) as date, COUNT(*) as alerts FROM ids_events GROUP BY DATE(timestamp) ORDER BY date</small>
-                    </div>
-                </div>
-
-                <!-- TABLA CRONOLÓGICA -->
+    <section id="chronological" class="report-section">
+        <div class="report-card">
+             <div class="report-header">
+                <h2 class="report-title"><i class="fas fa-clock"></i> Últimas Alertas Cronológicas</h2>
+                 <button class="btn-download" data-report="chronological"><i class="fas fa-download"></i> Descargar Todo</button>
+             </div>
+            <div class="table-container">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Tipo de Evento</th>
-                            <th>IP Origen</th>
-                            <th>IP Destino</th>
-                            <th>Severidad</th>
-                            <th>Descripción</th>
-                            <th>Regla ID</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Fecha</th><th>Tipo</th><th>IP Origen</th><th>IP Destino</th><th>Nivel</th><th>Descripción</th></tr></thead>
                     <tbody id="chronological-table">
-                        <!-- DATOS SE CARGARÁN DESDE SQL -->
-                        <tr>
-                            <td colspan="7" class="loading">
-                                <i class="fas fa-spinner"></i>
-                                Cargando eventos cronológicos...
-                            </td>
-                        </tr>
+                        <tr><td colspan="6" class="loading"><i class="fas fa-spinner"></i> Cargando...</td></tr>
                     </tbody>
                 </table>
-
-                <!-- PAGINACIÓN -->
-                <div style="text-align: center; margin-top: 1rem;">
-                    <button class="btn btn-primary" onclick="previousPage('chrono')">
-                        <i class="fas fa-chevron-left"></i> Anterior
-                    </button>
-                    <span style="margin: 0 1rem;">Página <span id="chrono-current-page">1</span> de <span id="chrono-total-pages">--</span></span>
-                    <button class="btn btn-primary" onclick="nextPage('chrono')">
-                        Siguiente <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- REPORTE 3: IPS SOSPECHOSAS -->
-        <section id="suspicious-ips" class="report-section">
-            <div class="report-card">
-                <div class="report-header">
-                    <h2 class="report-title">
-                        <i class="fas fa-globe"></i>
-                        IPs Sospechosas y Atacantes Recurrentes
-                    </h2>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="refreshSuspiciousIPs()">
-                            <i class="fas fa-sync-alt"></i> Actualizar
-                        </button>
-                        <button class="btn btn-success" onclick="exportSuspiciousIPs('csv')">
-                            <i class="fas fa-file-csv"></i> CSV
-                        </button>
-                        <button class="btn btn-info" onclick="blockSelectedIPs()">
-                            <i class="fas fa-ban"></i> Bloquear Seleccionadas
-                        </button>
-                    </div>
-                </div>
-
-                <!-- FILTROS PARA IPS -->
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>Mínimo de Alertas:</label>
-                        <input type="number" class="filter-input" id="min-alerts" value="5" min="1">
-                    </div>
-                    <div class="filter-group">
-                        <label>Período (días):</label>
-                        <select class="filter-input" id="ip-period">
-                            <option value="1">Último día</option>
-                            <option value="7" selected>Última semana</option>
-                            <option value="30">Último mes</option>
-                            <option value="90">Últimos 3 meses</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>País/Región:</label>
-                        <select class="filter-input" id="country-filter">
-                            <option value="">Todos</option>
-                            <option value="CN">China</option>
-                            <option value="RU">Rusia</option>
-                            <option value="US">Estados Unidos</option>
-                            <option value="BR">Brasil</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary" onclick="applyIPFilters()">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- TOP IPS ATACANTES -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="unique-attackers">--</div>
-                        <div class="stat-label">IPs Únicas Atacantes</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="top-attacker-alerts">--</div>
-                        <div class="stat-label">Máx. Alertas por IP</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="blocked-ips">--</div>
-                        <div class="stat-label">IPs Bloqueadas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="new-attackers-today">--</div>
-                        <div class="stat-label">Nuevos Atacantes Hoy</div>
-                    </div>
-                </div>
-
-                <!-- MAPA DE ATACANTES (PLACEHOLDER) -->
-                <div class="chart-container">
-                    <div id="attackers-map">
-                        <i class="fas fa-map fa-3x"></i><br>
-                        Mapa Mundial de Atacantes<br>
-                        <small>Conectar con: SELECT src_ip, COUNT(*) as attacks, country FROM ids_events GROUP BY src_ip ORDER BY attacks DESC</small>
-                    </div>
-                </div>
-
-                <!-- TABLA DE IPS SOSPECHOSAS -->
+    <section id="suspicious-ips" class="report-section">
+        <div class="report-card">
+             <div class="report-header">
+                <h2 class="report-title"><i class="fas fa-network-wired"></i> Top IPs Sospechosas</h2>
+                 <button class="btn-download" data-report="suspicious_ips"><i class="fas fa-download"></i> Descargar Detallado</button>
+            </div>
+            <div class="table-container">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="select-all-ips"></th>
-                            <th>IP Atacante</th>
-                            <th>Total Alertas</th>
-                            <th>Último Ataque</th>
-                            <th>País</th>
-                            <th>Tipos de Ataque</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>IP Atacante</th><th>Total Alertas</th><th>Último Evento</th></tr></thead>
                     <tbody id="suspicious-ips-table">
-                        <!-- DATOS SE CARGARÁN DESDE SQL -->
-                        <tr>
-                            <td colspan="8" class="loading">
-                                <i class="fas fa-spinner"></i>
-                                Cargando IPs sospechosas...
-                            </td>
-                        </tr>
+                        <tr><td colspan="3" class="loading"><i class="fas fa-spinner"></i> Cargando...</td></tr>
                     </tbody>
                 </table>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- REPORTE 4: DISPOSITIVOS INTERNOS VULNERABLES -->
-        <section id="vulnerable-devices" class="report-section">
-            <div class="report-card">
-                <div class="report-header">
-                    <h2 class="report-title">
-                        <i class="fas fa-desktop"></i>
-                        Dispositivos Internos Más Vulnerables
-                    </h2>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="refreshVulnerableDevices()">
-                            <i class="fas fa-sync-alt"></i> Actualizar
-                        </button>
-                        <button class="btn btn-success" onclick="exportVulnerableDevices('csv')">
-                            <i class="fas fa-file-csv"></i> CSV
-                        </button>
-                        <button class="btn btn-info" onclick="generateSecurityReport()">
-                            <i class="fas fa-file-medical"></i> Reporte Seguridad
-                        </button>
-                    </div>
-                </div>
+    <section id="vulnerable-devices" class="report-section">
+        <div class="report-card">
+             <div class="report-header">
+                <h2 class="report-title"><i class="fas fa-desktop"></i> Top Dispositivos Atacados</h2>
+                 <button class="btn-download" data-report="vulnerable_devices"><i class="fas fa-download"></i> Descargar Detallado</button>
+             </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead><tr><th>IP Interna</th><th>Total Alertas</th><th>Último Evento</th><th>Ataque Común</th></tr></thead>
+                    <tbody id="vulnerable-devices-table">
+                        <tr><td colspan="4" class="loading"><i class="fas fa-spinner"></i> Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
-                <!-- FILTROS PARA DISPOSITIVOS -->
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>Segmento de Red:</label>
-                        <select class="filter-input" id="network-segment">
-                            <option value="">Todos</option>
-                            <option value="192.168.1.0/24">DMZ (192.168.1.0/24)</option>
-                            <option value="192.168.10.0/24">Servidores (192.168.10.0/24)</option>
-                            <option value="192.168.20.0/24">Workstations (192.168.20.0/24)</option>
-                            <option value="192.168.30.0/24">IoT (192.168.30.0/24)</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Mínimo Intentos:</label>
-                        <input type="number" class="filter-input" id="min-attempts" value="10" min="1">
-                    </div>
-                    <div class="filter-group">
-                        <label>Período:</label>
-                        <select class="filter-input" id="device-period">
-                            <option value="7">Última semana</option>
-                            <option value="30" selected>Último mes</option>
-                            <option value="90">Últimos 3 meses</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary" onclick="applyDeviceFilters()">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                    </div>
-                </div>
+</div> <div id="welcomeModal" class="modal-overlay">
+    <div class="modal-content">
+        <i class="fas fa-shield-alt modal-icon"></i>
+        <h2>¡Bienvenido al Gestor de Reportes!</h2>
+        <p>
+            Aquí podrás visualizar, analizar y descargar los datos de seguridad.
+            Navega por las pestañas e interactúa con las tablas para obtener más detalles.
+        </p>
+        <button id="closeWelcomeModalBtn" class="btn-close-welcome-modal">¡Entendido!</button>
+    </div>
+</div>
 
-                <!-- ESTADÍSTICAS DE DISPOSITIVOS -->
-                <div class="stats-gri
+<div id="detailModal" class="modal-overlay">
+    <div class="modal-content">
+        <button id="closeDetailModalBtn" class="btn-close-detail-modal">&times;</button>
+        <div class="report-header">
+             <h2 id="detailModalTitle">Detalles del Evento</h2>
+             <button id="downloadModalBtn" class="btn-download" data-url="">
+                <i class="fas fa-download"></i> Descargar Vista
+            </button>
+        </div>
+        <div id="detailModalContent">
+            </div>
+    </div>
+</div>
 
 
+<script>
+    const API_BASE = '/api/reportes';
+
+    // --- ELEMENTOS DEL DOM ---
+    const welcomeModal = document.getElementById('welcomeModal');
+    const closeWelcomeModalBtn = document.getElementById('closeWelcomeModalBtn');
+    const detailModal = document.getElementById('detailModal');
+    const detailModalTitle = document.getElementById('detailModalTitle');
+    const detailModalContent = document.getElementById('detailModalContent');
+    const closeDetailModalBtn = document.getElementById('closeDetailModalBtn');
+    const severityList = document.getElementById('severity-list');
+    const threatTypesTable = document.getElementById('threat-types-table');
+    const mainContainer = document.querySelector('.container');
+    const downloadModalBtn = document.getElementById('downloadModalBtn');
+
+    // --- FUNCIONES DE CARGA Y FORMATO ---
+    async function fetchData(endpoint) { try { const response = await fetch(`${API_BASE}/${endpoint}`); if (!response.ok) { const errorText = await response.text(); throw new Error(`Error HTTP: ${response.status} - ${errorText}`); } return await response.json(); } catch (error) { console.error(`Error fetching ${endpoint}:`, error); return { error: `No se pudo cargar: ${error.message}` }; } }
+    function showLoading(tableId) { const tbody = document.getElementById(tableId); if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="loading"><i class="fas fa-spinner"></i> Cargando...</td></tr>`; }
+    function showError(elementId, errorMsg) { const element = document.getElementById(elementId); if (element) { if (element.tagName === 'TBODY' || element.tagName === 'UL') { element.innerHTML = `<li class="loading error-message"><i class="fas fa-exclamation-triangle"></i> ${errorMsg}</li>`; } } }
+    function getSeverityClass(nivel) { nivel = nivel || 'NULL'; let safeNivel = String(nivel).charAt(0).toUpperCase() + String(nivel).slice(1); return `nivel-${safeNivel.replace('/', '_')}`; }
+    function formatDateTime(isoString) { if (!isoString) return 'N/A'; try { const date = new Date(isoString); return date.toLocaleString('es-ES', { year: '2-digit', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return isoString; } }
+
+    // --- FUNCIONES DE POBLACIÓN ---
+    function populateSummary(data) {
+        document.getElementById('stat-total-alerts').textContent = data.total_alerts_24h ?? '--';
+        document.getElementById('stat-top-threat').textContent = data.top_threat ?? '--';
+        document.getElementById('stat-top-ip').textContent = data.top_attacker_ip ?? '--';
+        document.getElementById('stat-top-device').textContent = data.top_target_device ?? '--';
+        if (data.error) { showError('severity-list', data.error); return; }
+        if (!data.severity_counts || data.severity_counts.length === 0) {
+             severityList.innerHTML = `<li>No hay datos de severidad.</li>`;
+        } else {
+             severityList.innerHTML = data.severity_counts.map(item =>
+                `<li data-nivel="${item.nivel || 'NULL'}" class="clickable-row">
+                    <span><span class="severity-badge ${getSeverityClass(item.nivel)}">${item.nivel || 'N/A'}</span></span>
+                    <span>${item.count}</span>
+                </li>`
+            ).join('');
+        }
+    }
+    function populateThreatTypes(data) {
+        const tbody = document.getElementById('threat-types-table');
+        if (data.error) return showError('threat-types-table', data.error);
+        if (!data || data.length === 0) { tbody.innerHTML = `<tr><td colspan="2" class="loading">No hay datos disponibles.</td></tr>`; return; }
+        tbody.innerHTML = data.map(item => `<tr data-tipo="${item.tipo || 'N/A'}" class="clickable-row"><td>${item.tipo || 'N/A'}</td><td>${item.count}</td></tr>`).join('');
+    }
+    function populateChronological(data) { const tbody = document.getElementById('chronological-table'); if (data.error) return showError('chronological-table', data.error); if (!data || data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="loading">No hay datos disponibles.</td></tr>`; return; } tbody.innerHTML = data.map(item => `<tr> <td>${formatDateTime(item.fecha)}</td> <td>${item.tipo || 'N/A'}</td> <td>${item.ip_origen || 'N/A'}</td> <td>${item.ip_destino || 'N/A'}</td> <td><span class="severity-badge ${getSeverityClass(item.nivel)}">${item.nivel || 'N/A'}</span></td> <td>${item.descripcion || 'N/A'}</td> </tr>`).join(''); }
+    function populateSuspiciousIPs(data) { const tbody = document.getElementById('suspicious-ips-table'); if (data.error) return showError('suspicious-ips-table', data.error); if (!data || data.length === 0) { tbody.innerHTML = `<tr><td colspan="3" class="loading">No hay datos disponibles.</td></tr>`; return; } tbody.innerHTML = data.map(item => `<tr> <td>${item.ip_origen || 'N/A'}</td> <td>${item.count}</td> <td>${formatDateTime(item.last_seen)}</td> </tr>`).join(''); }
+    function populateVulnerableDevices(data) { const tbody = document.getElementById('vulnerable-devices-table'); if (data.error) return showError('vulnerable-devices-table', data.error); if (!data || data.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="loading">No hay datos disponibles.</td></tr>`; return; } tbody.innerHTML = data.map(item => `<tr> <td>${item.ip_destino || 'N/A'}</td> <td>${item.count}</td> <td>${formatDateTime(item.last_seen)}</td> <td>${item.common_attack || 'N/A'}</td> </tr>`).join(''); }
+
+    // --- CONTROL DE PESTAÑAS ---
+    function showReport(reportId) { document.querySelectorAll('.report-section').forEach(s => s.classList.remove('active')); document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active')); const section = document.getElementById(reportId); const button = document.querySelector(`.tab-button[onclick="showReport('${reportId}')"]`); if(section) section.classList.add('active'); if(button) button.classList.add('active'); loadDataForReport(reportId); updateLastUpdateTime(); }
+    function loadDataForReport(reportId) { switch (reportId) { case 'summary': fetchData('summary_stats').then(populateSummary); break; case 'threat-types': showLoading('threat-types-table'); fetchData('threat_types').then(populateThreatTypes); break; case 'chronological': showLoading('chronological-table'); fetchData('chronological').then(populateChronological); break; case 'suspicious-ips': showLoading('suspicious-ips-table'); fetchData('suspicious_ips').then(populateSuspiciousIPs); break; case 'vulnerable-devices': showLoading('vulnerable-devices-table'); fetchData('vulnerable_devices').then(populateVulnerableDevices); break; } }
+    function updateLastUpdateTime() { const now = new Date(); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const updateSpan = document.getElementById('last-update'); if(updateSpan) updateSpan.textContent = `Actualizado: ${hours}:${minutes}`; }
+
+    // --- CONTROL MODALES ---
+    function showWelcomeModal() { if (localStorage.getItem('welcomeModalShown') !== 'true') { welcomeModal.classList.add('show'); } }
+    function hideWelcomeModal() { localStorage.setItem('welcomeModalShown', 'true'); welcomeModal.classList.remove('show'); }
+    function showDetailModal() { detailModal.classList.add('show'); }
+    function hideDetailModal() { detailModal.classList.remove('show'); }
+
+    // --- CONSTRUCCIÓN DE TABLAS PARA MODAL ---
+    function buildTableHTML(data, headersMap) {
+        if (!data || data.length === 0) return '<p class="loading">No hay eventos para mostrar.</p>';
+        const headers = Object.keys(headersMap); const keys = Object.values(headersMap);
+        let table = '<table class="data-table">'; table += '<thead><tr>'; headers.forEach(header => { table += `<th>${header}</th>`; }); table += '</tr></thead>'; table += '<tbody>';
+        data.forEach(row => { table += '<tr>'; keys.forEach(key => { let value = row[key] || 'N/A'; if (key === 'fecha') value = formatDateTime(value); if (key === 'nivel') value = `<span class="severity-badge ${getSeverityClass(value)}">${value}</span>`; table += `<td>${value}</td>`; }); table += '</tr>'; });
+        table += '</tbody></table>'; return table;
+    }
+
+    // --- CARGA DE DATOS PARA MODAL ---
+    async function loadAndShowDetails(dataUrl, downloadUrl, title, headersMap) {
+        detailModalTitle.textContent = title;
+        detailModalContent.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Cargando detalles...</div>';
+        downloadModalBtn.dataset.url = downloadUrl;
+        showDetailModal();
+        const data = await fetchData(dataUrl);
+        if (data.error) {
+            detailModalContent.innerHTML = `<div class="loading error-message"><i class="fas fa-exclamation-triangle"></i> ${data.error}</div>`;
+            downloadModalBtn.style.display = 'none';
+        } else if (!data || data.length === 0) {
+            detailModalContent.innerHTML = '<p class="loading">No hay eventos para mostrar.</p>';
+            downloadModalBtn.style.display = 'none';
+        } else {
+            detailModalContent.innerHTML = buildTableHTML(data, headersMap);
+            downloadModalBtn.style.display = 'inline-flex';
+        }
+    }
+
+    // --- EVENT LISTENERS ---
+    document.addEventListener('DOMContentLoaded', () => {
+        showReport('summary');
+        showWelcomeModal();
+
+        closeWelcomeModalBtn.addEventListener('click', hideWelcomeModal);
+        welcomeModal.addEventListener('click', (e) => { if (e.target === welcomeModal) hideWelcomeModal(); });
+
+        closeDetailModalBtn.addEventListener('click', hideDetailModal);
+        detailModal.addEventListener('click', (e) => { if (e.target === detailModal) hideDetailModal(); });
+
+        severityList.addEventListener('click', (event) => {
+            const targetLi = event.target.closest('li[data-nivel]');
+            if (targetLi) {
+                const nivel = targetLi.dataset.nivel;
+                const dataUrl = `events_by_severity/${encodeURIComponent(nivel)}`;
+                const downloadUrl = `${API_BASE}/download/events_by_severity/${encodeURIComponent(nivel)}`;
+                const title = `Eventos de Severidad: ${nivel === 'NULL' ? 'N/A' : nivel}`;
+                const headers = { 'Fecha': 'fecha', 'Tipo': 'tipo', 'Origen': 'ip_origen', 'Destino': 'ip_destino', 'Desc.': 'descripcion' };
+                loadAndShowDetails(dataUrl, downloadUrl, title, headers);
+            }
+        });
+
+        threatTypesTable.addEventListener('click', (event) => {
+            const targetTr = event.target.closest('tr[data-tipo]');
+            if (targetTr) {
+                const tipo = targetTr.dataset.tipo;
+                const dataUrl = `events_by_type/${encodeURIComponent(tipo)}`;
+                const downloadUrl = `${API_BASE}/download/events_by_type/${encodeURIComponent(tipo)}`;
+                const title = `Eventos de Tipo: ${tipo}`;
+                const headers = { 'Fecha': 'fecha', 'Origen': 'ip_origen', 'Destino': 'ip_destino', 'Nivel': 'nivel', 'Desc.': 'descripcion' };
+                loadAndShowDetails(dataUrl, downloadUrl, title, headers);
+            }
+        });
+
+        mainContainer.addEventListener('click', (event) => {
+            const downloadButton = event.target.closest('.btn-download:not(#downloadModalBtn)');
+            if (downloadButton) {
+                const reportName = downloadButton.dataset.report;
+                if (reportName) { window.location.href = `${API_BASE}/download/${reportName}`; }
+            }
+        });
+
+        downloadModalBtn.addEventListener('click', () => {
+            const url = downloadModalBtn.dataset.url;
+            if (url) { window.location.href = url; }
+        });
+    });
+</script>
+
+</body>
+</html>
