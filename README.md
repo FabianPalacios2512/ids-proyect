@@ -69,7 +69,38 @@ En Kali Linux o Debian:
 sudo apt update
 sudo apt install redis-server
 
----
-2. Crea y ejecuta el script de instalación automática
+scripts de simulación
+
+crear un archivo llamado login.lua
+y llevara esta informacion
+
+math.randomseed(os.time())
+
+request = function()
+    local username = "user" .. math.random(100000)
+    local password = "pass" .. math.random(100000)
+
+    wrk.method = "POST"
+    wrk.body   = "username=" .. username .. "&password=" .. password
+    wrk.headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    return wrk.format(nil, "/login")
+end
+
+luego ejecutamos el scrit asi
+
+wrk -t20 -c100000 -d90s -s login.lua http://localhost:5000/login
+
+t idica los hilos
+c las peticiones que va hacer
+d tiempo
+s segundos
+S archivo 
+
+
+
+
+
+
 
 
