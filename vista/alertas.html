@@ -423,7 +423,7 @@
         let isFiltering = false;
         let lastActivity = Date.now();
         let reloadTimeout;
-        const reloadInterval = 50000; // 50 segundos para mantener compatibilidad
+        const reloadInterval = 5000; // 50 segundos para mantener compatibilidad
         
         // Función para detectar actividad del usuario
         function resetActivityTimer() {
@@ -637,7 +637,13 @@
         sonido.play(); // Reproduce sonido
       }, 50);
   
-      setTimeout(() => cerrarModalAlertas(), 12000); // auto cerrar después de 12s
+      setTimeout(() => cerrarModalAlertas(), 8000); // auto cerrar después de 8s
+  
+      // Guardar último ID o timestamp para evitar mostrarlo de nuevo
+      if (amenazas.length > 0) {
+        const ultimaAmenaza = amenazas[0];  // Orden descendente
+        localStorage.setItem("ultimaAmenazaMostrada", ultimaAmenaza.fecha); // usar "id" si hay uno
+      }
     }
   
     function cerrarModalAlertas() {
@@ -653,21 +659,33 @@
     }
   
     function tomarAccion() {
-      window.location.href = "/eventos";  // Ajusta a tu ruta real
+      window.location.href = "/eventos";
     }
   
     function informarAdmin() {
       alert("Mensaje enviado al administrador.");
-      // Puedes agregar un fetch() real aquí si lo necesitas
     }
   
-    // Llamada automática al iniciar
+    // Llamada al cargar
     fetch('/ultimas-amenazas')
       .then(res => res.json())
       .then(data => {
-        if (data.length > 0) mostrarAlertas(data);
+        if (data.length === 0) return;
+  
+        // Filtrar solo amenazas que sean Media o Alta
+        const amenazasImportantes = data.filter(a => a.nivel !== "Bajo");
+  
+        if (amenazasImportantes.length === 0) return;
+  
+        const ultimaMostrada = localStorage.getItem("ultimaAmenazaMostrada");
+        const nuevaAmenaza = amenazasImportantes[0];
+  
+        if (!ultimaMostrada || nuevaAmenaza.fecha !== ultimaMostrada) {
+          mostrarAlertas(amenazasImportantes);
+        }
       });
   </script>
+  
   
 
 

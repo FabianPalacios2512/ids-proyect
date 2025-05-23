@@ -1,9 +1,10 @@
-blinker==1.9.0
-click==8.1.8
-Flask==3.1.0
-itsdangerous==2.2.0
-Jinja2==3.1.6
-MarkupSafe==3.0.2
-mysql-connector-python==9.2.0
-psutil==7.0.0
-Werkzeug==3.1.3
+blinker==1.7.0              # Señales internas para Flask
+click==8.1.8                # CLI para Flask
+Flask==3.1.0                # Framework principal
+itsdangerous==2.2.0         # Seguridad para cookies y sesiones
+Jinja2==3.1.6               # Motor de plantillas
+MarkupSafe==2.1.5           # Seguridad para plantillas
+mysql-connector-python==9.2.0  # Conector a MariaDB/MySQL
+psutil==5.9.8               # Monitorización del sistema
+Werkzeug==3.1.3             # WSGI y manejo de requests/responses
+redis==5.0.4                # Cliente de Redis para Python (necesario para login)

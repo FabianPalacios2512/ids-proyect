@@ -39,7 +39,7 @@
         <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
           <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
         </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+        <a href="{{ url_for('login.reportes') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
           <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
         </a>
         <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
@@ -933,7 +933,7 @@ function verMasAlertas(idEvento) {
 
 <!-- Botón para reiniciar el tour (solo para desarrollo, puedes eliminar en producción) -->
 <button onclick="resetTour()" class="fixed bottom-4 left-4 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm z-50 opacity-70 hover:opacity-100">
-  Reiniciar Tour
+  Guia del ids
 </button>
 
 

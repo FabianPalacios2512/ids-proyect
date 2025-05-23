@@ -88,14 +88,45 @@ def usuario():
 def perfil():
     return render_template("perfil.html")
 
+@login_bp.route('/reportes')
+def reportes():
+    return render_template("reportes.html")
+
 
 
 
 
 
 # CONFIGURACION DEL LOGIN
+import redis
+from flask import request
+
+# Configura conexión a Redis (ajusta host/puerto si necesario)
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+MAX_INTENTOS = 5
+TIEMPO_BLOQUEO = 300  # en segundos, ej 5 minutos
+
+def obtener_ip_cliente():
+    # Si tienes proxy reverso, revisa esta cabecera
+    if request.headers.get('X-Forwarded-For'):
+        return request.headers.get('X-Forwarded-For').split(',')[0]
+    return request.remote_addr
+
 @login_bp.route('/login', methods=['POST'])
 def login():
+    ip = obtener_ip_cliente()
+    key_intentos = f"login_intentos:{ip}"
+    key_bloqueo = f"login_bloqueado:{ip}"
+
+    # Verifica si la IP está bloqueada
+    if r.exists(key_bloqueo):
+        tiempo_restante = r.ttl(key_bloqueo)
+        return jsonify({
+            "status": "error",
+            "mensaje": f"Demasiados intentos fallidos. Intenta nuevamente en {tiempo_restante} segundos."
+        }), 429
+
     datos = request.json
     email = datos.get('email')
     contrasena = datos.get('contrasena')
@@ -113,10 +144,10 @@ def login():
         usuario = cursor.fetchone()
 
         if usuario:
+            # Login exitoso -> limpiar intentos
+            r.delete(key_intentos)
             session['usuario'] = usuario['nombre']
-            session['perfil'] = usuario['id_perfil']  # Almacena el perfil en la sesión
-            
-            # Registrar evento de inicio de sesión
+            session['perfil'] = usuario['id_perfil']  
             registrar_evento(usuario['nombre'], "Inicio de sesión")
 
             return jsonify({
@@ -125,10 +156,27 @@ def login():
                 "usuario": usuario['nombre']
             }), 200
         else:
-            return jsonify({"status": "error", "mensaje": "❌ Credenciales incorrectas."}), 401
+            # Incrementar contador de intentos fallidos
+            intentos = r.incr(key_intentos)
+            if intentos == 1:
+                r.expire(key_intentos, TIEMPO_BLOQUEO)  # El contador expira pasado el tiempo de bloqueo
+
+            if intentos > MAX_INTENTOS:
+                # Bloqueamos la IP
+                r.set(key_bloqueo, 1, ex=TIEMPO_BLOQUEO)
+                return jsonify({
+                    "status": "error",
+                    "mensaje": f"❌ Demasiados intentos fallidos. IP bloqueada por {TIEMPO_BLOQUEO} segundos."
+                }), 429
+            else:
+                return jsonify({
+                    "status": "error",
+                    "mensaje": "❌ Credenciales incorrectas.",
+                    "intentos_restantes": MAX_INTENTOS - intentos
+                }), 401
 
     except Exception as e:
-        print("Error al iniciar sesión:", e)  # Esto lo imprime en la terminal
+        print("Error al iniciar sesión:", e)
         return jsonify({
             "status": "error",
             "mensaje": "⚠️ Ocurrió un problema inesperado.",
@@ -138,6 +186,7 @@ def login():
     finally:
         cursor.close()
         conexion.close()
+
 
 
 @login_bp.route('/crear_perfil', methods=['POST'])
@@ -411,3 +460,7 @@ def ultimas_amenazas():
     cursor.close()
     conn.close()
     return jsonify(data)
+
+
+
+

@@ -295,12 +295,13 @@
           </div>
           
           <div class="flex flex-wrap gap-3">
-            <button id="scan-btn" onclick="iniciarEscaneo()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
+            <button id="scan-btn" onclick="mostrarModalAdvertencia()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
               <span>Iniciar escaneo</span>
             </button>
+
             <button id="stop-btn" onclick="detenerEscaneo()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="6" y="6" width="12" height="12"></rect>
@@ -599,6 +600,64 @@
 
   <!-- Mantener la referencia al script original para conservar la funcionalidad -->
   <script defer src="{{ url_for('static', filename='js/dispositivos.js') }}"></script>
+
+
+<!-- Modal de Advertencia -->
+<div id="modalAdvertencia" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden font-sans">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 text-gray-800 dark:text-gray-100">
+    <div class="mb-5">
+      <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
+        ⚠ Consejo antes de escanear
+      </h2>
+      <p class="text-base leading-relaxed text-gray-700 dark:text-gray-300">
+        Antes de realizar un escaneo de dispositivos, asegúrese de que no hay un escaneo de red activo en curso.
+        <br class="hidden sm:block">
+        Si no hay uno previamente, puede ignorar este mensaje.
+      </p>
+    </div>
+    <div class="flex justify-end gap-3 mt-6">
+      <button onclick="cerrarModal()" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition font-medium">
+        Cancelar
+      </button>
+      <button onclick="confirmarEscaneo()" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition">
+        Entendido, continuar
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  function mostrarModalAdvertencia() {
+    document.getElementById('modalAdvertencia').classList.remove('hidden');
+  }
+
+  function cerrarModal() {
+    document.getElementById('modalAdvertencia').classList.add('hidden');
+  }
+
+  function confirmarEscaneo() {
+    cerrarModal();
+    iniciarEscaneo(); // Llama tu función de escaneo aquí
+  }
+
+  function iniciarEscaneo() {
+    fetch('/iniciar-escaneo')
+      .then(res => res.json())
+      .then(data => {
+        if (data.exito) {
+          alert('✅ Escaneo iniciado');
+        } else {
+          alert('⚠️ Ya hay un escaneo en progreso');
+        }
+      })
+      .catch(err => {
+        console.error('Error al iniciar el escaneo:', err);
+        alert('❌ Error al iniciar el escaneo');
+      });
+  }
+</script>
 
 
 
