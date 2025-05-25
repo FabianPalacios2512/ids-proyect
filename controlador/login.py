@@ -405,6 +405,24 @@ def alertas():
     return render_template('alertas.html', alertas=obtener_alertas())
 
 
+@login_bp.route('/api/alertas')
+def api_alertas():
+    """
+    Endpoint API para obtener todas las alertas en formato JSON.
+    """
+    try:
+        # Reutilizamos la función que ya obtiene las alertas
+        alertas_data = obtener_alertas() 
+        
+        # Devolvemos los datos como JSON
+        return jsonify(alertas_data)
+        
+    except Exception as e:
+        print(f"❌ Error al obtener alertas para API: {e}")
+        # En caso de error, devolvemos un JSON con el mensaje
+        return jsonify({"status": "error", "mensaje": "No se pudieron cargar las alertas.", "detalle": str(e)}), 500
+
+
 
 
 
