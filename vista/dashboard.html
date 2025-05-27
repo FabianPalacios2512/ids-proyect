@@ -36,17 +36,14 @@
         <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
           <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
         </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
-        </a>
+        
         <a href="{{ url_for('login.reportes') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
           <i data-lucide="bar-chart" class="w-5 h-5"></i><span>Reportes</span>
         </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
-        </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
+       
+        <a href="{{ url_for('login.logout') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
+          
         </a>
       </nav>
     </aside>

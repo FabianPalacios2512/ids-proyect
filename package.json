@@ -1,0 +1,23 @@
+{
+  "devDependencies": {
+    "tailwindcss": "^4.1.7"
+  },
+  "name": "ids_proyecto",
+  "description": "# IDS_Proyecto - Sistema de Detección de Intrusos en Red",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FabianPalacios2512/ids-proyect.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FabianPalacios2512/ids-proyect/issues"
+  },
+  "homepage": "https://github.com/FabianPalacios2512/ids-proyect#readme"
+}

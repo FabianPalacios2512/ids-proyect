@@ -12,7 +12,7 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "clave_por_defecto_segura")
 # Registrar Blueprints
 app.register_blueprint(sistema_bp)
 app.register_blueprint(login_bp)
-app.register_blueprint(usuarios_bp)
+app.register_blueprint(usuarios_bp) 
 app.register_blueprint(paquetes_bp)
 app.register_blueprint(dispositivos_bp)
 app.register_blueprint(eventos_bp)

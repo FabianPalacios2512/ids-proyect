@@ -64,26 +64,25 @@
             IDS System
           </span>
         </div>
-        <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
-          {% set menu_items = [
-            ('login.dashboard', 'layout-dashboard', 'Panel principal'),
-            ('login.usuario', 'users', 'Usuarios'),
-            ('login.perfil', 'shield', 'Perfiles'),
-            ('dispositivos.dispositivos', 'server', 'Dispositivos'),
-            ('login.monitoreo', 'activity', 'Monitoreo'),
-            ('login.alertas', 'alert-triangle', 'Alertas'),
-            (None, 'search', 'Eventos'),
-            (None, 'bar-chart-2', 'Reportes'),
-            (None, 'settings', 'Configuración'),
-            (None, 'log-out', 'Cerrar Sesión')
-          ] %}
-          {% for endpoint, icon, label in menu_items %}
-            <a href="{{ url_for(endpoint) if endpoint else '#' }}"
-               class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
-              <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
-            </a>
-          {% endfor %}
-        </nav>
+       <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
+        {% set menu_items = [
+          ('login.dashboard', 'layout-dashboard', 'Panel principal'),
+          ('login.usuario', 'users', 'Usuarios'),
+          ('login.perfil', 'shield', 'Perfiles'),
+          ('dispositivos.dispositivos', 'server', 'Dispositivos'),
+          ('login.monitoreo', 'activity', 'Monitoreo'),
+          ('login.alertas', 'alert-triangle', 'Alertas'),
+         
+          ('login.logout', 'log-out', 'Cerrar Sesión')
+          
+        ] %}
+        {% for endpoint, icon, label in menu_items %}
+          <a href="{{ url_for(endpoint) if endpoint else '#' }}"
+             class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
+            <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
+          </a>
+        {% endfor %}
+      </nav>
         <div class="p-4 text-xs text-gray-500 mt-auto text-center">
           IDS System v1.2.0 | © 2025
         </div>

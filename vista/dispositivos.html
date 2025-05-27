@@ -1,678 +1,388 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dispositivos en Red - IDS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
-  <style>
-    /* Definición de variables para el tema (mejoradas) */
-    :root {
-      /* Variables del tema claro */
-      --bg-light: #f8fafc;
-      --text-light: #1e293b;
-      --card-light: #ffffff;
-      --table-head-light: #f1f5f9;
-      --border-light: #e2e8f0;
-      --menu-light: #ffffff;
-      --table-row-hover-light: #f8fafc;
-  
-      /* Variables del tema oscuro */
-      --bg-dark: #0f172a;
-      --text-dark: #f1f5f9;
-      --card-dark: #1e293b;
-      --table-head-dark: #334155;
-      --border-dark: #334155;
-      --menu-dark: #1e293b;
-      --table-row-dark: #1e293b; /* Color oscuro para las filas en modo oscuro */
-      --pagination-dark-bg: #334155; /* Fondo oscuro para la paginación en modo oscuro */
-      --pagination-dark-border: #3b4b60; /* Borde de la paginación en modo oscuro */
-    }
-  
-    /* Estilo base según tema */
-    [data-theme="light"] {
-      --bg: var(--bg-light);
-      --text: var(--text-light);
-      --card: var(--card-light);
-      --table-head: var(--table-head-light);
-      --border: var(--border-light);
-      --menu: var(--menu-light);
-      --table-row-hover: var(--table-row-hover-light);
-    }
-  
-    [data-theme="dark"] {
-      --bg: var(--bg-dark);
-      --text: var(--text-dark);
-      --card: var(--card-dark);
-      --table-head: var(--table-head-dark);
-      --border: var(--border-dark);
-      --menu: var(--menu-dark);
-      --table-row-hover: var(--table-row-dark);
-    }
-  
-    /* Estilo general */
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      transition: background-color 0.3s, color 0.3s;
-      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-  
-    /* Estilo para el menú lateral */
-    .sidebar {
-      background-color: var(--menu);
-      border-right: 1px solid var(--border);
-      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-    }
-  
-    /* Estilo para tarjetas */
-    .card {
-      background-color: var(--card);
-      border: 1px solid var(--border);
-      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
-  
-    /* Estilo de los inputs y selects */
-    input, select, textarea {
-      background-color: var(--bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-  
-    /* Estilo para las tablas */
-    .data-table {
-      background-color: var(--card);
-      transition: background-color 0.3s, border-color 0.3s;
-      overflow: hidden;
-    }
-  
-    .data-table thead {
-      background-color: var(--table-head);
-      color: var(--text);
-      transition: background-color 0.3s;
-    }
-  
-    .data-table th {
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-size: 0.75rem;
-    }
-  
-    .data-table tbody tr {
-      border-bottom: 1px solid var(--border);
-      background-color: var(--table-row); /* Color para las filas en modo oscuro */
-      transition: background-color 0.2s;
-    }
-  
-    /* Eliminar hover en el modo oscuro para las filas */
-    [data-theme="dark"] .data-table tbody tr:hover {
-      background-color: var(--table-row-dark); /* Mantener el color oscuro sin cambio */
-    }
-  
-    /* Estilo para estado de dispositivos */
-    .status-active {
-      background-color: #dcfce7;
-      color: #166534;
-    }
-  
-    .status-offline {
-      background-color: #fee2e2;
-      color: #991b1b;
-    }
-  
-    .status-warning {
-      background-color: #fef3c7;
-      color: #92400e;
-    }
-  
-    [data-theme="dark"] .status-active {
-      background-color: rgba(22, 101, 52, 0.3);
-    }
-  
-    [data-theme="dark"] .status-offline {
-      background-color: rgba(153, 27, 27, 0.3);
-    }
-  
-    [data-theme="dark"] .status-warning {
-      background-color: rgba(146, 64, 14, 0.3);
-    }
-  
-    /* Estilo de la paginación */
-    .pagination-container {
-      background-color: var(--pagination-dark-bg); /* Fondo oscuro en modo oscuro */
-      border-top: 1px solid var(--border);
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background-color 0.3s, color 0.3s;
-    }
-  
-    /* Estilos de texto y botones en la paginación */
-    .pagination-container .text-sm {
-      color: var(--text);
-    }
-  
-    .pagination-container .pagination-btn {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--pagination-dark-border); /* Borde de la paginación en modo oscuro */
-      border-radius: 0.5rem;
-      background-color: var(--bg);
-      color: var(--text);
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-  
-    .pagination-container .pagination-btn:hover {
-      background-color: var(--bg-light);
-      border-color: var(--border-light);
-    }
-  
-    /* Transiciones suaves */
-    .theme-transition {
-      transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dispositivos en Red - IDS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Colores Base */
+            --primary-color: #3b82f6; --primary-hover: #2563eb;
+            --success-color: #10b981; --success-hover: #059669;
+            --danger-color: #ef4444; --danger-hover: #dc2626;
+            --warning-color: #f59e0b; --warning-hover: #d97706;
 
+            /* Modo Claro */
+            --bg-light: #f8fafc; --text-light: #1e293b; --card-light: #ffffff;
+            --table-head-light: #f1f5f9; --border-light: #e2e8f0;
+            --text-muted-light: #6b7280; --table-row-hover-light: #f1f5f9;
 
-</head>
-<body class="theme-transition" data-theme="light">
-  <div class="flex h-screen">
-    <!-- Menú lateral -->
-    <aside class="sidebar w-64 bg-gray-900 text-white flex flex-col h-full">
-      <div class="p-4 text-center text-2xl font-bold border-b border-gray-700">
-        <div class="flex items-center justify-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <span>IDS System</span>
-        </div>
-      </div>
-      <nav class="flex-1 p-4 space-y-1 text-sm overflow-y-auto">
-        <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="9"></rect>
-            <rect x="14" y="3" width="7" height="5"></rect>
-            <rect x="14" y="12" width="7" height="9"></rect>
-            <rect x="3" y="16" width="7" height="5"></rect>
-          </svg>
-          <span>Panel principal</span>
-        </a>
-        <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <span>Usuarios</span>
-        </a>
-        <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          </svg>
-          <span>Perfiles</span>
-        </a>
-        <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-2 p-2 bg-blue-700 shadow-md rounded">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-            <line x1="6" y1="6" x2="6.01" y2="6"></line>
-            <line x1="6" y1="18" x2="6.01" y2="18"></line>
-          </svg>
-          <span>Dispositivos</span>
-        </a>
-        <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.monitoreo' else '' }}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-          </svg>
-          <span>Monitoreo</span>
-        </a>
-        <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded {{ 'bg-gray-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-          <span>Alertas</span>
-        </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <span>Eventos</span>
-        </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-          </svg>
-          <span>Reportes</span>
-        </a>
-        <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-          <span>Configuración</span>
-        </a>
-        <div class="pt-4 mt-4 border-t border-gray-700">
-          <a href="#" class="flex items-center space-x-2 p-2 hover:bg-gray-800 text-red-400 rounded">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-            <span>Cerrar Sesión</span>
-          </a>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Contenido principal -->
-    <div class="flex-1 flex flex-col overflow-hidden theme-transition">
-      <!-- Header con información y botones -->
-      <header class="theme-transition py-6 px-8 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <h1 class="text-3xl font-bold flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
-              </svg>
-              Dispositivos Detectados
-            </h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-1">Monitoreo de dispositivos en la red interna</p>
-          </div>
-          
-          <div class="flex flex-wrap gap-3">
-            <button id="scan-btn" onclick="mostrarModalAdvertencia()" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-              <span>Iniciar escaneo</span>
-            </button>
-
-            <button id="stop-btn" onclick="detenerEscaneo()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="6" y="6" width="12" height="12"></rect>
-              </svg>
-              <span>Detener escaneo</span>
-            </button>
-            <a href="/dashboard" class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-              <span>Volver al panel</span>
-            </a>
-            <!-- Botón para cambiar el tema -->
-            <button id="theme-toggle" onclick="toggleTheme()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
-              <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
-              <span id="theme-text">Modo oscuro</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <!-- Contenido principal - Tabla de dispositivos -->
-<main class="flex-1 p-8 overflow-auto">
-  <!-- Estadísticas rápidas -->
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="card p-5 flex items-center">
-      <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full mr-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600 dark:text-blue-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-          <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-          <line x1="6" y1="6" x2="6.01" y2="6"></line>
-          <line x1="6" y1="18" x2="6.01" y2="18"></line>
-        </svg>
-      </div>
-      <div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Total Dispositivos</p>
-        <h3 class="text-2xl font-bold" id="total-devices">--</h3>
-      </div>
-    </div>
-    
-    <div class="card p-5 flex items-center">
-      <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full mr-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600 dark:text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-      </div>
-      <div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Activos</p>
-        <h3 class="text-2xl font-bold" id="active-devices">--</h3>
-      </div>
-    </div>
-    
-    <div class="card p-5 flex items-center">
-      <div class="bg-red-100 dark:bg-red-900 p-3 rounded-full mr-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600 dark:text-red-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-      </div>
-      <div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Inactivos</p>
-        <h3 class="text-2xl font-bold" id="inactive-devices">--</h3>
-      </div>
-    </div>
-  </div>
-        
-        <!-- Filtros y búsqueda -->
-        <div class="flex flex-col md:flex-row gap-4 mb-6">
-          <div class="relative flex-1">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </span>
-            <input type="text" id="search-devices" placeholder="Buscar dispositivos..." class="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-          </div>
-          
-          <div class="flex gap-2">
-            <select id="filter-status" class="border ...">
-              <option value="all">Todos los estados</option>
-              <option value="active">Activo</option>
-              <option value="offline">Offline</option>
-              <option value="warning">Advertencia</option>
-            </select>
-          
-            <select id="filter-os" class="border ...">
-              <option value="all">Todos los S.O.</option>
-              <option value="windows">Windows</option>
-              <option value="linux">Linux</option>
-              <option value="macos">MacOS</option>
-              <option value="other">Otros</option>
-            </select>
-          </div>
-          
-        </div>
-
-        <!-- Tabla de dispositivos - Mejorada -->
-        <div class="card data-table overflow-hidden rounded-xl shadow-lg">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr>
-                  <th class="px-6 py-4 text-left">IP</th>
-                  <th class="px-6 py-4 text-left">MAC</th>
-                  <th class="px-6 py-4 text-left">Hostname</th>
-                  <th class="px-6 py-4 text-left">Sistema Operativo</th>
-                  <th class="px-6 py-4 text-left">Puertos Abiertos</th>
-                  <th class="px-6 py-4 text-left">Fecha de Escaneo</th>
-                  <th class="px-6 py-4 text-left">Estado</th>
-                  <th class="px-6 py-4 text-center">Acción</th>
-                </tr>
-              </thead>
-              <tbody id="tabla-dispositivos">
-                <!-- Los datos serán cargados dinámicamente por el JS -->
-              </tbody>
-            </table>
-          </div>
-          <!-- Paginación -->
-          <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between pagination-container">
-            <div class="text-sm text-gray-600 dark:text-gray-400">
-              Mostrando <span id="showing-start">0</span> - <span id="showing-end">0</span> de <span id="total-entries">0</span> dispositivos
-            </div>
-            <div class="flex gap-2">
-              <button id="prev-page" class="pagination-btn">
-                Anterior
-              </button>
-              <button id="next-page" class="pagination-btn">
-                Siguiente
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  </div>
-
-  <!-- Notificación Toast para acciones -->
-  <div id="toast-notification" class="fixed top-4 right-4 z-50 max-w-xs bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto border border-gray-100 dark:border-gray-700 transform transition-all duration-300 translate-y-[-100%] opacity-0">
-    <div class="p-4 flex items-center">
-      <div id="toast-icon" class="flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 dark:text-green-300" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-        </svg>
-      </div>
-      <div class="flex-1">
-        <p id="toast-title" class="text-sm font-medium text-gray-900 dark:text-white">Operación exitosa</p>
-        <p id="toast-message" class="mt-1 text-sm text-gray-500 dark:text-gray-400">La acción se ha completado correctamente.</p>
-      </div>
-      <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-gray-500 focus:outline-none">
-        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Modal para detalles del dispositivo -->
-  <div id="device-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeDeviceModal()"></div>
-    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-xl w-full mx-4 transform transition-all">
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="modal-title">Detalles del dispositivo</h3>
-          <button onclick="closeDeviceModal()" class="text-gray-400 hover:text-gray-500">
-            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div id="modal-content" class="space-y-4">
-          <!-- El contenido será llenado dinámicamente -->
-        </div>
-        <div class="mt-6 flex justify-end space-x-3">
-          <button onclick="closeDeviceModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg">
-            Cerrar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Script para manejar el tema -->
-  <script>
-    // Función para cambiar el tema
-    function toggleTheme() {
-      const body = document.body;
-      const currentTheme = body.getAttribute('data-theme');
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      
-      // Cambiar el tema del cuerpo
-      body.setAttribute('data-theme', newTheme);
-      
-      // Guardar preferencia en localStorage
-      localStorage.setItem('theme', newTheme);
-      
-      // Actualizar texto e ícono del botón
-      const themeIcon = document.getElementById('theme-icon');
-      const themeText = document.getElementById('theme-text');
-      
-      if (newTheme === 'dark') {
-        themeIcon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
-        themeText.textContent = 'Modo claro';
-      } else {
-        themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
-        themeText.textContent = 'Modo oscuro';
-      }
-    }
-    
-    // Cargar tema al iniciar la página
-    document.addEventListener('DOMContentLoaded', function() {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) {
-        document.body.setAttribute('data-theme', savedTheme);
-        
-        // Actualizar botón según el tema guardado
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
-        
-        if (savedTheme === 'dark') {
-          themeIcon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
-          themeText.textContent = 'Modo claro';
-        } else {
-          themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
-          themeText.textContent = 'Modo oscuro';
+            /* Modo Oscuro */
+            --bg-dark: #0b1120; --text-dark: #e2e8f0; --card-dark: #1e293b;
+            --table-head-dark: #334155; --border-dark: #374151;
+            --text-muted-dark: #9ca3af; --table-row-hover-dark: #2c3a50;
         }
-      }
-    });
-    
-    // Función para mostrar toast de notificación
-    function showToast(title, message, type = 'success') {
-      const toast = document.getElementById('toast-notification');
-      const toastTitle = document.getElementById('toast-title');
-      const toastMessage = document.getElementById('toast-message');
-      const toastIcon = document.getElementById('toast-icon');
-      
-      // Configurar el contenido
-      toastTitle.textContent = title;
-      toastMessage.textContent = message;
-      
-      // Configurar el ícono según el tipo
-      if (type === 'success') {
-        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900';
-        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 dark:text-green-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>';
-      } else if (type === 'error') {
-        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900';
-        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>';
-      } else if (type === 'warning') {
-        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900';
-        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 dark:text-yellow-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>';
-      } else if (type === 'info') {
-        toastIcon.className = 'flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900';
-        toastIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>';
-      }
-      
-      // Mostrar el toast
-      toast.classList.remove('translate-y-[-100%]', 'opacity-0');
-      
-      // Ocultar automáticamente después de 5 segundos
-      setTimeout(hideToast, 5000);
-    }
-    
-    // Función para ocultar toast
-    function hideToast() {
-      const toast = document.getElementById('toast-notification');
-      toast.classList.add('translate-y-[-100%]', 'opacity-0');
-    }
-    
-    // Función para abrir modal de detalles
-    function openDeviceModal(deviceId) {
-      // Aquí se cargarían los datos del dispositivo (esta es una función auxiliar que complementaría tu JS)
-      document.getElementById('device-modal').classList.remove('hidden');
-    }
-    
-    // Función para cerrar modal
-    function closeDeviceModal() {
-      document.getElementById('device-modal').classList.add('hidden');
-    }
-    
-    // Estas funciones serán llamadas por tu JavaScript existente
-    function iniciarEscaneo() {
-      // Tu lógica de escaneo actual se mantendrá igual
-      showToast('Escaneo iniciado', 'El proceso de escaneo de dispositivos ha comenzado', 'info');
-    }
-    
-    function detenerEscaneo() {
-      // Tu lógica de detener escaneo actual se mantendrá igual
-      showToast('Escaneo detenido', 'El proceso de escaneo de dispositivos ha sido detenido', 'warning');
-    }
-  </script>
 
-  <!-- Mantener la referencia al script original para conservar la funcionalidad -->
-  <script defer src="{{ url_for('static', filename='js/dispositivos.js') }}"></script>
+        [data-theme="light"] {
+            --bg: var(--bg-light); --text: var(--text-light); --card: var(--card-light);
+            --table-head: var(--table-head-light); --border: var(--border-light);
+            --table-row-hover: var(--table-row-hover-light); --text-muted: var(--text-muted-light);
+        }
+        [data-theme="dark"] {
+            --bg: var(--bg-dark); --text: var(--text-dark); --card: var(--card-dark);
+            --table-head: var(--table-head-dark); --border: var(--border-dark);
+            --table-row-hover: var(--table-row-hover-dark); --text-muted: var(--text-muted-dark);
+        }
 
+        /* Estilos Base */
+        body { background-color: var(--bg); color: var(--text); transition: background-color 0.3s ease, color 0.3s ease; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .transition-all { transition: all 0.3s ease; }
 
-<!-- Modal de Advertencia -->
-<div id="modalAdvertencia" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden font-sans">
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 text-gray-800 dark:text-gray-100">
-    <div class="mb-5">
-      <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
-        ⚠ Consejo antes de escanear
-      </h2>
-      <p class="text-base leading-relaxed text-gray-700 dark:text-gray-300">
-        Antes de realizar un escaneo de dispositivos, asegúrese de que no hay un escaneo de red activo en curso.
-        <br class="hidden sm:block">
-        Si no hay uno previamente, puede ignorar este mensaje.
-      </p>
+        /* Sidebar (Como pediste, mantenemos el oscuro) */
+        .sidebar { background-color: #0f172a; border-right: 1px solid #334155; }
+        .sidebar a { transition: all 0.2s ease; border-left: 3px solid transparent; }
+        .sidebar a:hover { background-color: #1e293b; border-left-color: var(--primary-color); transform: translateX(3px); }
+        .sidebar a.active { background-color: var(--primary-color); color: white; border-left-color: #a5b4fc; box-shadow: inset 3px 0 8px -2px rgba(0,0,0,0.3); }
+
+        /* Cards */
+        .card { background-color: var(--card); border: 1px solid var(--border); transition: all 0.3s ease; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03); }
+        .card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        [data-theme="dark"] .card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1); }
+
+        /* Inputs y Selects */
+        input, select, textarea { background-color: var(--card); color: var(--text); border: 1px solid var(--border); transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.2s ease; padding: 0.65rem 1rem; border-radius: 0.5rem; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        input[readonly] { background-color: #e9ecef; cursor: text; }
+        [data-theme="dark"] input[readonly] { background-color: #334155; }
+
+        /* Tabla */
+        .data-table { background-color: var(--card); transition: background-color 0.3s ease, border-color 0.3s ease; overflow: hidden; border-radius: 0.75rem; border: 1px solid var(--border); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
+        .data-table thead { background-color: var(--table-head); color: var(--text); transition: background-color 0.3s ease; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; font-weight: 600; }
+        .data-table th, .data-table td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .data-table tbody tr { transition: background-color 0.2s ease; }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+        .data-table tbody tr:hover { background-color: var(--table-row-hover); }
+
+        /* Badges de Estado */
+        .status-badge { padding: 0.3rem 0.85rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid transparent; }
+        .status-badge::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; }
+        .status-active { background-color: #dcfce7; color: #166534; border-color: #a7f3d0; } .status-active::before { background-color: #22c55e; }
+        .status-offline { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } .status-offline::before { background-color: #ef4444; }
+        .status-warning { background-color: #fef3c7; color: #92400e; border-color: #fde68a; } .status-warning::before { background-color: #f59e0b; }
+        .status-blocked { background-color: #e5e7eb; color: #4b5563; border-color: #d1d5db; } .status-blocked::before { background-color: #6b7280; }
+        [data-theme="dark"] .status-active { background-color: #14532d; color: #a7f3d0; border-color: #15803d; }
+        [data-theme="dark"] .status-offline { background-color: #7f1d1d; color: #fecaca; border-color: #b91c1c; }
+        [data-theme="dark"] .status-warning { background-color: #78350f; color: #fde68a; border-color: #b45309; }
+        [data-theme="dark"] .status-blocked { background-color: #374151; color: #d1d5db; border-color: #4b5563; }
+
+        /* Botones Generales (CORREGIDO) */
+        .btn { display: inline-flex; align-items: center; /* CORREGIDO: Usar align-items */ justify-content: center; gap: 0.5rem; padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-primary { background-color: var(--primary-color); color: white; border-color: var(--primary-color); } .btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
+        .btn-success { background-color: var(--success-color); color: white; border-color: var(--success-color); } .btn-success:hover { background-color: var(--success-hover); border-color: var(--success-hover); }
+        .btn-danger { background-color: var(--danger-color); color: white; border-color: var(--danger-color); } .btn-danger:hover { background-color: var(--danger-hover); border-color: var(--danger-hover); }
+        .btn-secondary { background-color: var(--table-head); color: var(--text); border: 1px solid var(--border); } .btn-secondary:hover { background-color: var(--border); }
+        .btn-dark { background-color: #374151; color: white; } .btn-dark:hover { background-color: #1f2937; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Modal Mejorado */
+        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(10, 20, 40, 0.6); backdrop-filter: blur(5px); z-index: 99; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s ease; }
+        .modal-content { background-color: var(--card); color: var(--text); border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); width: 90%; max-width: 500px; transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease; opacity: 0; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-backdrop.show { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s 0s ease; }
+        .modal-backdrop.show .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1.25rem; font-weight: 700; }
+        .modal-close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; margin: -0.5rem; border-radius: 50%; transition: background-color 0.2s ease, color 0.2s ease; }
+        .modal-close-btn:hover { background-color: var(--border); color: var(--text); }
+        .modal-body { padding: 1.5rem; font-size: 1rem; color: var(--text-muted); }
+        .modal-body #passwordInput { width: 100%; margin-top: 1rem; }
+        .modal-body #passwordError { color: var(--danger-color); font-size: 0.875rem; margin-top: 0.5rem; display: none; }
+        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background-color: var(--table-head); display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+        /* Paginación */
+        .pagination-container { background-color: var(--card); border-top: 1px solid var(--border); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.3s ease, border-color 0.3s ease; border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
+        .pagination-btn { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 0.5rem; background-color: var(--card); color: var(--text); transition: all 0.2s ease; }
+        .pagination-btn:hover:not(:disabled) { background-color: var(--primary-color); color: white; border-color: var(--primary-color); } .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Toast Styles */
+        #toast-notification { transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease; }
+
+        /* Estilo original de sidebar con iconos añadidos */
+         .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* <<< CORRECCIÓN: Reemplaza 'space-x' con 'gap' */
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s ease;
+}
+        .sidebar-nav-link:hover {
+            background-color: #1e293b; /* gray-800 */
+        }
+         .sidebar-nav-link.active {
+            background-color: #3b82f6; /* blue-700 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+    </style>
+</head>
+<body data-theme="light">
+<div class="flex h-screen bg-[var(--bg)]">
+     <aside class="w-64 bg-gray-900 text-white flex flex-col">
+        <div class="p-6 text-center text-2xl font-bold border-b border-gray-700">
+          <span class="flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            IDS System
+          </span>
+        </div>
+        <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
+        {% set menu_items = [
+          ('login.dashboard', 'layout-dashboard', 'Panel principal'),
+          ('login.usuario', 'users', 'Usuarios'),
+          ('login.perfil', 'shield', 'Perfiles'),
+          ('dispositivos.dispositivos', 'server', 'Dispositivos'),
+          ('login.monitoreo', 'activity', 'Monitoreo'),
+          ('login.alertas', 'alert-triangle', 'Alertas'),
+         
+          ('login.reportes', 'bar-chart-2', 'Reportes'),
+           ('login.logout', 'log-out', 'Cerrar Sesión')
+          
+        ] %}
+        {% for endpoint, icon, label in menu_items %}
+          <a href="{{ url_for(endpoint) if endpoint else '#' }}"
+             class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
+            <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
+          </a>
+        {% endfor %}
+      </nav>
+        <div class="p-4 text-xs text-gray-500 mt-auto text-center">
+          IDS System v1.2.0 | © 2025
+        </div>
+      </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="py-5 px-8 shadow-sm border-b border-[var(--border)] bg-[var(--card)] transition-all">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                 <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-3 text-[var(--text)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        Dispositivos Detectados
+                    </h1>
+                    <p class="text-sm text-[var(--text-muted)] mt-1">Monitoreo y gestión de dispositivos en la red.</p>
+                </div>
+                 <div class="flex flex-wrap gap-3">
+                    <button id="scan-btn" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span>Iniciar</span>
+                    </button>
+                    <button id="stop-btn" class="btn btn-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"></rect></svg>
+                        <span>Detener</span>
+                    </button>
+                    <button id="theme-toggle" class="btn btn-dark">
+                        <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <span id="theme-text">Modo oscuro</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-6 md:p-8 overflow-auto bg-[var(--bg)] transition-all">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="card p-6 flex items-start gap-5">
+                    <div class="bg-blue-100 dark:bg-blue-900/50 p-4 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg></div>
+                    <div><p class="text-sm text-[var(--text-muted)]">Total Dispositivos</p><h3 class="text-3xl font-bold text-[var(--text)]" id="total-devices">--</h3></div>
+                </div>
+                <div class="card p-6 flex items-start gap-5">
+                    <div class="bg-green-100 dark:bg-green-900/50 p-4 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-green-600 dark:text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                    <div><p class="text-sm text-[var(--text-muted)]">Activos</p><h3 class="text-3xl font-bold text-[var(--text)]" id="active-devices">--</h3></div>
+                </div>
+                <div class="card p-6 flex items-start gap-5">
+                    <div class="bg-red-100 dark:bg-red-900/50 p-4 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></div>
+                    <div><p class="text-sm text-[var(--text-muted)]">Inactivos / Bloq.</p><h3 class="text-3xl font-bold text-[var(--text)]" id="inactive-devices">--</h3></div>
+                </div>
+            </div>
+
+            <div class="card p-6 mb-8">
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+                        <input type="text" id="search-devices" placeholder="Buscar por IP, MAC o Hostname..." class="pl-10 w-full" readonly onfocus="this.removeAttribute('readonly');" />
+                    </div>
+                    <select id="filter-status" class="w-full"><option value="all">Todos los Estados</option><option value="active">Activo</option><option value="offline">Inactivo</option><option value="blocked">Bloqueado</option></select>
+                    <select id="filter-os" class="w-full"><option value="all">Todos los S.O.</option><option value="windows">Windows</option><option value="linux">Linux</option><option value="macos">MacOS</option><option value="other">Otros</option></select>
+                </div>
+            </div>
+
+            <div class="data-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[1024px]">
+                        <thead>
+                            <tr><th>IP</th><th>MAC</th><th>Hostname</th><th>S. Operativo</th><th>Puertos</th><th>Último Escaneo</th><th>Estado</th><th>Acción</th></tr>
+                        </thead>
+                        <tbody id="tabla-dispositivos">
+                            <tr><td colspan="8" class="text-center py-10 text-[var(--text-muted)]">Cargando dispositivos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="text-sm text-[var(--text-muted)]">Total: <span id="total-entries">0</span></div>
+                    <div class="flex gap-2">
+                        <button class="pagination-btn" disabled>Anterior</button>
+                        <button class="pagination-btn">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-    <div class="flex justify-end gap-3 mt-6">
-      <button onclick="cerrarModal()" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition font-medium">
-        Cancelar
-      </button>
-      <button onclick="confirmarEscaneo()" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition">
-        Entendido, continuar
-      </button>
+</div>
+
+<div id="toast-notification" class="fixed top-6 right-6 z-[100] max-w-xs bg-[var(--card)] shadow-lg rounded-lg pointer-events-auto border border-[var(--border)] transform transition-all duration-300 translate-x-[110%] opacity-0">
+    <div class="p-4 flex items-center">
+        <div id="toast-icon" class="flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900"></div>
+        <div class="flex-1"><p id="toast-title" class="text-sm font-medium text-[var(--text)]">Título</p><p id="toast-message" class="mt-1 text-sm text-[var(--text-muted)]">Mensaje.</p></div>
+        <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-gray-500 focus:outline-none"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
     </div>
-  </div>
+</div>
+
+<div id="genericModal" class="modal-backdrop">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle" class="modal-title">Título del Modal</h3>
+            <button id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar modal">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p id="modalMessage">Este es el mensaje del modal.</p>
+            <div id="modalPasswordContainer" class="hidden mt-4">
+                <label for="passwordInput" class="block mb-2 text-sm font-medium text-[var(--text)]">Contraseña maestra:</label>
+                <input type="password" id="passwordInput" class="w-full" placeholder="Ingrese la contraseña">
+                <p id="passwordError" class="text-red-500 text-xs mt-1 hidden">Contraseña incorrecta.</p>
+            </div>
+        </div>
+        <div id="modalFooter" class="modal-footer">
+            <button id="modalCancelBtn" class="btn btn-secondary">Cancelar</button>
+            <button id="modalConfirmBtn" class="btn btn-primary">Confirmar</button>
+        </div>
+    </div>
 </div>
 
 
-
 <script>
-  function mostrarModalAdvertencia() {
-    document.getElementById('modalAdvertencia').classList.remove('hidden');
-  }
-
-  function cerrarModal() {
-    document.getElementById('modalAdvertencia').classList.add('hidden');
-  }
-
-  function confirmarEscaneo() {
-    cerrarModal();
-    iniciarEscaneo(); // Llama tu función de escaneo aquí
-  }
-
-  function iniciarEscaneo() {
-    fetch('/iniciar-escaneo')
-      .then(res => res.json())
-      .then(data => {
-        if (data.exito) {
-          alert('✅ Escaneo iniciado');
+    // --- Lógica del Tema ---
+    function applyTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        if (theme === 'dark') {
+            themeIcon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+            themeText.textContent = 'Modo claro';
         } else {
-          alert('⚠️ Ya hay un escaneo en progreso');
+            themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            themeText.textContent = 'Modo oscuro';
         }
-      })
-      .catch(err => {
-        console.error('Error al iniciar el escaneo:', err);
-        alert('❌ Error al iniciar el escaneo');
-      });
-  }
+    }
+    function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme') || 'light';
+        applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        applyTheme(localStorage.getItem('theme') || 'light');
+        document.getElementById('theme-toggle').onclick = toggleTheme;
+        // CORREGIDO: Eliminada la simulación de carga para no interferir.
+    });
+
+    // --- Lógica del Toast ---
+    function showToast(title, message, type = 'success') {
+        const toast = document.getElementById('toast-notification');
+        document.getElementById('toast-title').textContent = title;
+        document.getElementById('toast-message').textContent = message;
+        const iconDiv = document.getElementById('toast-icon');
+        let iconSvg = '', iconClass = '';
+        switch (type) {
+            case 'success': iconClass = 'bg-green-100 dark:bg-green-900'; iconSvg = '<svg class="h-5 w-5 text-green-500 dark:text-green-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>'; break;
+            case 'error': iconClass = 'bg-red-100 dark:bg-red-900'; iconSvg = '<svg class="h-5 w-5 text-red-500 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>'; break;
+            case 'warning': iconClass = 'bg-yellow-100 dark:bg-yellow-900'; iconSvg = '<svg class="h-5 w-5 text-yellow-500 dark:text-yellow-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>'; break;
+            case 'info': iconClass = 'bg-blue-100 dark:bg-blue-900'; iconSvg = '<svg class="h-5 w-5 text-blue-500 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>'; break;
+        }
+        iconDiv.className = `flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full ${iconClass}`;
+        iconDiv.innerHTML = iconSvg;
+        toast.classList.remove('translate-x-[110%]', 'opacity-0');
+        toast.classList.add('translate-x-0', 'opacity-100');
+        setTimeout(hideToast, 5000);
+    }
+    function hideToast() {
+        const toast = document.getElementById('toast-notification');
+        toast.classList.remove('translate-x-0', 'opacity-100');
+        toast.classList.add('translate-x-[110%]', 'opacity-0');
+    }
+
+    // --- Lógica del Modal (Mejorada) ---
+    const modal = document.getElementById('genericModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+    const modalCloseBtn = document.getElementById('modalCloseBtn'); // Nuevo botón X
+    const passwordContainer = document.getElementById('modalPasswordContainer');
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordError = document.getElementById('passwordError');
+    let confirmCallback = null;
+
+    function showModal({ title, message, confirmText = 'Aceptar', cancelText = 'Cancelar', onConfirm = null, showCancel = true, danger = false, requirePassword = false }) {
+        modalTitle.textContent = title;
+        modalMessage.innerHTML = message;
+        modalConfirmBtn.textContent = confirmText;
+        modalCancelBtn.textContent = cancelText;
+
+        modalConfirmBtn.className = `btn ${danger ? 'btn-danger' : 'btn-primary'}`;
+        modalCancelBtn.className = 'btn btn-secondary';
+
+        modalCancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
+        passwordContainer.style.display = requirePassword ? 'block' : 'none';
+        passwordInput.value = '';
+        passwordError.style.display = 'none';
+
+        confirmCallback = onConfirm;
+        modal.classList.add('show');
+    }
+
+    function hideModal() {
+        modal.classList.remove('show');
+        confirmCallback = null;
+    }
+
+    modalCancelBtn.onclick = hideModal;
+    modalCloseBtn.onclick = hideModal;
+    modalConfirmBtn.onclick = () => {
+        const needsPassword = passwordContainer.style.display === 'block';
+        if (needsPassword) {
+            if (passwordInput.value === '1010') {
+                if (confirmCallback) confirmCallback();
+                hideModal();
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.focus();
+            }
+        } else {
+            if (confirmCallback) confirmCallback();
+            hideModal();
+        }
+    };
+    modal.onclick = (e) => { if (e.target === modal) hideModal(); };
+
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<script defer src="{{ url_for('static', filename='js/dispositivos.js') }}"></script>
 
 </body>
 </html>

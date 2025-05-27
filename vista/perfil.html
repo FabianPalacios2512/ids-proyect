@@ -321,10 +321,10 @@
           ('dispositivos.dispositivos', 'server', 'Dispositivos'),
           ('login.monitoreo', 'activity', 'Monitoreo'),
           ('login.alertas', 'alert-triangle', 'Alertas'),
-          (None, 'search', 'Eventos'),
-          (None, 'bar-chart-2', 'Reportes'),
-          (None, 'settings', 'Configuración'),
-          (None, 'log-out', 'Cerrar Sesión')
+         
+          ('login.reportes', 'bar-chart-2', 'Reportes'),
+           ('login.logout', 'log-out', 'Cerrar Sesión')
+          
         ] %}
         {% for endpoint, icon, label in menu_items %}
           <a href="{{ url_for(endpoint) if endpoint else '#' }}"

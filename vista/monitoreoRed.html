@@ -79,57 +79,39 @@
 
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col md:flex-row font-sans transition-colors duration-300">
   
-  <aside class="w-full md:w-64 bg-primary-900 text-white flex flex-col md:min-h-screen shadow-lg z-30 md:sticky md:top-0">
-    <div class="p-4 text-center text-xl font-bold border-b border-primary-700 flex items-center justify-center gap-2">
-      <span class="text-2xl">🔐</span>
-      <span>IDS System</span>
-    </div>
-    
-    <div class="md:hidden flex justify-end p-2">
-      <button id="menuToggle" class="text-white p-2 focus:outline-none" aria-label="Toggle menu">
-        <i data-lucide="menu" class="w-6 h-6"></i>
-      </button>
-    </div>
-    
-    <nav id="sideMenu" class="flex-1 p-3 space-y-1 text-sm hidden md:block">
-      <a href="{{ url_for('login.dashboard') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.dashboard' else '' }}">
-        <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Panel principal</span>
-      </a>
-      <a href="{{ url_for('login.usuario') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.usuario' else '' }}">
-        <i data-lucide="users" class="w-5 h-5"></i><span>Usuarios</span>
-      </a>
-      <a href="{{ url_for('login.perfil') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.perfil' else '' }}">
-        <i data-lucide="shield" class="w-5 h-5"></i><span>Perfiles</span>
-      </a>
-      <a href="{{ url_for('dispositivos.dispositivos') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'dispositivos.dispositivos' else '' }}">
-        <i data-lucide="server" class="w-5 h-5"></i><span>Dispositivos</span>
-      </a>
-      <a href="{{ url_for('login.monitoreo') }}" class="flex items-center space-x-3 p-3 bg-primary-700 text-white font-medium rounded-lg shadow-md transition-all duration-200"> <i data-lucide="activity" class="w-5 h-5"></i><span>Monitoreo</span>
-      </a>
-      <a href="{{ url_for('login.alertas') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'login.alertas' else '' }}">
-        <i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Alertas</span>
-      </a>
-      
-      <div class="pt-2 pb-2">
-        <div class="border-t border-primary-700 my-2"></div>
-      </div>
-      
-      <a href="{{ url_for('eventos_bp.eventos_recientes') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'eventos_bp.eventos_recientes' else '' }}">
-        <i data-lucide="search" class="w-5 h-5"></i><span>Eventos</span>
-      </a>
-      <a href="{{ url_for('reportes_bp.mostrar_dashboard_reportes') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 {{ 'bg-primary-800 shadow-md' if request.endpoint == 'reportes_bp.mostrar_dashboard_reportes' else '' }}">
-        <i data-lucide="bar-chart-2" class="w-5 h-5"></i><span>Reportes</span>
-      </a>
-      <a href="#" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200"> <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
-      </a>
-      
-      <div class="pt-2 mt-auto"> <div class="border-t border-primary-700 my-2"></div>
-        <a href="{{ url_for('login.logout') }}" class="flex items-center space-x-3 p-3 hover:bg-primary-800 rounded-lg transition-all duration-200 text-red-300 hover:text-red-100">
-          <i data-lucide="log-out" class="w-5 h-5"></i><span>Cerrar Sesión</span>
-        </a>
-      </div>
-    </nav>
-  </aside>
+   <aside class="w-64 bg-gray-900 text-white flex flex-col">
+        <div class="p-6 text-center text-2xl font-bold border-b border-gray-700">
+          <span class="flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            IDS System
+          </span>
+        </div>
+        <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
+        {% set menu_items = [
+          ('login.dashboard', 'layout-dashboard', 'Panel principal'),
+          ('login.usuario', 'users', 'Usuarios'),
+          ('login.perfil', 'shield', 'Perfiles'),
+          ('dispositivos.dispositivos', 'server', 'Dispositivos'),
+          ('login.monitoreo', 'activity', 'Monitoreo'),
+          ('login.alertas', 'alert-triangle', 'Alertas'),
+         
+          ('login.reportes', 'bar-chart-2', 'Reportes'),
+           ('login.logout', 'log-out', 'Cerrar Sesión')
+          
+        ] %}
+        {% for endpoint, icon, label in menu_items %}
+          <a href="{{ url_for(endpoint) if endpoint else '#' }}"
+             class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
+            <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
+          </a>
+        {% endfor %}
+      </nav>
+        <div class="p-4 text-xs text-gray-500 mt-auto text-center">
+          IDS System v1.2.0 | © 2025
+        </div>
+      </aside>
 
   <main class="flex-1 p-4 md:p-6 overflow-y-auto"> <header class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <div>
