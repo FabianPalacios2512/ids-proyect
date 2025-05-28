@@ -1,95 +1,131 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
+<html lang="es"> <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dispositivos en Red - IDS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <style>
         :root {
+            /* === NUEVO: Indica al navegador que manejamos los temas === */
+            color-scheme: light dark;
+
             /* Colores Base */
             --primary-color: #3b82f6; --primary-hover: #2563eb;
             --success-color: #10b981; --success-hover: #059669;
             --danger-color: #ef4444; --danger-hover: #dc2626;
             --warning-color: #f59e0b; --warning-hover: #d97706;
 
-            /* Modo Claro */
+            /* Modo Claro (Base) */
             --bg-light: #f8fafc; --text-light: #1e293b; --card-light: #ffffff;
-            --table-head-light: #f1f5f9; --border-light: #e2e8f0;
-            --text-muted-light: #6b7280; --table-row-hover-light: #f1f5f9;
+            --border-light: #e2e8f0; --text-muted-light: #6b7280;
 
-            /* Modo Oscuro */
-            --bg-dark: #0b1120; --text-dark: #e2e8f0; --card-dark: #1e293b;
-            --table-head-dark: #334155; --border-dark: #374151;
-            --text-muted-dark: #9ca3af; --table-row-hover-dark: #2c3a50;
+            /* Modo Oscuro (Base) */
+            --bg-dark: #0f172a; --text-dark: #e2e8f0; --card-dark: #1e293b;
+            --border-dark: #334155; --text-muted-dark: #9ca3af;
+
+            /* === NUEVO: Estilos Específicos para Tabla Oscura === */
+            /* (Como en el primer código, para forzarla en modo claro) */
+            --table-bg-force-dark: #1e293b;    /* slate-800 */
+            --table-head-force-dark: #334155; /* slate-700 */
+            --table-text-force-dark: #e2e8f0;  /* slate-200 */
+            --table-border-force-dark: #334155;/* slate-700 */
+            --table-hover-force-dark: #273249; /* Más oscuro */
         }
 
-        [data-theme="light"] {
+        /* === AJUSTADO: Usamos html[data-theme] === */
+        html[data-theme="light"] {
+            color-scheme: light; /* Forza esquema claro */
             --bg: var(--bg-light); --text: var(--text-light); --card: var(--card-light);
-            --table-head: var(--table-head-light); --border: var(--border-light);
-            --table-row-hover: var(--table-row-hover-light); --text-muted: var(--text-muted-light);
+            --border: var(--border-light); --text-muted: var(--text-muted-light);
+
+            /* === NUEVO: Asigna variables de tabla para modo claro === */
+            /* ¡Aquí forzamos los valores oscuros para la tabla! */
+            --table-bg-actual: var(--table-bg-force-dark);
+            --table-head-actual: var(--table-head-force-dark);
+            --table-text-actual: var(--table-text-force-dark);
+            --table-border-actual: var(--table-border-force-dark);
+            --table-row-hover-actual: var(--table-hover-force-dark);
         }
-        [data-theme="dark"] {
+
+        html[data-theme="dark"] {
+            color-scheme: dark; /* Forza esquema oscuro */
             --bg: var(--bg-dark); --text: var(--text-dark); --card: var(--card-dark);
-            --table-head: var(--table-head-dark); --border: var(--border-dark);
-            --table-row-hover: var(--table-row-hover-dark); --text-muted: var(--text-muted-dark);
+            --border: var(--border-dark); --text-muted: var(--text-muted-dark);
+
+            /* === NUEVO: Asigna variables de tabla para modo oscuro === */
+            /* Aquí usamos los valores oscuros estándar */
+            --table-bg-actual: var(--card-dark);
+            --table-head-actual: #334155; /* Un poco más claro que el fondo */
+            --table-text-actual: var(--text-dark);
+            --table-border-actual: var(--border-dark);
+            --table-row-hover-actual: #2c3a50; /* Hover oscuro */
         }
 
         /* Estilos Base */
         body { background-color: var(--bg); color: var(--text); transition: background-color 0.3s ease, color 0.3s ease; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         .transition-all { transition: all 0.3s ease; }
 
-        /* Sidebar (Como pediste, mantenemos el oscuro) */
+        /* Sidebar (Mantenemos oscuro) */
         .sidebar { background-color: #0f172a; border-right: 1px solid #334155; }
         .sidebar a { transition: all 0.2s ease; border-left: 3px solid transparent; }
-        .sidebar a:hover { background-color: #1e293b; border-left-color: var(--primary-color); transform: translateX(3px); }
-        .sidebar a.active { background-color: var(--primary-color); color: white; border-left-color: #a5b4fc; box-shadow: inset 3px 0 8px -2px rgba(0,0,0,0.3); }
+        .sidebar a:hover { background-color: #1e293b; border-left-color: var(--primary-color); transform: translateX(3px); color: white !important; }
+        .sidebar a.active { background-color: var(--primary-color) !important; color: white !important; border-left-color: #a5b4fc; box-shadow: inset 3px 0 8px -2px rgba(0,0,0,0.3); }
+        .sidebar a.active i[data-lucide] { color: white !important; }
 
-        /* Cards */
+        /* Cards (Usan variables generales --card, --border) */
         .card { background-color: var(--card); border: 1px solid var(--border); transition: all 0.3s ease; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03); }
         .card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        [data-theme="dark"] .card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1); }
+        html[data-theme="dark"] .card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1); }
 
         /* Inputs y Selects */
         input, select, textarea { background-color: var(--card); color: var(--text); border: 1px solid var(--border); transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.2s ease; padding: 0.65rem 1rem; border-radius: 0.5rem; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
         input[readonly] { background-color: #e9ecef; cursor: text; }
-        [data-theme="dark"] input[readonly] { background-color: #334155; }
+        html[data-theme="dark"] input[readonly] { background-color: #334155; }
 
-        /* Tabla */
-        .data-table { background-color: var(--card); transition: background-color 0.3s ease, border-color 0.3s ease; overflow: hidden; border-radius: 0.75rem; border: 1px solid var(--border); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
-        .data-table thead { background-color: var(--table-head); color: var(--text); transition: background-color 0.3s ease; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; font-weight: 600; }
-        .data-table th, .data-table td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        /* === Tabla (AJUSTADA: Usa variables --table-*) === */
+        .data-table { background-color: var(--table-bg-actual); transition: background-color 0.3s ease, border-color 0.3s ease; overflow: hidden; border-radius: 0.75rem; border: 1px solid var(--table-border-actual); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
+        .data-table thead { background-color: var(--table-head-actual); color: var(--table-text-actual); transition: background-color 0.3s ease; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; font-weight: 600; }
+        .data-table th, .data-table td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--table-border-actual); white-space: nowrap; color: var(--table-text-actual); /* Asegura el color del texto */ }
         .data-table tbody tr { transition: background-color 0.2s ease; }
         .data-table tbody tr:last-child td { border-bottom: none; }
-        .data-table tbody tr:hover { background-color: var(--table-row-hover); }
+        .data-table tbody tr:hover { background-color: var(--table-row-hover-actual); }
+        .data-table td .btn-danger { /* Estilo específico para botón Desconectar en tabla */
+            background-color: var(--danger-color); color: white; border: 1px solid var(--danger-color);
+            padding: 0.4rem 0.8rem; font-size: 0.75rem; border-radius: 0.375rem;
+        }
+        .data-table td .btn-danger:hover { background-color: var(--danger-hover); }
 
-        /* Badges de Estado */
+        /* === Badges de Estado (AJUSTADOS para la tabla oscura) === */
         .status-badge { padding: 0.3rem 0.85rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid transparent; }
         .status-badge::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; }
-        .status-active { background-color: #dcfce7; color: #166534; border-color: #a7f3d0; } .status-active::before { background-color: #22c55e; }
-        .status-offline { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } .status-offline::before { background-color: #ef4444; }
-        .status-warning { background-color: #fef3c7; color: #92400e; border-color: #fde68a; } .status-warning::before { background-color: #f59e0b; }
-        .status-blocked { background-color: #e5e7eb; color: #4b5563; border-color: #d1d5db; } .status-blocked::before { background-color: #6b7280; }
-        [data-theme="dark"] .status-active { background-color: #14532d; color: #a7f3d0; border-color: #15803d; }
-        [data-theme="dark"] .status-offline { background-color: #7f1d1d; color: #fecaca; border-color: #b91c1c; }
-        [data-theme="dark"] .status-warning { background-color: #78350f; color: #fde68a; border-color: #b45309; }
-        [data-theme="dark"] .status-blocked { background-color: #374151; color: #d1d5db; border-color: #4b5563; }
 
-        /* Botones Generales (CORREGIDO) */
-        .btn { display: inline-flex; align-items: center; /* CORREGIDO: Usar align-items */ justify-content: center; gap: 0.5rem; padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        /* Claro y Oscuro - Versión Simple y Consistente */
+        .status-active { background-color: rgba(34, 197, 94, 0.15); color: #6ee7b7; border-color: rgba(34, 197, 94, 0.3); } .status-active::before { background-color: #22c55e; }
+        .status-offline { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); } .status-offline::before { background-color: #ef4444; }
+        .status-blocked { background-color: rgba(107, 114, 128, 0.2); color: #9ca3af; border-color: rgba(107, 114, 128, 0.4); } .status-blocked::before { background-color: #6b7280; }
+
+        /* Botones Generales */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .btn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn-primary { background-color: var(--primary-color); color: white; border-color: var(--primary-color); } .btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
         .btn-success { background-color: var(--success-color); color: white; border-color: var(--success-color); } .btn-success:hover { background-color: var(--success-hover); border-color: var(--success-hover); }
         .btn-danger { background-color: var(--danger-color); color: white; border-color: var(--danger-color); } .btn-danger:hover { background-color: var(--danger-hover); border-color: var(--danger-hover); }
-        .btn-secondary { background-color: var(--table-head); color: var(--text); border: 1px solid var(--border); } .btn-secondary:hover { background-color: var(--border); }
+        .btn-secondary { background-color: #4b5563; color: white; border: 1px solid #374151; } .btn-secondary:hover { background-color: #374151; } /* Oscuro para contraste */
         .btn-dark { background-color: #374151; color: white; } .btn-dark:hover { background-color: #1f2937; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Modal Mejorado */
+        /* Modal */
         .modal-backdrop { position: fixed; inset: 0; background-color: rgba(10, 20, 40, 0.6); backdrop-filter: blur(5px); z-index: 99; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s ease; }
         .modal-content { background-color: var(--card); color: var(--text); border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); width: 90%; max-width: 500px; transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease; opacity: 0; display: flex; flex-direction: column; overflow: hidden; }
         .modal-backdrop.show { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s 0s ease; }
@@ -99,46 +135,24 @@
         .modal-close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; margin: -0.5rem; border-radius: 50%; transition: background-color 0.2s ease, color 0.2s ease; }
         .modal-close-btn:hover { background-color: var(--border); color: var(--text); }
         .modal-body { padding: 1.5rem; font-size: 1rem; color: var(--text-muted); }
-        .modal-body #passwordInput { width: 100%; margin-top: 1rem; }
-        .modal-body #passwordError { color: var(--danger-color); font-size: 0.875rem; margin-top: 0.5rem; display: none; }
-        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background-color: var(--table-head); display: flex; justify-content: flex-end; gap: 0.75rem; }
+        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background-color: var(--bg); /* Usa bg para mejor integración */ display: flex; justify-content: flex-end; gap: 0.75rem; }
 
         /* Paginación */
-        .pagination-container { background-color: var(--card); border-top: 1px solid var(--border); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.3s ease, border-color 0.3s ease; border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
-        .pagination-btn { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 0.5rem; background-color: var(--card); color: var(--text); transition: all 0.2s ease; }
+        .pagination-container { background-color: var(--table-bg-actual); /* Usa fondo de tabla */ border-top: 1px solid var(--table-border-actual); /* Usa borde de tabla */ padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.3s ease, border-color 0.3s ease; border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
+        .pagination-container > div { color: var(--table-text-actual); } /* Texto paginación */
+        .pagination-btn { padding: 0.5rem 1rem; border: 1px solid var(--table-border-actual); border-radius: 0.5rem; background-color: var(--table-head-actual); color: var(--table-text-actual); transition: all 0.2s ease; }
         .pagination-btn:hover:not(:disabled) { background-color: var(--primary-color); color: white; border-color: var(--primary-color); } .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Toast Styles */
+        /* Toast */
         #toast-notification { transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease; }
-
-        /* Estilo original de sidebar con iconos añadidos */
-         .sidebar-nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem; /* <<< CORRECCIÓN: Reemplaza 'space-x' con 'gap' */
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            transition: background-color 0.2s ease;
-}
-        .sidebar-nav-link:hover {
-            background-color: #1e293b; /* gray-800 */
-        }
-         .sidebar-nav-link.active {
-            background-color: #3b82f6; /* blue-700 */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
 
     </style>
 </head>
-<body data-theme="light">
-<div class="flex h-screen bg-[var(--bg)]">
-     <aside class="w-64 bg-gray-900 text-white flex flex-col">
+<body data-theme="light"> <div class="flex h-screen bg-[var(--bg)]">
+    <aside class="w-64 bg-gray-900 text-white flex flex-col">
         <div class="p-6 text-center text-2xl font-bold border-b border-gray-700">
           <span class="flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            IDS System
+            <i data-lucide="shield-check" class="h-6 w-6 text-blue-400"></i> IDS System
           </span>
         </div>
         <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
@@ -149,14 +163,12 @@
           ('dispositivos.dispositivos', 'server', 'Dispositivos'),
           ('login.monitoreo', 'activity', 'Monitoreo'),
           ('login.alertas', 'alert-triangle', 'Alertas'),
-         
           ('login.reportes', 'bar-chart-2', 'Reportes'),
-           ('login.logout', 'log-out', 'Cerrar Sesión')
-          
+          ('login.logout', 'log-out', 'Cerrar Sesión')
         ] %}
         {% for endpoint, icon, label in menu_items %}
           <a href="{{ url_for(endpoint) if endpoint else '#' }}"
-             class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
+             class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'active' if request.endpoint == endpoint else 'text-gray-300' }}">
             <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
           </a>
         {% endfor %}
@@ -168,26 +180,22 @@
 
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="py-5 px-8 shadow-sm border-b border-[var(--border)] bg-[var(--card)] transition-all">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                  <div>
                     <h1 class="text-2xl font-bold flex items-center gap-3 text-[var(--text)]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-                        Dispositivos Detectados
+                        <i data-lucide="server" class="w-7 h-7 text-blue-600"></i> Dispositivos Detectados
                     </h1>
                     <p class="text-sm text-[var(--text-muted)] mt-1">Monitoreo y gestión de dispositivos en la red.</p>
                 </div>
                  <div class="flex flex-wrap gap-3">
                     <button id="scan-btn" class="btn btn-success">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                        <span>Iniciar</span>
+                        <i data-lucide="play" class="w-4 h-4"></i> <span>Iniciar</span>
                     </button>
                     <button id="stop-btn" class="btn btn-danger">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"></rect></svg>
-                        <span>Detener</span>
+                        <i data-lucide="square" class="w-4 h-4"></i> <span>Detener</span>
                     </button>
                     <button id="theme-toggle" class="btn btn-dark">
-                        <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                        <span id="theme-text">Modo oscuro</span>
+                        <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i> <span id="theme-text">Modo oscuro</span>
                     </button>
                 </div>
             </div>
@@ -196,23 +204,22 @@
         <main class="flex-1 p-6 md:p-8 overflow-auto bg-[var(--bg)] transition-all">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div class="card p-6 flex items-start gap-5">
-                    <div class="bg-blue-100 dark:bg-blue-900/50 p-4 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg></div>
+                    <div class="bg-blue-100 dark:bg-blue-900/50 p-4 rounded-xl"><i data-lucide="server" class="w-7 h-7 text-blue-600 dark:text-blue-400"></i></div>
                     <div><p class="text-sm text-[var(--text-muted)]">Total Dispositivos</p><h3 class="text-3xl font-bold text-[var(--text)]" id="total-devices">--</h3></div>
                 </div>
                 <div class="card p-6 flex items-start gap-5">
-                    <div class="bg-green-100 dark:bg-green-900/50 p-4 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-green-600 dark:text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                    <div class="bg-green-100 dark:bg-green-900/50 p-4 rounded-xl"><i data-lucide="check-circle" class="w-7 h-7 text-green-600 dark:text-green-400"></i></div>
                     <div><p class="text-sm text-[var(--text-muted)]">Activos</p><h3 class="text-3xl font-bold text-[var(--text)]" id="active-devices">--</h3></div>
                 </div>
                 <div class="card p-6 flex items-start gap-5">
-                    <div class="bg-red-100 dark:bg-red-900/50 p-4 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></div>
+                    <div class="bg-red-100 dark:bg-red-900/50 p-4 rounded-xl"><i data-lucide="slash" class="w-7 h-7 text-red-600 dark:text-red-400"></i></div>
                     <div><p class="text-sm text-[var(--text-muted)]">Inactivos / Bloq.</p><h3 class="text-3xl font-bold text-[var(--text)]" id="inactive-devices">--</h3></div>
                 </div>
             </div>
-
             <div class="card p-6 mb-8">
                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="relative flex-1">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3"><i data-lucide="search" class="w-5 h-5 text-gray-400"></i></span>
                         <input type="text" id="search-devices" placeholder="Buscar por IP, MAC o Hostname..." class="pl-10 w-full" readonly onfocus="this.removeAttribute('readonly');" />
                     </div>
                     <select id="filter-status" class="w-full"><option value="all">Todos los Estados</option><option value="active">Activo</option><option value="offline">Inactivo</option><option value="blocked">Bloqueado</option></select>
@@ -227,12 +234,22 @@
                             <tr><th>IP</th><th>MAC</th><th>Hostname</th><th>S. Operativo</th><th>Puertos</th><th>Último Escaneo</th><th>Estado</th><th>Acción</th></tr>
                         </thead>
                         <tbody id="tabla-dispositivos">
+                            <tr>
+                                <td>192.168.1.10</td><td>AA:BB:CC:DD:EE:FF</td><td>PC-Admin</td><td>Windows</td><td>80, 443</td><td>Hace 5 min</td>
+                                <td><span class="status-badge status-active">Activo</span></td>
+                                <td><button class="btn-danger">Desconectar</button></td>
+                            </tr>
+                             <tr>
+                                <td>192.168.1.15</td><td>11:22:33:44:55:66</td><td>Laptop-User</td><td>Linux</td><td>22</td><td>Hace 2 horas</td>
+                                <td><span class="status-badge status-offline">Inactivo</span></td>
+                                <td><button class="btn-danger">Desconectar</button></td>
+                            </tr>
                             <tr><td colspan="8" class="text-center py-10 text-[var(--text-muted)]">Cargando dispositivos...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="pagination-container">
-                    <div class="text-sm text-[var(--text-muted)]">Total: <span id="total-entries">0</span></div>
+                    <div class="text-sm text-[var(--text-muted)]">Total: <span id="total-entries">2</span></div>
                     <div class="flex gap-2">
                         <button class="pagination-btn" disabled>Anterior</button>
                         <button class="pagination-btn">Siguiente</button>
@@ -247,7 +264,7 @@
     <div class="p-4 flex items-center">
         <div id="toast-icon" class="flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900"></div>
         <div class="flex-1"><p id="toast-title" class="text-sm font-medium text-[var(--text)]">Título</p><p id="toast-message" class="mt-1 text-sm text-[var(--text-muted)]">Mensaje.</p></div>
-        <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-gray-500 focus:outline-none"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
+        <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-gray-500 focus:outline-none"><i data-lucide="x" class="h-5 w-5"></i></button>
     </div>
 </div>
 
@@ -255,15 +272,11 @@
     <div class="modal-content">
         <div class="modal-header">
             <h3 id="modalTitle" class="modal-title">Título del Modal</h3>
-            <button id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar modal">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+            <button id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar modal"><i data-lucide="x" class="h-6 w-6"></i></button>
         </div>
         <div class="modal-body">
             <p id="modalMessage">Este es el mensaje del modal.</p>
-            <div id="modalPasswordContainer" class="hidden mt-4">
+             <div id="modalPasswordContainer" class="hidden mt-4">
                 <label for="passwordInput" class="block mb-2 text-sm font-medium text-[var(--text)]">Contraseña maestra:</label>
                 <input type="password" id="passwordInput" class="w-full" placeholder="Ingrese la contraseña">
                 <p id="passwordError" class="text-red-500 text-xs mt-1 hidden">Contraseña incorrecta.</p>
@@ -276,49 +289,70 @@
     </div>
 </div>
 
-
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
-    // --- Lógica del Tema ---
+    // --- Lógica del Tema (AJUSTADA) ---
     function applyTheme(theme) {
-        document.body.setAttribute('data-theme', theme);
+        // Aplica al <html>, no al <body>
+        document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
         const themeIcon = document.getElementById('theme-icon');
         const themeText = document.getElementById('theme-text');
+
         if (theme === 'dark') {
-            themeIcon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+            themeIcon.setAttribute('data-lucide', 'sun'); // Cambia a sol
             themeText.textContent = 'Modo claro';
         } else {
-            themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            themeIcon.setAttribute('data-lucide', 'moon'); // Cambia a luna
             themeText.textContent = 'Modo oscuro';
         }
+        // Refresca Lucide para mostrar el icono correcto
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     }
+
     function toggleTheme() {
-        const currentTheme = document.body.getAttribute('data-theme') || 'light';
+        // Lee desde <html>
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
         applyTheme(currentTheme === 'light' ? 'dark' : 'light');
     }
+
     document.addEventListener('DOMContentLoaded', () => {
+        // Llama a Lucide para renderizar TODOS los iconos iniciales
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        } else {
+            console.error("Lucide no está cargado!");
+        }
+
+        // Aplica el tema (leído por el script del head, pero esto sincroniza el botón/iconos)
         applyTheme(localStorage.getItem('theme') || 'light');
         document.getElementById('theme-toggle').onclick = toggleTheme;
-        // CORREGIDO: Eliminada la simulación de carga para no interferir.
+
+        // ... Tu otra lógica de DOMContentLoaded si la tienes ...
     });
 
-    // --- Lógica del Toast ---
+    // --- Lógica del Toast (Igual, pero con Lucide) ---
     function showToast(title, message, type = 'success') {
         const toast = document.getElementById('toast-notification');
         document.getElementById('toast-title').textContent = title;
         document.getElementById('toast-message').textContent = message;
         const iconDiv = document.getElementById('toast-icon');
-        let iconSvg = '', iconClass = '';
+        let iconSvg = '', iconClass = '', iconLucide = '';
+
         switch (type) {
-            case 'success': iconClass = 'bg-green-100 dark:bg-green-900'; iconSvg = '<svg class="h-5 w-5 text-green-500 dark:text-green-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>'; break;
-            case 'error': iconClass = 'bg-red-100 dark:bg-red-900'; iconSvg = '<svg class="h-5 w-5 text-red-500 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>'; break;
-            case 'warning': iconClass = 'bg-yellow-100 dark:bg-yellow-900'; iconSvg = '<svg class="h-5 w-5 text-yellow-500 dark:text-yellow-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>'; break;
-            case 'info': iconClass = 'bg-blue-100 dark:bg-blue-900'; iconSvg = '<svg class="h-5 w-5 text-blue-500 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>'; break;
+            case 'success': iconClass = 'bg-green-100 dark:bg-green-900'; iconLucide = 'check-circle'; iconColor = 'text-green-500 dark:text-green-300'; break;
+            case 'error': iconClass = 'bg-red-100 dark:bg-red-900'; iconLucide = 'x-circle'; iconColor = 'text-red-500 dark:text-red-300'; break;
+            case 'warning': iconClass = 'bg-yellow-100 dark:bg-yellow-900'; iconLucide = 'alert-triangle'; iconColor = 'text-yellow-500 dark:text-yellow-300'; break;
+            case 'info': iconClass = 'bg-blue-100 dark:bg-blue-900'; iconLucide = 'info'; iconColor = 'text-blue-500 dark:text-blue-300'; break;
         }
         iconDiv.className = `flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center rounded-full ${iconClass}`;
-        iconDiv.innerHTML = iconSvg;
+        iconDiv.innerHTML = `<i data-lucide="${iconLucide}" class="h-5 w-5 ${iconColor}"></i>`;
+
         toast.classList.remove('translate-x-[110%]', 'opacity-0');
         toast.classList.add('translate-x-0', 'opacity-100');
+        if (typeof lucide !== 'undefined') { lucide.createIcons(); } // Renderiza el nuevo icono
         setTimeout(hideToast, 5000);
     }
     function hideToast() {
@@ -327,13 +361,13 @@
         toast.classList.add('translate-x-[110%]', 'opacity-0');
     }
 
-    // --- Lógica del Modal (Mejorada) ---
+    // --- Lógica del Modal (Igual) ---
     const modal = document.getElementById('genericModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalMessage = document.getElementById('modalMessage');
     const modalCancelBtn = document.getElementById('modalCancelBtn');
     const modalConfirmBtn = document.getElementById('modalConfirmBtn');
-    const modalCloseBtn = document.getElementById('modalCloseBtn'); // Nuevo botón X
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
     const passwordContainer = document.getElementById('modalPasswordContainer');
     const passwordInput = document.getElementById('passwordInput');
     const passwordError = document.getElementById('passwordError');
@@ -344,40 +378,29 @@
         modalMessage.innerHTML = message;
         modalConfirmBtn.textContent = confirmText;
         modalCancelBtn.textContent = cancelText;
-
         modalConfirmBtn.className = `btn ${danger ? 'btn-danger' : 'btn-primary'}`;
         modalCancelBtn.className = 'btn btn-secondary';
-
         modalCancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
         passwordContainer.style.display = requirePassword ? 'block' : 'none';
         passwordInput.value = '';
         passwordError.style.display = 'none';
-
         confirmCallback = onConfirm;
         modal.classList.add('show');
     }
-
-    function hideModal() {
-        modal.classList.remove('show');
-        confirmCallback = null;
-    }
-
+    function hideModal() { modal.classList.remove('show'); confirmCallback = null; }
     modalCancelBtn.onclick = hideModal;
     modalCloseBtn.onclick = hideModal;
     modalConfirmBtn.onclick = () => {
         const needsPassword = passwordContainer.style.display === 'block';
         if (needsPassword) {
+            // ¡¡¡NUNCA uses contraseñas hardcodeadas en producción!!! Esto es solo un ejemplo.
             if (passwordInput.value === '1010') {
                 if (confirmCallback) confirmCallback();
                 hideModal();
             } else {
-                passwordError.style.display = 'block';
-                passwordInput.focus();
+                passwordError.style.display = 'block'; passwordInput.focus();
             }
-        } else {
-            if (confirmCallback) confirmCallback();
-            hideModal();
-        }
+        } else { if (confirmCallback) confirmCallback(); hideModal(); }
     };
     modal.onclick = (e) => { if (e.target === modal) hideModal(); };
 
