@@ -88,7 +88,7 @@ function mostrarDispositivos() {
         const isBlocked = d.bloqueado === 1;
         const isActive = d.estado_dispositivo === 'activo';
 
-        row.className = `bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${isBlocked ? 'opacity-60 bg-red-50 dark:bg-red-900/20' : ''}`;
+        row.className = `transition ${isBlocked ? 'row-blocked' : ''}`;
         const puertos = d.puerto ? d.puerto.split(',').join(', ') : 'N/A';
 
         let estadoBadge = '';
