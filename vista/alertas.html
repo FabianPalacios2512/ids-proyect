@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <title>Alertas de Seguridad</title>
+    <title>Centro de Alertas v5.2 - Modal Confirmación</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,20 +11,27 @@
             theme: {
                 extend: {
                     colors: {
-                        danger: '#dc2626',
-                        warning: '#facc15',
-                        success: '#16a34a',
-                        dark: '#1e293b',
-                        accent: '#3b82f6'
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        success: '#22c55e',
+                        info: '#3b82f6',
+                        dark: '#0f172a',
+                        'dark-secondary': '#1e293b',
+                        light: '#f1f5f9',
+                        'light-secondary': '#ffffff',
+                        accent: '#6366f1',
+                        'accent-hover': '#4f46e5',
+                        orange: { 500: '#f97316', 600: '#ea580c' }
                     },
                     animation: {
-                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards',
+                        'pulse-badge': 'pulseBadge 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        }
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        pulseBadge: { '0%, 100%': { opacity: '1', transform: 'scale(1)' }, '50%': { opacity: '.7', transform: 'scale(1.05)' } }
                     }
                 }
             }
@@ -32,464 +39,528 @@
     </script>
 
     <style>
-        /* Estilo para la tabla con scroll fijo */
-        .table-container {
-            position: relative;
-            overflow: auto;
-            max-height: 65vh; /* Ajusta esta altura según necesites */
+        /* Contenedor de Tarjetas: sin max-height fijo, deja que flexbox lo maneje */
+        .cards-container {
+            overflow: auto; /* Scroll interno */
             scrollbar-width: thin;
+            scrollbar-color: #a1a1aa #e5e7eb;
         }
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
-        /* Animaciones */
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        /* Estilos para modo oscuro */
-        .dark .table-container::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        .dark .table-container::-webkit-scrollbar-thumb {
-            background: #475569;
-        }
-    </style>
+        .cards-container::-webkit-scrollbar { width: 8px; height: 8px; }
+        .cards-container::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; }
+        .cards-container::-webkit-scrollbar-thumb { background: #a1a1aa; border-radius: 10px; }
+        .cards-container::-webkit-scrollbar-thumb:hover { background: #71717a; }
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+        .dark .cards-container { scrollbar-color: #475569 #1e293b; }
+        .dark .cards-container::-webkit-scrollbar-track { background: #1e293b; }
+        .dark .cards-container::-webkit-scrollbar-thumb { background: #475569; }
+        .dark .cards-container::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .alerta-card { transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
+        .alerta-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .dark .alerta-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.2); }
+
+        .badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; }
+        .badge-alto { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; } .dark .badge-alto { background-color: #991b1b; color: #fca5a5; border-color: #b91c1c;}
+        .badge-medio { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; } .dark .badge-medio { background-color: #92400e; color: #fcd34d; border-color: #b45309;}
+        .badge-bajo { background-color: #d1fae5; color: #059669; border: 1px solid #6ee7b7; } .dark .badge-bajo { background-color: #065f46; color: #6ee7b7; border-color: #047857;}
+
+        .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; text-overflow: ellipsis; min-height: 4.5em; }
+        .modal-enter { animation: fadeIn 0.3s ease-out; }
+        .modal-enter .modal-content { animation: slideUp 0.3s ease-out; }
+        #toast-container { position: fixed; top: 1.25rem; right: 1.25rem; z-index: 200; width: auto; max-width: 24rem; }
+        #toast-container > div { transition: opacity 0.3s ease-in-out; }
+    </style>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
 </head>
 
-<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex transition-colors duration-300 dark:bg-gray-900 dark:text-gray-200">
+<body class="bg-light text-gray-900 font-sans h-screen flex transition-colors duration-300 dark:bg-dark dark:text-gray-200 overflow-hidden">
 
-     <aside class="w-64 bg-gray-900 text-white flex flex-col">
+    <aside class="w-64 bg-gray-900 text-white flex flex-col shadow-2xl flex-shrink-0">
         <div class="p-6 text-center text-2xl font-bold border-b border-gray-700">
-          <span class="flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            IDS System
-          </span>
+            <span class="flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                IDS System
+            </span>
         </div>
-       <nav class="flex-1 p-4 space-y-1 text-sm mt-4">
-        {% set menu_items = [
-          ('login.dashboard', 'layout-dashboard', 'Panel principal'),
-          ('login.usuario', 'users', 'Usuarios'),
-          ('login.perfil', 'shield', 'Perfiles'),
-          ('dispositivos.dispositivos', 'server', 'Dispositivos'),
-          ('login.monitoreo', 'activity', 'Monitoreo'),
-          ('login.alertas', 'alert-triangle', 'Alertas'),
-         
-          ('login.reportes', 'bar-chart-2', 'Reportes'),
-           ('login.logout', 'log-out', 'Cerrar Sesión')
-          
-        ] %}
-        {% for endpoint, icon, label in menu_items %}
-          <a href="{{ url_for(endpoint) if endpoint else '#' }}"
-             class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-blue-600 text-white' if request.endpoint == endpoint else 'text-gray-300' }}">
-            <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
-          </a>
-        {% endfor %}
-      </nav>
-        <div class="p-4 text-xs text-gray-500 mt-auto text-center">
-          IDS System v1.2.0 | © 2025
+        <nav class="flex-1 p-4 space-y-1 text-sm mt-4 overflow-y-auto">
+            {% set menu_items = [
+                ('login.dashboard', 'layout-dashboard', 'Panel principal'),
+                ('login.usuario', 'users', 'Usuarios'),
+                ('login.perfil', 'shield', 'Perfiles'),
+                ('dispositivos.dispositivos', 'server', 'Dispositivos'),
+                ('login.monitoreo', 'activity', 'Monitoreo'),
+                ('login.alertas', 'alert-triangle', 'Alertas'),
+                ('login.reportes', 'bar-chart-2', 'Reportes'),
+                ('login.logout', 'log-out', 'Cerrar Sesión')
+            ] %}
+            {% for endpoint, icon, label in menu_items %}
+                <a href="{{ url_for(endpoint) if endpoint else '#' }}"
+                   class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 rounded-lg transition-colors {{ 'bg-accent text-white' if request.endpoint == endpoint else 'text-gray-300 hover:text-white' }}">
+                    <i data-lucide="{{ icon }}" class="w-5 h-5"></i><span>{{ label }}</span>
+                </a>
+            {% endfor %}
+        </nav>
+        <div class="p-4 text-xs text-gray-500 mt-auto text-center border-t border-gray-700 pt-4">
+            IDS System v1.2.0 | © 2025
         </div>
-      </aside>
+    </aside>
 
-    <div class="flex-1 p-6 overflow-auto transition-colors duration-300">
-        <div class="max-w-7xl mx-auto">
-            <div class="mb-6 flex items-center justify-between">
+    <div class="flex-1 p-6 lg:p-8 flex flex-col overflow-hidden bg-light dark:bg-dark">
+    <div class="max-w-screen-2xl mx-auto w-full flex flex-col flex-1 min-h-0">
+        <div class="mb-4 flex-shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-gray-300 dark:border-gray-700">
+            <div>
+                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                    <i data-lucide="siren" class="text-accent"></i> Centro de Alertas
+                </h1>
+                <p class="text-gray-500 mt-1 dark:text-gray-400">Eventos de seguridad priorizados por nivel y fecha.</p>
+            </div>
+            <button id="theme-toggle" class="mt-4 sm:mt-0 p-2 rounded-full text-gray-500 bg-white hover:bg-gray-100 dark:bg-dark-secondary dark:text-gray-400 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 dark:focus:ring-offset-dark shadow-sm border dark:border-gray-700">
+                <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+            </button>
+        </div>
+
+        <div class="mb-4 flex-shrink-0 bg-white p-5 rounded-xl shadow-lg dark:bg-dark-secondary border border-gray-100 dark:border-gray-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div class="lg:col-span-2">
+                    <label for="filtro-alertas" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Búsqueda rápida</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="filtro-alertas" 
+                            name="no-autocompletar-ips" 
+                            placeholder="Buscar por IP, Tipo, Descripción..." 
+                            autocomplete="off"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-accent">
+                    </div>
+
+                </div>
                 <div>
-                    <h1 class="text-4xl font-bold text-dark dark:text-white">Centro de Alertas</h1>
-                    <p class="text-gray-600 mt-1 dark:text-gray-400">Visualización de eventos de seguridad en tu red.</p>
+                    <label for="filtro-nivel" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nivel de Riesgo</label>
+                    <select id="filtro-nivel" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-accent">
+                        <option value="">Todos los niveles</option>
+                        <option value="Alto">Alto</option>
+                        <option value="Medio">Medio</option>
+                        <option value="Bajo">Bajo</option>
+                    </select>
                 </div>
-                <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </button>
-            </div>
-
-            <div class="mb-6 bg-white p-4 rounded-lg shadow-sm dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <label for="filtro-alertas" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Búsqueda general</label>
-                        <input type="text" id="filtro-alertas" placeholder="Buscar por tipo, IP o nivel..."
-                            class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="md:w-1/4">
-                        <label for="filtro-nivel" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nivel</label>
-                        <select id="filtro-nivel" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="">Todos</option>
-                            <option value="Alto">Alto</option>
-                            <option value="Medio">Medio</option>
-                            <option value="Bajo">Bajo</option>
-                        </select>
-                    </div>
-                    <div class="md:w-1/4">
-                        <label for="filtro-estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
-                        <select id="filtro-estado" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="">Todos</option>
-                            <option value="nueva">Nuevo</option>
-                            <option value="En análisis">En análisis</option>
-                            <option value="Resuelto">Resuelto</option>
-                        </select>
-                    </div>
+                <div>
+                    <label for="filtro-estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado <span class="text-xs italic">(Filtro Lógico)</span></label>
+                    <select id="filtro-estado" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-accent">
+                        <option value="">Todos los estados</option>
+                        <option value="nueva">Nuevo</option>
+                        <option value="En análisis">En análisis</option>
+                        <option value="Resuelto">Resuelto</option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            <div class="bg-white rounded-lg shadow-sm table-container dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <table class="min-w-full text-sm text-left font-medium text-gray-700 dark:text-gray-300">
-                    <thead class="bg-gray-100 text-xs uppercase text-gray-600 sticky top-0 z-10 border-b border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
-                        <tr>
-                            <th class="px-4 py-3">Fecha</th>
-                            <th class="px-4 py-3">Tipo</th>
-                            <th class="px-4 py-3">IP Origen</th>
-                            <th class="px-4 py-3">IP Destino</th>
-                            <th class="px-4 py-3">Nivel</th>
-                            <th class="px-4 py-3">Estado</th>
-                            <th class="px-4 py-3">Repeticiones</th>
-                            <th class="px-4 py-3 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-alertas" class="divide-y divide-gray-200 dark:divide-gray-700">
-                        {# --- INICIO BLOQUE JINJA2 (DEBES TENERLO ASÍ EN TU TEMPLATE REAL) --- #}
-                        {% if alertas %}
-                            {% for alerta in alertas %}
-                            <tr class="hover:bg-gray-50 transition duration-200 dark:hover:bg-gray-700"
-                                data-nivel="{{ alerta.nivel }}" data-estado="{{ alerta.estado_alerta }}"> {# <-- Ya no necesitas data-id aquí con esta lógica #}
-                                <td class="px-4 py-3">{{ alerta.fecha }}</td>
-                                <td class="px-4 py-3">{{ alerta.tipo }}</td>
-                                <td class="px-4 py-3 font-mono">{{ alerta.ip_origen }}</td>
-                                <td class="px-4 py-3 font-mono">{{ alerta.ip_destino }}</td>
-                                <td class="px-4 py-3">
-                                    {% if alerta.nivel == 'Alto' %}
-                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs">Alto</span>
-                                    {% elif alerta.nivel == 'Medio' %}
-                                    <span class="bg-yellow-400 text-white px-3 py-1 rounded-full text-xs">Medio</span>
-                                    {% else %}
-                                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs">Bajo</span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs">
-                                        {{ alerta.estado_alerta }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-center font-bold">{{ alerta.repeticiones }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <button
-                                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition duration-200"
-                                            onclick="mostrarModal(
-                                                '{{ alerta.tipo }}',
-                                                '{{ alerta.descripcion }}',
-                                                '{{ alerta.ip_origen }}',
-                                                '{{ alerta.nivel }}',
-                                                '{{ alerta.fecha }}',
-                                                '{{ alerta.estado_alerta }}',
-                                                '{{ alerta.estado_evento }}',
-                                                '{{ alerta.repeticiones }}',
-                                                '{{ alerta.protocolo }}',
-                                                '{{ alerta.mac_origen }}',
-                                                '{{ alerta.so_origen }}',
-                                                '{{ alerta.puerto_origen }}',
-                                                '{{ alerta.ip_destino }}',
-                                                '{{ alerta.mac_destino }}',
-                                                '{{ alerta.puerto_destino }}'
-                                            )">
-                                            Ver detalles
-                                        </button>
-                                        <button
-                                            class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition duration-200"
-                                            onclick="mostrarAcciones('{{ alerta.ip_origen }}', '{{ alerta.tipo }}')">
-                                            Tomar acciones
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr id="no-results-row">
-                                <td colspan="8" class="px-6 py-10 text-center text-gray-500 italic dark:text-gray-400">
-                                    No se han detectado eventos de seguridad por el momento.
-                                </td>
-                            </tr>
-                        {% endif %}
-                         {# --- FIN BLOQUE JINJA2 --- #}
-                    </tbody>
-                </table>
+        <div id="alertas-container" class="cards-container p-1 flex-1 min-h-0 overflow-y-auto scrollbar-thin">
+            <div id="alertas-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% if alertas %}
+                    {% for alerta in alertas %}
+                    <div class="alerta-card bg-white dark:bg-dark-secondary rounded-xl shadow-md border dark:border-gray-700 p-5 flex flex-col justify-between"
+                         data-nivel="{{ alerta.nivel }}"
+                         data-estado="{{ alerta.estado_alerta }}"
+                         data-fecha="{{ alerta.fecha }}"
+                         data-texto="{{ alerta.fecha }} {{ alerta.tipo }} {{ alerta.ip_origen }} {{ alerta.ip_destino }} {{ alerta.descripcion }}">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800 dark:text-white pr-2">{{ alerta.tipo }}</h3>
+                                {% if alerta.nivel == 'Alto' %} <span class="badge badge-alto flex-shrink-0 animate-pulse-badge"><span class="badge-dot"></span>Alto</span>
+                                {% elif alerta.nivel == 'Medio' %} <span class="badge badge-medio flex-shrink-0"><span class="badge-dot"></span>Medio</span>
+                                {% else %} <span class="badge badge-bajo flex-shrink-0"><span class="badge-dot"></span>Bajo</span> {% endif %}
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3 h-3"></i> {{ alerta.fecha }}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-5 line-clamp-3" title="{{ alerta.descripcion | e }}">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5 inline-block mr-1.5 align-middle text-gray-400"></i>{{ alerta.descripcion | e }}
+                            </p>
+                            <div class="space-y-3 mb-5 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="arrow-right-circle" class="w-4 h-4 text-blue-500"></i>
+                                    <span class="font-medium">Origen:</span>
+                                    <span class="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{{ alerta.ip_origen }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="crosshair" class="w-4 h-4 text-purple-500"></i>
+                                    <span class="font-medium">Destino:</span>
+                                    <span class="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{{ alerta.ip_destino }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="repeat" class="w-4 h-4 text-green-500"></i>
+                                    <span class="font-medium">Hits:</span>
+                                    <span class="font-bold text-lg">{{ alerta.repeticiones }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t dark:border-gray-700 pt-4 flex justify-end gap-3 mt-auto">
+                            <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-info bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-400 dark:hover:bg-blue-900/80 transition"
+                                onclick="mostrarModal('{{ alerta.tipo | e }}', '{{ alerta.descripcion | e }}', '{{ alerta.ip_origen | e }}', '{{ alerta.nivel | e }}', '{{ alerta.fecha | e }}', '{{ alerta.estado_alerta | e }}', '{{ alerta.estado_evento | e }}', '{{ alerta.repeticiones | e }}', '{{ alerta.protocolo | e }}', '{{ alerta.mac_origen | e }}', '{{ alerta.so_origen | e }}', '{{ alerta.puerto_origen | e }}', '{{ alerta.ip_destino | e }}', '{{ alerta.mac_destino | e }}', '{{ alerta.puerto_destino | e }}')">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i> Detalles
+                            </button>
+                            <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-warning bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-400 dark:hover:bg-yellow-900/80 transition"
+                                data-alerta='{{ alerta | tojson | e }}'
+                                onclick="abrirModalAcciones(this)">
+                                <i data-lucide="zap" class="w-3.5 h-3.5"></i> Acciones
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div id="no-results-card" class="md:col-span-2 xl:col-span-3 px-6 py-16 text-center text-gray-400 dark:text-gray-500 bg-white dark:bg-dark-secondary rounded-xl shadow-sm border dark:border-gray-700">
+                    <div class="flex flex-col items-center justify-center">
+                        <i data-lucide="shield-off" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4"></i>
+                        <h3 class="text-lg font-semibold mb-1">¡Todo tranquilo por aquí!</h3>
+                        <p>No se han detectado eventos de seguridad por el momento.</p>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
-            <div id="no-filter-results" class="hidden mt-4 p-4 text-center bg-yellow-50 text-yellow-700 rounded-lg border border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/50">
-                No se encontraron alertas que coincidan con los criterios de búsqueda.
+            <div id="no-filter-results" class="hidden mt-6 p-6 text-center bg-yellow-50 text-yellow-700 rounded-xl border-2 border-dashed border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/50 flex flex-col items-center">
+                <i data-lucide="filter-x" class="w-12 h-12 text-yellow-400 mb-3"></i>
+                <h4 class="font-semibold text-lg">Sin Coincidencias</h4>
+                <p>No se encontraron alertas que coincidan con los filtros aplicados.</p>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl p-6 relative animate-fade-in dark:bg-gray-800 dark:text-gray-200 mx-4">
-            <button onclick="cerrarModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl font-bold transition-colors">&times;</button>
-            <h3 class="text-2xl font-semibold mb-6 text-dark dark:text-white flex items-center">
-                <i data-lucide="shield-alert" class="w-6 h-6 mr-2 text-red-500"></i>
-                Detalles del Evento de Seguridad
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-gray-700 dark:text-gray-300 text-sm">
-                 <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Tipo:</span><p class="font-medium" id="modal-tipo"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Nivel:</span><p class="font-medium" id="modal-nivel"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Fecha:</span><p class="font-medium" id="modal-fecha"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Estado Alerta:</span><p class="font-medium" id="modal-estado-alerta"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Estado Evento:</span><p class="font-medium" id="modal-estado-evento"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Repeticiones:</span><p class="font-medium" id="modal-repeticiones"></p></div>
-                <div class="col-span-1 md:col-span-2 bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Descripción:</span><p class="font-medium" id="modal-desc"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Protocolo:</span><p class="font-medium" id="modal-protocolo"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">IP Origen:</span><p class="font-mono" id="modal-ip-origen"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">MAC Origen:</span><p class="font-mono" id="modal-mac-origen"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">SO Origen:</span><p class="font-medium" id="modal-so-origen"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Puerto Origen:</span><p class="font-medium" id="modal-puerto-origen"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">IP Destino:</span><p class="font-mono" id="modal-ip-destino"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">MAC Destino:</span><p class="font-mono" id="modal-mac-destino"></p></div>
-                <div class="bg-gray-50 p-3 rounded-lg dark:bg-gray-700/50"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase">Puerto Destino:</span><p class="font-medium" id="modal-puerto-destino"></p></div>
+
+
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden justify-center items-center z-[70] p-4 modal-enter">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-6 lg:p-8 relative dark:bg-dark-secondary dark:text-gray-200 modal-content max-h-[90vh] flex flex-col">
+            <button onclick="cerrarModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-3xl font-light">&times;</button>
+            <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-3"> <i data-lucide="shield-alert" class="w-7 h-7 text-danger"></i> Detalles del Evento de Seguridad </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm overflow-y-auto pr-2 flex-1"> <div class="bg-gray-50 p-4 rounded-lg dark:bg-gray-800/60 border-l-4 border-accent"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Tipo</span><p class="font-medium text-base" id="modal-tipo"></p></div> <div class="bg-gray-50 p-4 rounded-lg dark:bg-gray-800/60 border-l-4 border-danger"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Nivel</span><p class="font-medium text-base" id="modal-nivel"></p></div> <div class="bg-gray-50 p-4 rounded-lg dark:bg-gray-800/60 border-l-4 border-gray-400"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Fecha</span><p class="font-medium" id="modal-fecha"></p></div> <div class="bg-gray-50 p-4 rounded-lg dark:bg-gray-800/60 border-l-4 border-indigo-400"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Estado Alerta</span><p class="font-medium" id="modal-estado-alerta"></p></div> <div class="bg-gray-50 p-4 rounded-lg dark:bg-gray-800/60 border-l-4 border-cyan-400"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Estado Evento</span><p class="font-medium" id="modal-estado-evento"></p></div> <div class="bg-gray-50 p-4 rounded-lg dark:bg-gray-800/60 border-l-4 border-purple-400"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Repeticiones</span><p class="font-medium text-lg" id="modal-repeticiones"></p></div> <div class="md:col-span-2 lg:col-span-3 bg-gray-50 p-4 rounded-lg dark:bg-gray-800/60"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Descripción</span><p class="font-medium" id="modal-desc"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Protocolo</span><p class="font-medium" id="modal-protocolo"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">IP Origen</span><p class="font-mono text-blue-600 dark:text-blue-400" id="modal-ip-origen"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">MAC Origen</span><p class="font-mono" id="modal-mac-origen"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">SO Origen</span><p class="font-medium" id="modal-so-origen"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Puerto Origen</span><p class="font-medium" id="modal-puerto-origen"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">IP Destino</span><p class="font-mono text-purple-600 dark:text-purple-400" id="modal-ip-destino"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">MAC Destino</span><p class="font-mono" id="modal-mac-destino"></p></div> <div class="bg-gray-100 p-4 rounded-lg dark:bg-gray-800"><span class="font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase block mb-1">Puerto Destino</span><p class="font-medium" id="modal-puerto-destino"></p></div> </div>
+            <div class="mt-8 flex justify-end pt-4 border-t dark:border-gray-700"> <button onclick="cerrarModal()" class="px-6 py-2.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition dark:bg-gray-600 dark:hover:bg-gray-500 font-medium shadow-sm"> Cerrar Vista </button> </div>
+        </div>
+    </div>
+
+    <div id="modal-acciones" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden justify-center items-center z-[60] p-4 modal-enter">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 lg:p-8 w-full max-w-lg dark:bg-dark-secondary dark:text-gray-200 modal-content mx-4">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2"> <i data-lucide="zap" class="w-6 h-6 text-warning"></i> Respuesta Rápida </h2>
+                <button onclick="cerrarModalAcciones()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-full"> <i data-lucide="x" class="w-5 h-5"></i> </button>
             </div>
-            <div class="mt-6 flex justify-end">
-                <button onclick="cerrarModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
-                    Cerrar
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6"> Alerta: <span id="modal-acciones-tipo" class="font-semibold text-info"></span> | Origen: <span id="modal-acciones-ip-origen" class="font-mono text-accent"></span> | Destino: <span id="modal-acciones-ip-destino" class="font-mono text-purple-500"></span> </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button id="btn-bloquear-origen" class="flex items-center justify-center gap-2.5 px-4 py-3 bg-danger text-white rounded-lg hover:bg-red-700 transition shadow-md hover:shadow-red-500/50 transform hover:scale-105"> <i data-lucide="shield-off" class="w-5 h-5"></i><span>Bloquear Origen</span> </button>
+                <button id="btn-aislar-victima" class="flex items-center justify-center gap-2.5 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition shadow-md hover:shadow-orange-500/50 transform hover:scale-105"> <i data-lucide="server-off" class="w-5 h-5"></i><span>Aislar Destino</span> </button>
+                <button id="btn-generar-informe-alerta" class="flex items-center justify-center gap-2.5 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md hover:shadow-indigo-500/50 transform hover:scale-105 sm:col-span-2"> <i data-lucide="file-text" class="w-5 h-5"></i><span>Generar Informe (.docx)</span> </button>
+            </div>
+            <div class="text-right mt-8"> <button class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" onclick="cerrarModalAcciones()">Cancelar</button> </div>
+        </div>
+    </div>
+
+    <div id="modal-confirmar-accion-bloqueo" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden justify-center items-center z-[80] p-4 modal-enter">
+        <div class="bg-white dark:bg-dark-secondary rounded-2xl shadow-2xl p-6 lg:p-8 w-full max-w-md modal-content mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                    <i data-lucide="lock" class="w-6 h-6 text-warning"></i>Confirmar Acción
+                </h3>
+                <button onclick="cerrarModalConfirmarAccion()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Se va a <span id="confirmar-accion-texto" class="font-semibold"></span> la IP:
+                <span id="confirmar-accion-ip" class="font-mono text-danger"></span>.
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-500 mb-4">
+                Esta acción es crítica. Por favor, ingrese la contraseña de administrador para continuar.
+            </p>
+            <div>
+                <label for="input-contrasena-confirmacion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña:</label>
+                <input type="password" id="input-contrasena-confirmacion"
+                       class="w-full px-4 py-2.5 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-accent"
+                       placeholder="********">
+                <p id="error-contrasena-confirmacion" class="text-xs text-red-500 mt-1 h-4"></p>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button id="btn-cancelar-confirmacion-bloqueo" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500" onclick="cerrarModalConfirmarAccion()">
+                    Cancelar
+                </button>
+                <button id="btn-ejecutar-bloqueo-confirmado" class="px-5 py-2 bg-danger text-white rounded-lg hover:bg-red-700 transition shadow-md">
+                    Confirmar y Ejecutar
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="modal-acciones" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
-         <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md dark:bg-gray-800 dark:text-gray-200 animate-fade-in mx-4">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-3 flex items-center"><i data-lucide="shield-alert" class="w-5 h-5 mr-2 text-yellow-500"></i>Tomar acciones sobre <span id="modal-ip-acciones" class="font-mono text-blue-600 dark:text-blue-400"></span></h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Seleccione una acción para la alerta: <span id="modal-tipo-acciones" class="font-semibold text-red-600 dark:text-red-400"></span></p>
-            <div class="flex flex-col gap-3">
-                <button class="flex items-center justify-between px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition shadow-md"><span class="flex items-center gap-2"><i data-lucide="shield-off" class="w-5 h-5"></i> Desconectar atacante</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-                <button class="flex items-center justify-between px-4 py-3 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition shadow-md"><span class="flex items-center gap-2"><i data-lucide="bell" class="w-5 h-5"></i> Notificar administrador</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-                <button class="flex items-center justify-between px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition shadow-md"><span class="flex items-center gap-2"><i data-lucide="radar" class="w-5 h-5"></i> Iniciar escaneo activo</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-                <button class="flex items-center justify-between px-4 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-md"><span class="flex items-center gap-2"><i data-lucide="file-check" class="w-5 h-5"></i> Registrar incidente</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-                <button class="flex items-center justify-between px-4 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition shadow-md"><span class="flex items-center gap-2"><i data-lucide="server-off" class="w-5 h-5"></i> Suspender servicio víctima</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-                <button class="flex items-center justify-between px-4 py-3 bg-purple-700 text-white rounded-xl hover:bg-purple-800 transition shadow-md"><span class="flex items-center gap-2"><i data-lucide="file-text" class="w-5 h-5"></i> Generar informe PDF</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
-            </div>
-            <div class="text-right mt-6"><button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" onclick="cerrarModalAcciones()">Cancelar</button></div>
+    <div id="modal-alertas" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4 modal-enter">
+        <div id="modal-contenido-popup" class="bg-white dark:bg-dark-secondary shadow-2xl rounded-2xl w-full max-w-xl p-6 transition-all duration-300 transform opacity-0 translate-y-8 modal-content">
+            <div class="flex items-start mb-4"> <div class="p-3 rounded-full bg-red-100 dark:bg-red-900/50 mr-4"> <i data-lucide="alert-octagon" class="h-8 w-8 text-red-600 dark:text-red-400 animate-pulse-badge"></i> </div> <div> <h2 class="text-xl font-bold text-red-600 dark:text-red-400">¡NUEVA AMENAZA DETECTADA!</h2> <p class="text-sm text-gray-600 dark:text-gray-400">Se han identificado eventos de seguridad críticos.</p> </div> <button onclick="cerrarModalAlertasPopup(false)" class="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button> </div>
+            <ul id="lista-alertas-popup" class="space-y-3 text-sm text-gray-700 dark:text-gray-300 max-h-60 overflow-y-auto pr-2 border-t border-gray-200 dark:border-gray-700 pt-4 my-4"></ul>
+            <div class="flex justify-between items-center mt-6 gap-3 flex-wrap"> <button onclick="tomarAccion()" class="px-4 py-2 text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4"></i> Tomar acciones</button> <button onclick="informarAdmin()" class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> Informar</button> <button onclick="cerrarModalAlertasPopup(true)" class="px-4 py-2 text-sm bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition flex items-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Cerrar y Recargar</button> </div>
         </div>
     </div>
+
+    <div id="toast-container"></div>
+    <audio id="sonido-alerta" src="{{ url_for('static', filename='sounds/y2mate_9xxTdb8.mp3') }}" preload="auto"></audio>
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();
-    </script>
+        let isModalOpen = false;
+        let currentAlertDataForActions = null;
+        // Para el modal de confirmación de bloqueo
+        let ipParaBloquear = null;
+        let esOrigenGlobal = null; // Para saber si estamos bloqueando origen o destino
 
-    <script>
-        let isModalOpen = false; // Estado global para saber si hay algún modal abierto
+        // Contraseña para confirmar acciones críticas. ¡CAMBIAR ESTO EN UN ENTORNO REAL!
+        const CONTRASEÑA_ADMIN_ACCION = "admin123"; 
 
         function setModalState(isOpen) {
             isModalOpen = isOpen;
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         }
 
-        // Función para mostrar el modal de detalles
-        function mostrarModal(tipo, descripcion, ip_origen, nivel, fecha, estado_alerta, estado_evento, repeticiones, protocolo, mac_origen, so_origen, puerto_origen, ip_destino, mac_destino, puerto_destino) {
+        function mostrarModal(tipo, desc, ip_origen, nivel, fecha, estado_alerta, estado_evento, reps, proto, mac_o, so_o, puerto_o, ip_d, mac_d, puerto_d) {
+            const modal = document.getElementById('modal');
+            if (!modal) { console.error("Modal de detalles no encontrado"); return; }
             document.getElementById('modal-tipo').textContent = tipo || 'N/A';
             document.getElementById('modal-nivel').textContent = nivel || 'N/A';
             document.getElementById('modal-fecha').textContent = fecha || 'N/A';
             document.getElementById('modal-estado-alerta').textContent = estado_alerta || 'N/A';
             document.getElementById('modal-estado-evento').textContent = estado_evento || 'N/A';
-            document.getElementById('modal-repeticiones').textContent = repeticiones || 'N/A';
-            document.getElementById('modal-desc').textContent = descripcion || 'N/A';
-            document.getElementById('modal-protocolo').textContent = protocolo || 'N/A';
+            document.getElementById('modal-repeticiones').textContent = reps || 'N/A';
+            document.getElementById('modal-desc').textContent = desc || 'N/A';
+            document.getElementById('modal-protocolo').textContent = proto || 'N/A';
             document.getElementById('modal-ip-origen').textContent = ip_origen || 'N/A';
-            document.getElementById('modal-mac-origen').textContent = mac_origen || 'N/A';
-            document.getElementById('modal-so-origen').textContent = so_origen || 'N/A';
-            document.getElementById('modal-puerto-origen').textContent = puerto_origen || 'N/A';
-            document.getElementById('modal-ip-destino').textContent = ip_destino || 'N/A';
-            document.getElementById('modal-mac-destino').textContent = mac_destino || 'N/A';
-            document.getElementById('modal-puerto-destino').textContent = puerto_destino || 'N/A';
-            document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('modal').classList.add('flex');
+            document.getElementById('modal-mac-origen').textContent = mac_o || 'N/A';
+            document.getElementById('modal-so-origen').textContent = so_o || 'N/A';
+            document.getElementById('modal-puerto-origen').textContent = puerto_o || 'N/A';
+            document.getElementById('modal-ip-destino').textContent = ip_d || 'N/A';
+            document.getElementById('modal-mac-destino').textContent = mac_d || 'N/A';
+            document.getElementById('modal-puerto-destino').textContent = puerto_d || 'N/A';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
             setModalState(true);
         }
 
         function cerrarModal() {
-            document.getElementById('modal').classList.add('hidden');
-            document.getElementById('modal').classList.remove('flex');
+            const modal = document.getElementById('modal');
+            if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex');}
             setModalState(false);
         }
 
-        function mostrarAcciones(ip, tipo) {
-            document.getElementById('modal-ip-acciones').textContent = ip || 'N/A';
-            document.getElementById('modal-tipo-acciones').textContent = tipo || 'N/A';
-            document.getElementById('modal-acciones').classList.remove('hidden');
-            document.getElementById('modal-acciones').classList.add('flex');
+        function abrirModalAcciones(buttonElement) {
+            const alertaJsonString = buttonElement.getAttribute('data-alerta');
+            if (!alertaJsonString) {
+                showToast("Error de Interfaz", "No se pudieron cargar los datos de la alerta.", "error");
+                return;
+            }
+            try {
+                const tempEl = document.createElement('textarea');
+                tempEl.innerHTML = alertaJsonString;
+                const decodedJsonString = tempEl.value;
+                const alertaData = JSON.parse(decodedJsonString);
+                mostrarAcciones(alertaData);
+            } catch (e) {
+                console.error("Error al parsear JSON de data-alerta:", e, "\nString original:", alertaJsonString);
+                showToast("Error de Datos", "Formato de datos de alerta incorrecto.", "error");
+            }
+        }
+
+        function mostrarAcciones(alertaData) {
+            currentAlertDataForActions = alertaData;
+            const modal = document.getElementById('modal-acciones');
+            const tipoSpan = document.getElementById('modal-acciones-tipo');
+            const origenSpan = document.getElementById('modal-acciones-ip-origen');
+            const destinoSpan = document.getElementById('modal-acciones-ip-destino');
+
+            if (!modal || !tipoSpan || !origenSpan || !destinoSpan) {
+                showToast("Error de Interfaz", "No se pudo inicializar el modal de acciones.", "error");
+                return;
+            }
+            
+            tipoSpan.textContent = alertaData.tipo || 'N/A';
+            origenSpan.textContent = alertaData.ip_origen || 'N/A';
+            destinoSpan.textContent = alertaData.ip_destino || 'N/A';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
             setModalState(true);
         }
 
         function cerrarModalAcciones() {
-            document.getElementById('modal-acciones').classList.add('hidden');
-            document.getElementById('modal-acciones').classList.remove('flex');
+            const modal = document.getElementById('modal-acciones');
+            if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex');}
             setModalState(false);
+            currentAlertDataForActions = null;
         }
 
-        document.getElementById('theme-toggle').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+        // --- Lógica para el NUEVO MODAL DE CONFIRMACIÓN CON CONTRASEÑA ---
+        function abrirModalConfirmarAccionBloqueo() {
+            const modalConfirmacion = document.getElementById('modal-confirmar-accion-bloqueo');
+            const inputPass = document.getElementById('input-contrasena-confirmacion');
+            const errorPass = document.getElementById('error-contrasena-confirmacion');
+            const spanTextoAccion = document.getElementById('confirmar-accion-texto');
+            const spanIpAfectada = document.getElementById('confirmar-accion-ip');
 
-        // Lógica de Filtros
-        document.getElementById('filtro-alertas').addEventListener('input', aplicarFiltros);
-        document.getElementById('filtro-nivel').addEventListener('change', aplicarFiltros);
-        document.getElementById('filtro-estado').addEventListener('change', aplicarFiltros);
-
-        function aplicarFiltros() {
-            const filtroTexto = document.getElementById('filtro-alertas').value.toLowerCase();
-            const filtroNivel = document.getElementById('filtro-nivel').value;
-            const filtroEstado = document.getElementById('filtro-estado').value;
-            const filas = document.querySelectorAll('#tabla-alertas tr:not(#no-results-row)');
-            let hayResultados = false;
-            filas.forEach(fila => {
-                const texto = fila.innerText.toLowerCase();
-                const nivel = fila.getAttribute('data-nivel');
-                const estado = fila.getAttribute('data-estado');
-                const cumpleFiltroTexto = !filtroTexto || texto.includes(filtroTexto);
-                const cumpleFiltroNivel = !filtroNivel || nivel === filtroNivel;
-                const cumpleFiltroEstado = !filtroEstado || estado === filtroEstado;
-                if (cumpleFiltroTexto && cumpleFiltroNivel && cumpleFiltroEstado) {
-                    fila.style.display = ''; hayResultados = true;
-                } else {
-                    fila.style.display = 'none';
-                }
-            });
-            document.getElementById('no-filter-results').classList.toggle('hidden', hayResultados);
-            const noResultsRow = document.getElementById('no-results-row');
-            if(noResultsRow) noResultsRow.style.display = hayResultados ? 'none' : (filas.length > 0 ? 'none' : '');
-        }
-
-        // Cerrar Modals con Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                if (document.getElementById('modal').classList.contains('flex')) cerrarModal();
-                if (document.getElementById('modal-acciones').classList.contains('flex')) cerrarModalAcciones();
-                if (!document.getElementById('modal-alertas').classList.contains('hidden')) cerrarModalAlertasPopup();
-            }
-        });
-
-        // Aplicar filtros al cargar
-        document.addEventListener('DOMContentLoaded', aplicarFiltros);
-    </script>
-
-    <div id="modal-alertas" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/30 backdrop-blur-sm hidden">
-        <div id="modal-contenido" class="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl w-full max-w-xl p-6 transition-all duration-500 transform scale-95 opacity-0 translate-y-8">
-            <div class="flex items-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M5.93 19.07A10 10 0 1119.07 5.93 10 10 0 015.93 19.07z" /></svg>
-                <h2 class="text-xl font-bold text-red-600 dark:text-red-400">⚠ Alerta de Seguridad Detectada</h2>
-            </div>
-            <ul id="lista-alertas" class="space-y-3 text-sm text-gray-700 dark:text-gray-300 max-h-64 overflow-y-auto pr-2 border-t border-gray-300 dark:border-gray-700 pt-2"></ul>
-            <div class="flex justify-between items-center mt-6">
-                <button onclick="tomarAccion()" class="px-4 py-2 text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg">🛡 Tomar acciones</button>
-                <button onclick="informarAdmin()" class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">📨 Informar al administrador</button>
-                <button onclick="cerrarModalAlertasPopup()" class="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <audio id="sonido-alerta" src="{{ url_for('static', filename='sounds/y2mate_9xxTdb8.mp3') }}" preload="auto"></audio>
-
-    <script>
-        const popupApiUrl = '/ultimas-amenazas'; // Usamos la URL que ya tienes para el popup
-        const popupInterval = 5000; // Buscamos alertas para el popup cada 5 segundos
-
-        function mostrarAlertasPopup(amenazas) {
-            const modal = document.getElementById("modal-alertas");
-            const contenido = document.getElementById("modal-contenido");
-            const lista = document.getElementById("lista-alertas");
-            const sonido = document.getElementById("sonido-alerta");
-
-            lista.innerHTML = "";
-            amenazas.forEach(evento => {
-                const item = document.createElement("li");
-                item.innerHTML = `<div class="bg-red-100 dark:bg-red-800 rounded-lg p-3 shadow"><strong class="block text-red-700 dark:text-red-300">${evento.tipo} - ${evento.nivel}</strong><span class="block text-xs text-gray-600 dark:text-gray-400">${evento.fecha} | ${evento.ip_origen}</span><p class="mt-1 text-sm">${evento.descripcion}</p></div>`;
-                lista.appendChild(item);
-            });
-
-            if (modal.classList.contains("hidden")) {
-                modal.classList.remove("hidden");
-                modal.classList.add("flex");
-                setModalState(true); // Marcamos que un modal está abierto
-                setTimeout(() => {
-                    contenido.classList.add("opacity-100", "translate-y-0", "scale-100");
-                    contenido.classList.remove("opacity-0", "translate-y-8", "scale-95");
-                    sonido.play().catch(e => console.error("Error sonido:", e));
-                }, 50);
-            }
-        }
-
-        function cerrarModalAlertasPopup() {
-            const modal = document.getElementById("modal-alertas");
-            const contenido = document.getElementById("modal-contenido");
-            contenido.classList.add("opacity-0", "translate-y-8", "scale-95");
-            contenido.classList.remove("opacity-100", "translate-y-0", "scale-100");
-
-            setTimeout(() => {
-                modal.classList.add("hidden");
-                modal.classList.remove("flex");
-                setModalState(false); // Marcamos que el modal se cerró
-                console.log("Cerrando modal y RECARGANDO PÁGINA...");
-                location.reload(); // <<< --- ¡¡AQUÍ RECARGAMOS!! ---
-            }, 500); // Espera la animación
-        }
-
-        function tomarAccion() {
-            console.log("Tomar acciones...");
-            // Aquí podrías redirigir o hacer otra cosa ANTES de recargar
-            cerrarModalAlertasPopup(); // Llama a la función que cierra y recarga
-        }
-
-        function informarAdmin() {
-            alert("Mensaje enviado al administrador.");
-            cerrarModalAlertasPopup(); // Llama a la función que cierra y recarga
-        }
-
-        // --- Lógica para buscar y mostrar el POPUP ---
-        function checkForPopupAlerts() {
-            // Solo busca si NO hay un modal ya abierto (ni el de detalles, ni el de acciones, ni el de popup)
-            if (isModalOpen) {
+            if (!modalConfirmacion || !inputPass || !errorPass || !spanTextoAccion || !spanIpAfectada) {
+                showToast("Error Fatal", "Componentes del modal de confirmación no encontrados.", "error");
                 return;
             }
 
-            fetch(popupApiUrl)
-                .then(res => res.json())
-                .then(data => {
-                    if (!Array.isArray(data) || data.length === 0) return;
-                    // Filtra por importantes Y que no estén ya mostradas
-                    const amenazasImportantes = data.filter(a => a.nivel === "Alto" || a.nivel === "Medio");
-                    if (amenazasImportantes.length === 0) return;
-
-                    const ultimaMostrada = localStorage.getItem("ultimaAmenazaMostrada");
-                    const nuevaAmenaza = amenazasImportantes[0]; // La más reciente
-
-                    // Muestra si no hay última O si la fecha es mayor/diferente
-                    if (!ultimaMostrada || nuevaAmenaza.fecha > ultimaMostrada) {
-                         mostrarAlertasPopup(amenazasImportantes);
-                         localStorage.setItem("ultimaAmenazaMostrada", nuevaAmenaza.fecha);
-                    }
-                })
-                .catch(error => console.error('Error fetching popup alerts:', error));
+            const accionTexto = esOrigenGlobal ? "Bloquear IP Origen" : "Aislar IP Destino";
+            spanTextoAccion.textContent = accionTexto;
+            spanIpAfectada.textContent = ipParaBloquear;
+            
+            inputPass.value = ""; // Limpiar contraseña previa
+            errorPass.textContent = ""; // Limpiar error previo
+            
+            modalConfirmacion.classList.remove('hidden');
+            modalConfirmacion.classList.add('flex');
+            lucide.createIcons();
+            setModalState(true); // Marcamos que un modal está abierto
         }
 
-        // Inicia la búsqueda periódica para el popup
-        setInterval(checkForPopupAlerts, popupInterval);
-        // Llama una vez al cargar por si hay algo pendiente
-        document.addEventListener('DOMContentLoaded', checkForPopupAlerts);
-    </script>
+        function cerrarModalConfirmarAccion() {
+            const modalConfirmacion = document.getElementById('modal-confirmar-accion-bloqueo');
+            if(modalConfirmacion) {
+                modalConfirmacion.classList.add('hidden');
+                modalConfirmacion.classList.remove('flex');
+            }
+            setModalState(false); // Marcamos que se cerró
+            ipParaBloquear = null; // Limpiamos la IP
+            esOrigenGlobal = null;
+        }
+        
+        async function confirmarYProcederBloqueo() {
+            const inputPass = document.getElementById('input-contrasena-confirmacion');
+            const errorPass = document.getElementById('error-contrasena-confirmacion');
+            if (!inputPass || !errorPass) return;
 
+            const passIngresada = inputPass.value;
+            if (passIngresada === CONTRASEÑA_ADMIN_ACCION) {
+                errorPass.textContent = "";
+                cerrarModalConfirmarAccion(); // Cierra el modal de contraseña
+                // Procede con el fetch que estaba en ejecutarBloqueoDesdeModal
+                await _realizarFetchBloqueo(ipParaBloquear, esOrigenGlobal);
+            } else {
+                errorPass.textContent = "Contraseña incorrecta. Inténtalo de nuevo.";
+                inputPass.value = "";
+                inputPass.focus();
+            }
+        }
+        
+        // Función que realmente hace el fetch para bloquear
+        async function _realizarFetchBloqueo(targetIp, esOrigen) {
+            const accionTexto = esOrigen ? "Bloquear IP Origen" : "Aislar IP Destino";
+            showToast("Procesando...", `Intentando ${accionTexto} para ${targetIp}...`, "info");
+            try {
+                const response = await fetch(`/alerta/bloquear_ip/${encodeURIComponent(targetIp)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showToast("Éxito", result.mensaje || `Acción sobre ${targetIp} completada.`, "success");
+                } else {
+                    showToast("Error de Servidor", result.mensaje || `Falló la acción sobre ${targetIp}.`, "error");
+                }
+            } catch (error) {
+                console.error(`Error en ${accionTexto}:`, error);
+                showToast("Error de Red", `No se pudo conectar con el servidor para ${accionTexto}.`, "error");
+            }
+            // No cerramos modal de acciones aquí, se cerró el de confirmación.
+            // El modal de acciones principal se cerró al llamar a ejecutarBloqueoDesdeModal
+        }
+
+        // MODIFICADA: Ahora esta función solo prepara y abre el modal de confirmación
+        function ejecutarBloqueoDesdeModal(esOrigen) {
+            if (!currentAlertDataForActions) {
+                showToast("Error de Datos", "No hay datos de alerta seleccionados.", "error");
+                return;
+            }
+            const targetIp = esOrigen ? currentAlertDataForActions.ip_origen : currentAlertDataForActions.ip_destino;
+
+            if (!targetIp) {
+                showToast("Error de Datos", `No se pudo obtener la ${esOrigen ? 'IP de Origen' : 'IP de Destino'}.`, "error");
+                return;
+            }
+            
+            ipParaBloquear = targetIp; // Guarda la IP para usarla después de confirmar contraseña
+            esOrigenGlobal = esOrigen; // Guarda el tipo de acción
+
+            cerrarModalAcciones(); // Cierra el modal de acciones rápidas
+            abrirModalConfirmarAccionBloqueo(); // Abre el nuevo modal de confirmación
+        }
+
+
+        async function generarInformeWordDesdeModal() {
+            if (!currentAlertDataForActions) {
+                showToast("Error de Datos", "No hay datos de alerta para generar el informe.", "error");
+                cerrarModalAcciones(); return;
+            }
+            showToast("Generando...", "Preparando el informe de la alerta...", "info");
+            try {
+                const response = await fetch(`/alerta/generar_informe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentAlertDataForActions)
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const filenameHeader = response.headers.get('Content-Disposition');
+                    let filename = `informe_alerta_${currentAlertDataForActions.id_alerta || currentAlertDataForActions.tipo || Date.now()}.docx`;
+                    if (filenameHeader) { const filenameMatch = filenameHeader.match(/filename="?([^"]+)"?/); if (filenameMatch && filenameMatch[1]) { filename = filenameMatch[1]; } }
+                    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href);
+                    showToast("Descargado", "El informe se ha generado y descargado.", "success");
+                } else {
+                    const errorData = await response.json().catch(() => ({ mensaje: "Error desconocido al generar informe." }));
+                    showToast("Error de Servidor", errorData.mensaje || "No se pudo generar el informe.", "error");
+                }
+            } catch (error) { console.error("Error al generar informe:", error); showToast("Error de Red", "No se pudo conectar para generar el informe.", "error");
+            } finally { cerrarModalAcciones(); }
+        }
+        
+        function createToastContainer() { let container = document.getElementById('toast-container'); if (!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); } return container; }
+        function showToast(title, message, type = 'info') { const toastContainer = createToastContainer(); const toast = document.createElement('div'); toast.className = `p-4 mb-3 mr-3 rounded-lg shadow-xl text-sm text-white animate-fade-in ${ type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-yellow-500' : 'bg-blue-600' }`; toast.innerHTML = `<div class="flex items-center gap-2"> ${ type === 'success' ? '<i data-lucide="check-circle" class="w-5 h-5"></i>' : type === 'error' ? '<i data-lucide="alert-circle" class="w-5 h-5"></i>' : type === 'warning' ? '<i data-lucide="alert-triangle" class="w-5 h-5"></i>' : '<i data-lucide="info" class="w-5 h-5"></i>'} <div><strong class="font-semibold">${title}</strong><p class="text-xs">${message}</p></div> </div>`; toastContainer.appendChild(toast); lucide.createIcons(); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 4000); }
+
+        const popupApiUrl = '/ultimas-amenazas'; const popupInterval = 7000;
+        function mostrarAlertasPopup(amenazas) { const modal = document.getElementById("modal-alertas"); const contenido = document.getElementById("modal-contenido-popup"); const lista = document.getElementById("lista-alertas-popup"); const sonido = document.getElementById("sonido-alerta"); if (modal && modal.classList.contains("hidden")) { if(lista) lista.innerHTML = ""; amenazas.forEach(evento => { const item = document.createElement("li"); item.innerHTML = `<div class="bg-red-50 dark:bg-red-900/40 rounded-lg p-3 shadow-sm border-l-4 border-red-500"> <strong class="block text-red-700 dark:text-red-300">${evento.tipo} - ${evento.nivel}</strong> <span class="block text-xs text-gray-500 dark:text-gray-400">${evento.fecha} | ${evento.ip_origen}</span> <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">${(evento.descripcion || '').substring(0, 80)}...</p> </div>`; if(lista) lista.appendChild(item); }); modal.classList.remove("hidden"); modal.classList.add("flex"); setModalState(true); setTimeout(() => { if(contenido) { contenido.classList.add("opacity-100", "translate-y-0"); contenido.classList.remove("opacity-0", "translate-y-8"); } if(sonido && typeof sonido.play === 'function') sonido.play().catch(e => console.warn("Audio play blocked:", e)); lucide.createIcons(); }, 50); } }
+        function cerrarModalAlertasPopup(recargar = false) { const modal = document.getElementById("modal-alertas"); const contenido = document.getElementById("modal-contenido-popup"); if(contenido) { contenido.classList.add("opacity-0", "translate-y-8"); contenido.classList.remove("opacity-100", "translate-y-0"); } setTimeout(() => { if(modal) { modal.classList.add("hidden"); modal.classList.remove("flex");} setModalState(false); if (recargar) { location.reload(); } }, 300); }
+        function tomarAccion() { if(currentAlertDataForActions) { mostrarAcciones(currentAlertDataForActions); } else { showToast("Info", "Seleccione una alerta de la lista para ver acciones.", "info"); } }
+        function informarAdmin() { showToast("Informado", "Notificación enviada al administrador.", "info"); cerrarModalAlertasPopup(false); }
+        function checkForPopupAlerts() { if (isModalOpen) return; fetch(popupApiUrl).then(res => { if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); return res.json(); }).then(data => { if (!Array.isArray(data) || data.length === 0) return; const amenazasImportantes = data.filter(a => a.nivel === "Alto" || a.nivel === "Medio"); if (amenazasImportantes.length === 0) return; const ultimaMostradaStr = localStorage.getItem("ultimaAmenazaMostrada"); const nuevaAmenaza = amenazasImportantes[0]; const fechaNueva = new Date(nuevaAmenaza.fecha); if (!ultimaMostradaStr || fechaNueva > new Date(ultimaMostradaStr)) { mostrarAlertasPopup(amenazasImportantes); localStorage.setItem("ultimaAmenazaMostrada", nuevaAmenaza.fecha); } }).catch(error => console.error('Error fetching popup alerts:', error)); }
+        const themeToggleBtn = document.getElementById('theme-toggle'); const docElement = document.documentElement; if(themeToggleBtn) { themeToggleBtn.addEventListener('click', () => { docElement.classList.toggle('dark'); localStorage.setItem('theme', docElement.classList.contains('dark') ? 'dark' : 'light'); lucide.createIcons(); }); } if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { docElement.classList.add('dark'); } else { docElement.classList.remove('dark'); }
+        const filtroAlertasInput = document.getElementById('filtro-alertas'); const filtroNivelSelect = document.getElementById('filtro-nivel'); const filtroEstadoSelect = document.getElementById('filtro-estado'); if(filtroAlertasInput) filtroAlertasInput.addEventListener('input', aplicarFiltros); if(filtroNivelSelect) filtroNivelSelect.addEventListener('change', aplicarFiltros); if(filtroEstadoSelect) filtroEstadoSelect.addEventListener('change', aplicarFiltros);
+        function aplicarFiltros() { const filtroTexto = filtroAlertasInput ? filtroAlertasInput.value.toLowerCase() : ""; const filtroNivel = filtroNivelSelect ? filtroNivelSelect.value : ""; const filtroEstado = filtroEstadoSelect ? filtroEstadoSelect.value : ""; const cards = document.querySelectorAll('#alertas-grid .alerta-card'); const noFilterResultsMsg = document.getElementById('no-filter-results'); const noResultsCard = document.getElementById('no-results-card'); let hayResultados = false; let algunaTarjetaVisible = false; cards.forEach(card => { const textoCard = card.getAttribute('data-texto').toLowerCase(); const nivelCard = card.getAttribute('data-nivel'); const estadoCard = card.getAttribute('data-estado'); const matchTexto = !filtroTexto || textoCard.includes(filtroTexto); const matchNivel = !filtroNivel || nivelCard === filtroNivel; const matchEstado = !filtroEstado || estadoCard === filtroEstado; if (matchTexto && matchNivel && matchEstado) { card.style.display = 'flex'; hayResultados = true; algunaTarjetaVisible = true;} else { card.style.display = 'none'; } }); if (noResultsCard) { if (cards.length === 0 && !(filtroTexto || filtroNivel || filtroEstado)) { noResultsCard.style.display = 'flex'; } else { noResultsCard.style.display = 'none'; } } if (noFilterResultsMsg) { const mostrarMsgFiltro = cards.length > 0 && !hayResultados && (filtroTexto || filtroNivel || filtroEstado); noFilterResultsMsg.classList.toggle('hidden', !mostrarMsgFiltro); } }
+        function ordenarAlertas() { const grid = document.getElementById('alertas-grid'); if (!grid) return; const cards = Array.from(grid.getElementsByClassName('alerta-card')); const nivelOrden = { 'Alto': 1, 'Medio': 2, 'Bajo': 3 }; cards.sort((a, b) => { const nivelA = a.getAttribute('data-nivel'); const nivelB = b.getAttribute('data-nivel'); const fechaA = new Date(a.getAttribute('data-fecha') || 0); const fechaB = new Date(b.getAttribute('data-fecha') || 0); const ordenA = nivelOrden[nivelA] || 99; const ordenB = nivelOrden[nivelB] || 99; if (ordenA !== ordenB) { return ordenA - ordenB; } else { return fechaB - fechaA; } }); cards.forEach(card => grid.appendChild(card)); }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isModalOpen) { cerrarModal(); cerrarModalAcciones(); cerrarModalConfirmarAccion(); cerrarModalAlertasPopup(false); } });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            ordenarAlertas();
+            aplicarFiltros();
+            lucide.createIcons();
+            
+            if(typeof checkForPopupAlerts === "function" && typeof popupInterval !== "undefined") {
+                setInterval(checkForPopupAlerts, popupInterval);
+                checkForPopupAlerts();
+            }
+
+            document.getElementById('btn-bloquear-origen')?.addEventListener('click', () => ejecutarBloqueoDesdeModal(true));
+            document.getElementById('btn-aislar-victima')?.addEventListener('click', () => ejecutarBloqueoDesdeModal(false));
+            document.getElementById('btn-generar-informe-alerta')?.addEventListener('click', generarInformeWordDesdeModal);
+            // Listener para el botón de confirmar en el nuevo modal
+            document.getElementById('btn-ejecutar-bloqueo-confirmado')?.addEventListener('click', confirmarYProcederBloqueo);
+        });
+    </script>
 </body>
 </html>
