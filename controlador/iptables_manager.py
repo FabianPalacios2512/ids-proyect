@@ -57,4 +57,4 @@ def unblock_ipv6(target_ipv6):
     logging.info(f"IP6TABLES: Desbloqueando IPv6 {target_ipv6}")
     run_firewall_command(['ip6tables', '-D', 'FORWARD', '-s', target_ipv6, '-j', 'DROP'])
     run_firewall_command(['ip6tables', '-D', 'FORWARD', '-d', target_ipv6, '-j', 'DROP'])
-    return True
+    return True 

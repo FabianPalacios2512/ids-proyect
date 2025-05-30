@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="es"> <head>
+<html lang="es">
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dispositivos en Red - IDS</title>
@@ -110,7 +111,7 @@
             padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid var(--table-border-actual);
-            white-space: nowrap;
+            /* white-space: nowrap; <-- MODIFICACIÓN: Eliminado para permitir el ajuste de texto */
             color: var(--table-text-actual);
             background-color: var(--table-bg-actual); /* Celdas usan el fondo base */
             transition: background-color 0.2s ease;
@@ -271,13 +272,14 @@
                             <tr><th>IP</th><th>MAC</th><th>Hostname</th><th>S. Operativo</th><th>Puertos</th><th>Último Escaneo</th><th>Estado</th><th>Acción</th></tr>
                         </thead>
                         <tbody id="tabla-dispositivos">
+                            
                             <tr>
-                                <td>192.168.1.10</td><td>AA:BB:CC:DD:EE:FF</td><td>PC-Admin</td><td>Windows</td><td>80, 443</td><td>Hace 5 min</td>
+                                <td>192.168.1.10</td><td>AA:BB:CC:DD:EE:FF</td><td>PC-Admin</td><td>Windows</td><td class="break-words">80, 443, 1024, 2048, 3000, 5000, 8080, 9000, 10000, 11000, 12000, 13000, 14000, 15000</td><td>Hace 5 min</td>
                                 <td><span class="status-badge status-active">Activo</span></td>
                                 <td><button class="btn-danger">Desconectar</button></td>
                             </tr>
                              <tr>
-                                <td>192.168.1.15</td><td>11:22:33:44:55:66</td><td>Laptop-User</td><td>Linux</td><td>22</td><td>Hace 2 horas</td>
+                                <td>192.168.1.15</td><td>11:22:33:44:55:66</td><td>Laptop-User</td><td>Linux</td><td class="break-words">22</td><td>Hace 2 horas</td>
                                 <td><span class="status-badge status-offline">Inactivo</span></td>
                                 <td><button class="btn-danger">Desconectar</button></td>
                             </tr>

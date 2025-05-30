@@ -169,7 +169,7 @@
             <label class="flex items-center">
                 <input type="checkbox" class="mr-2"> Recordarme
             </label>
-            <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+            <a href="{{ url_for('login.recuperar') }}" class="forgot-password">¿Olvidaste tu contraseña?</a>
         </div>
         <button onclick="validateForm()" class="btn-primary flex items-center justify-center">
             <span>Iniciar Sesión</span>
@@ -241,5 +241,8 @@
 }
 
     </script>
+
+  <!-- Comentario aquí    -->
+   <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
 </body>
 </html>

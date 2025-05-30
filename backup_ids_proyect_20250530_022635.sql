@@ -34,7 +34,7 @@ CREATE TABLE `dispositivos` (
   `estado_dispositivo` varchar(20) DEFAULT 'activo',
   `bloqueado` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,17 +45,21 @@ LOCK TABLES `dispositivos` WRITE;
 /*!40000 ALTER TABLE `dispositivos` DISABLE KEYS */;
 set autocommit=0;
 INSERT INTO `dispositivos` VALUES
-(1,'192.168.0.1','98:F7:81:A9:D2:5F','','Linux 2.6.39','5000','2025-05-27 15:35:24','activo',0),
-(2,'192.168.0.253','00:00:CA:01:02:03','','Desconocido','','2025-05-27 15:45:10','activo',0),
+(1,'192.168.0.1','98:F7:81:A9:D2:5F','','Linux 2.6.39','5000','2025-05-27 15:35:24','inactivo',0),
+(2,'192.168.0.253','00:00:CA:01:02:03','','Desconocido','','2025-05-27 15:45:10','inactivo',0),
 (3,'192.168.0.3','8E:23:64:F6:D4:22','','Desconocido','','2025-05-27 02:41:47','inactivo',0),
 (4,'192.168.0.7','Desconocido','','Linux 2.6.32','902','2025-05-26 23:37:23','activo',0),
 (5,'192.168.0.9','D6:39:36:A7:15:35','','Apple macOS 11 (Big Sur) - 13 (Ventura) or iOS 16 (Darwin 20.6.0 - 22.4.0)','49152, 62078','2025-05-25 21:26:46','inactivo',0),
-(6,'192.168.0.1','98:F7:81:A9:D2:5F','','Desconocido','','2025-05-27 15:45:10','activo',0),
+(6,'192.168.0.1','98:F7:81:A9:D2:5F','','Desconocido','','2025-05-27 15:45:10','inactivo',0),
 (7,'192.168.0.11','2E:A3:B3:3A:CA:1A','','Desconocido','','2025-05-27 02:41:47','inactivo',0),
-(8,'192.168.0.2','F2:3A:6C:1E:89:42','','Desconocido','','2025-05-27 15:45:10','activo',0),
+(8,'192.168.0.2','F2:3A:6C:1E:89:42','','Desconocido','','2025-05-27 15:45:10','inactivo',0),
 (9,'192.168.0.4','08:00:27:B4:A1:05','','Desconocido','','2025-05-26 19:38:18','inactivo',0),
 (10,'192.168.0.5','A2:16:41:B2:0A:31','','Desconocido','','2025-05-27 02:41:47','inactivo',0),
-(11,'192.168.0.7','Desconocido','','Linux 2.6.32','902, 7070','2025-05-27 15:45:10','activo',0);
+(11,'192.168.0.7','Desconocido','','Linux 2.6.32','902, 7070','2025-05-27 15:45:10','activo',0),
+(12,'192.168.204.1','00:50:56:C0:00:08','','Microsoft Windows 11 21H2','902, 912, 2869, 5357','2025-05-28 05:40:06','activo',0),
+(13,'192.168.204.128','Desconocido','','Desconocido','','2025-05-28 05:40:06','activo',0),
+(14,'192.168.204.2','00:50:56:FF:8C:4A','','VMware Player virtual NAT device','53','2025-05-28 05:40:06','activo',0),
+(15,'192.168.204.254','00:50:56:E7:41:09','','Desconocido','','2025-05-28 05:40:06','activo',0);
 /*!40000 ALTER TABLE `dispositivos` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -89,7 +93,7 @@ CREATE TABLE `escanear_red` (
   KEY `idx_ipdestino` (`ipdestino`),
   KEY `idx_protocolo` (`protocolo`),
   KEY `idx_fecha_captura` (`fecha_captura`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,6 +103,13 @@ CREATE TABLE `escanear_red` (
 LOCK TABLES `escanear_red` WRITE;
 /*!40000 ALTER TABLE `escanear_red` DISABLE KEYS */;
 set autocommit=0;
+INSERT INTO `escanear_red` VALUES
+(1,'192.168.204.128','104.22.20.144','00:0c:29:74:fa:5b','00:50:56:ff:8c:4a',40168,443,NULL,54,'2025-05-28 05:39:29',64,'FA','b\'E\\x00\\x00(\\xf2*@\\x00@\\x06>\\xd6\\xc0\\xa8\\xcc\\x80h\\x16\\x14\\x90\\x9c\\xe8\\x01\\xbb=D\\xf4\\t$j\\x83uP\\x11\\xff\\xff\\t\\xea\\x00\\x00\'','TCP',NULL,NULL),
+(2,'104.22.20.144','192.168.204.128','00:50:56:ff:8c:4a','00:0c:29:74:fa:5b',443,40168,NULL,60,'2025-05-28 05:39:29',128,'A','b\'E\\x00\\x00(mJ\\x00\\x00\\x80\\x06\\xc3\\xb6h\\x16\\x14\\x90\\xc0\\xa8\\xcc\\x80\\x01\\xbb\\x9c\\xe8$j\\x83u=D\\xf4\\nP\\x10\\xfa\\xef3C\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\'','TCP',NULL,NULL),
+(4,'104.22.20.144','192.168.204.128','00:50:56:ff:8c:4a','00:0c:29:74:fa:5b',443,40168,NULL,60,'2025-05-28 05:39:29',128,'FPA','b\'E\\x00\\x00(mK\\x00\\x00\\x80\\x06\\xc3\\xb5h\\x16\\x14\\x90\\xc0\\xa8\\xcc\\x80\\x01\\xbb\\x9c\\xe8$j\\x83u=D\\xf4\\nP\\x19\\xfa\\xef3:\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\'','TCP',NULL,NULL),
+(5,'192.168.204.128','104.22.20.144','00:0c:29:74:fa:5b','00:50:56:ff:8c:4a',40168,443,NULL,54,'2025-05-28 05:39:29',64,'A','b\'E\\x00\\x00(\\x00\\x00@\\x00@\\x061\\x01\\xc0\\xa8\\xcc\\x80h\\x16\\x14\\x90\\x9c\\xe8\\x01\\xbb=D\\xf4\\n$j\\x83vP\\x10\\x0c\\x8e!\\xa4\\x00\\x00\'','TCP',NULL,NULL),
+(7,'192.168.204.128','142.251.132.163','00:0c:29:74:fa:5b','00:50:56:ff:8c:4a',53746,443,NULL,54,'2025-05-28 05:39:32',64,'A','b\'E\\x00\\x00(\\xfc\\xf0@\\x00@\\x06\\x9d\\x17\\xc0\\xa8\\xcc\\x80\\x8e\\xfb\\x84\\xa3\\xd1\\xf2\\x01\\xbb*\\xb8\\xdd\\x83-\\xc7{\\xbbP\\x10\\xf0\\xcc\\xa0\\xe2\\x00\\x00\'','TCP',NULL,NULL),
+(8,'142.251.132.163','192.168.204.128','00:50:56:ff:8c:4a','00:0c:29:74:fa:5b',443,53746,NULL,60,'2025-05-28 05:39:32',128,'A','b\'E\\x00\\x00(mL\\x00\\x00\\x80\\x06,\\xbc\\x8e\\xfb\\x84\\xa3\\xc0\\xa8\\xcc\\x80\\x01\\xbb\\xd1\\xf2-\\xc7{\\xbb*\\xb8\\xdd\\x84P\\x10\\xfa\\xf0\\x8e\\xae\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\'','TCP',NULL,NULL);
 /*!40000 ALTER TABLE `escanear_red` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -117,7 +128,7 @@ CREATE TABLE `eventos` (
   `usuario` varchar(100) DEFAULT NULL,
   `fecha_evento` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id_evento`)
-) ENGINE=InnoDB AUTO_INCREMENT=298 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=327 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -424,7 +435,36 @@ INSERT INTO `eventos` VALUES
 (294,'Cierre de sesión','Logout','Gloria ','2025-05-27 15:29:29'),
 (295,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-27 15:29:31'),
 (296,'Cierre de sesión','Logout','Gloria ','2025-05-27 15:31:16'),
-(297,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-27 15:31:20');
+(297,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-27 15:31:20'),
+(298,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-28 05:00:17'),
+(299,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-28 05:04:29'),
+(300,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-28 05:11:52'),
+(301,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-28 05:19:09'),
+(302,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-28 05:24:46'),
+(303,'Acción del sistema','Inicio de sesión','Gloria ','2025-05-28 05:29:46'),
+(304,'Acción del sistema','Inicio de sesión','Fabian','2025-05-29 02:50:43'),
+(305,'Cierre de sesión','Logout','Fabian','2025-05-29 03:23:52'),
+(306,'Acción del sistema','Inicio de sesión','Fabian','2025-05-29 03:24:38'),
+(307,'Acción del sistema','Inicio de sesión','Fabian','2025-05-29 04:57:52'),
+(308,'Cierre de sesión','Logout','Fabian','2025-05-29 04:58:27'),
+(309,'Acción del sistema','Inicio de sesión','Fabian','2025-05-29 19:26:43'),
+(310,'Se creó el usuario: Mariangel Bejarano','Creación de usuario','Fabian','2025-05-29 19:27:45'),
+(311,'Acción del sistema','Inicio de sesión','Mariangel','2025-05-29 23:37:57'),
+(312,'Acción del sistema','Inicio de sesión exitoso','Mariangel','2025-05-30 04:14:05'),
+(313,'Cierre de sesión','Logout','Mariangel','2025-05-30 04:14:17'),
+(314,'Cierre de sesión','Logout','Mariangel','2025-05-30 04:14:30'),
+(315,'Acción del sistema','Inicio de sesión exitoso','Mariangel','2025-05-30 04:17:26'),
+(316,'Cierre de sesión','Logout','Mariangel','2025-05-30 04:17:39'),
+(317,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 04:36:57'),
+(318,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 04:45:26'),
+(319,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 04:58:50'),
+(320,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 05:04:30'),
+(321,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 05:37:45'),
+(322,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 05:51:16'),
+(323,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 06:08:28'),
+(324,'Acción del sistema','Inicio de sesión exitoso','Mariangel','2025-05-30 06:14:27'),
+(325,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 06:19:00'),
+(326,'Acción del sistema','Inicio de sesión exitoso','Mariangel','2025-05-30 06:19:55');
 /*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -627,7 +667,7 @@ CREATE TABLE `usuario` (
   UNIQUE KEY `email` (`email`),
   KEY `id_perfil` (`id_perfil`),
   CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`id_perfil`) REFERENCES `perfil` (`id_perfil`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -638,11 +678,12 @@ LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
 set autocommit=0;
 INSERT INTO `usuario` VALUES
-(10,'Gloria ','Paterina','3134540533','fpaternina12@gmail.comeee','1234','2025-05-04 14:42:37',1,'inactivo'),
-(11,'Maria Jose ','Gonzalez','3134540533','mariaberriogonzalez09@gmail.com','1234','2025-05-04 14:43:37',8,'activo'),
-(16,'Gloria','Lora','a','d@gmail.com','1','2025-05-03 21:37:51',1,'activo'),
-(20,'Fabian','PATERNINA','3134540533','nuevoadmin@ejemplo.com','admin123','2025-05-04 14:43:12',1,'activo'),
-(22,'1212121','121212','12121212','fpaternina12@gmail.comeee11','12341212','2025-05-25 13:20:08',10,'activo');
+(10,'Gloria ','Paterina','3134540533','fpaternina12@gmail.comeee','scrypt:32768:8:1$lZjncGFfkGgplJJZ$730a7ed2b100f6f6a2c072dda47647af1928bc2decdc15f701556545e72781fc675175cfad92480d55b7417f23ab90cb9e33c83da9c91a04d296e836fbbc5ad0','2025-05-30 03:15:21',1,'inactivo'),
+(11,'Maria Jose ','Gonzalez','3134540533','mariaberriogonzalez09@gmail.com','scrypt:32768:8:1$mYiKWqFlEE3OMX9f$72477ff2f023e53db2365f48883446e084ba57c7abd76b8c9065b00122487286c9fba0be9a53fbb4ba874e69c7046dfc4ce8b244fdd6f20bba41553abd077fca','2025-05-30 03:15:21',8,'activo'),
+(16,'Gloria','Lora','a','d@gmail.com','scrypt:32768:8:1$WCd8IfWe9l49XqRg$6e97e07377099d5468d14f467c9d294612bfbceaf3716bea3a2318acb442fcd1f2a6d0f40a6f723cd062e07030e4ce17e0f0a407a3cc25ecd12f41b9ba1aaa28','2025-05-30 03:15:22',1,'activo'),
+(20,'Fabian','PATERNINA','3134540533','nuevoadmin@ejemplo.com','scrypt:32768:8:1$cLgyIlousdLkxAKG$46973f7cd6b92c6de58f9af7142defacd11925846b2d5df3d7902c44ad02b1eaf1107278f901e36354d8764cf48034cb845b428f5a1a7c637ec07732476cf905','2025-05-30 03:15:22',1,'activo'),
+(22,'1212121','121212','12121212','fpaternina12@gmail.comeee11','scrypt:32768:8:1$NITYVrkDHNh4EwXi$fc43fc78b09c6dc4f2f4c725d5c43a62165c628b567b6bb144813367c8ad9e068807aa8266ba02a1e3bfd887d7e56fce5d9eb10907dd2fa8c821d040feb29d96','2025-05-30 03:15:22',10,'activo'),
+(23,'Mariangel','Bejarano','3136052434','mbejarano844@gmail.com','scrypt:32768:8:1$wCMu5X6WuaU1UwZG$bdf11d00f17d415058b3acd446346372095fde80886689ca68cd522279d5bf618beb12eeb919dca7c1e808740691e0e81729f3f224dfa7d1f850690a2748acb0','2025-05-30 06:19:45',1,'activo');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -656,4 +697,4 @@ commit;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2025-05-27 10:50:23
+-- Dump completed on 2025-05-30  2:26:38

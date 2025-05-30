@@ -92,6 +92,10 @@ def perfil():
 def reportes():
     return render_template("reportes.html")
 
+@login_bp.route('/recuperar')
+def recuperar():
+    return render_template("recuperar.html")
+
 
 
 
