@@ -1,53 +1,51 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template,session,url_for, flash, current_app, redirect
 import sys
+from flask_mail import Message
+from itsdangerous import URLSafeTimedSerializer
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import subprocess
 import threading
 import time
-from modelo.base_datos import obtener_conexion
 from modelo import base_datos
-from flask import Blueprint, jsonify
-from modelo.base_datos import obtener_conexion
-from flask import jsonify
-from flask import Blueprint, jsonify
-from modelo.base_datos import obtener_conexion
-from flask import Blueprint, jsonify
 import psutil
-from flask import jsonify
-from flask import session
+import redis
+
+from modelo.base_datos import (
+    obtener_conexion,
+    contar_usuarios,
+    contar_dispositivos,
+    obtener_eventos,
+    obtener_ultimos_eventos,
+    obtener_alertas,
+    obtener_alertas_nuevas,
+    obtener_usuario_por_email,
+    actualizar_contraseña_usuario
+)
 from modelo.eventos import registrar_evento
 
-
-
-
+# Define el Blueprint. El nombre del Blueprint es 'login'.
 login_bp = Blueprint('login', __name__, template_folder="../vista")
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from modelo.base_datos import contar_usuarios, contar_dispositivos
-
 @login_bp.route('/')
 def home():
+    """Ruta principal que renderiza la página de login."""
     return render_template("login.html")
-
-from flask import render_template, session, redirect, url_for
-from modelo.base_datos import contar_usuarios, contar_dispositivos, obtener_eventos
-
-from modelo.base_datos import obtener_ultimos_eventos
 
 
 @login_bp.route('/dashboard')
 def dashboard():
+    """Ruta del dashboard, requiere que el usuario esté logueado."""
     if 'usuario' not in session:
+        # CORRECCIÓN: Usar 'login.home' para referenciar la ruta home del Blueprint 'login'
         return redirect(url_for('login.home'))
 
     total_usuarios = contar_usuarios()
     total_dispositivos = contar_dispositivos()
-    resumen_monitoreo = obtener_eventos()  # Esto sigue trayendo todo, por si lo usas en alguna parte
+    resumen_monitoreo = obtener_eventos()
 
-    # Trae solo los 2 eventos más recientes
     ultimos_eventos = obtener_ultimos_eventos()
-
-    # Trae todas las alertas
     alertas = obtener_alertas()
 
     return render_template('dashboard.html',
@@ -56,74 +54,66 @@ def dashboard():
                            total_dispositivos=total_dispositivos,
                            resumen_monitoreo=resumen_monitoreo,
                            ultimos_eventos=ultimos_eventos,
-                           alertas=alertas)  # Pasa las alertas al template
-
-
-
-
+                           alertas=alertas)
 
 
 @login_bp.route('/dashboard_admin')
 def dashboard_admin():
+    """Ruta del dashboard para administradores."""
     return render_template('dashboard_admin.html')
 
-from flask import session, redirect, url_for
 @login_bp.route('/logout')
 def logout():
-    usuario = session.get('usuario')  # Obtenemos el usuario antes de borrar la sesión
+    """Ruta para cerrar la sesión del usuario."""
+    usuario = session.get('usuario')
     if usuario:
-        registrar_evento(usuario, "Logout", "Cierre de sesión")  # Registramos el evento
-    session.clear()  # Limpiamos toda la sesión
-    return redirect(url_for('login.home'))  # Redirige al login
+        registrar_evento(usuario, "Logout", "Cierre de sesión")
+    session.clear()
+    # CORRECCIÓN: Usar 'login.home' para referenciar la ruta home del Blueprint 'login'
+    return redirect(url_for('login.home'))
 
 @login_bp.route('/monitoreo')
 def monitoreo():
+    """Ruta para la página de monitoreo de red."""
     return render_template("monitoreoRed.html")
 
 @login_bp.route('/usuario')
 def usuario():
+    """Ruta para la página de gestión de usuario (individual)."""
     return render_template("usuario.html")
 
 @login_bp.route('/perfil')
 def perfil():
+    """Ruta para la página de perfil de usuario."""
     return render_template("perfil.html")
 
 @login_bp.route('/reportes')
 def reportes():
+    """Ruta para la página de reportes."""
     return render_template("reportes.html")
-
-@login_bp.route('/recuperar')
-def recuperar():
-    return render_template("recuperar.html")
-
-
-
-
 
 
 # CONFIGURACION DEL LOGIN
-import redis
-from flask import request
-
 # Configura conexión a Redis (ajusta host/puerto si necesario)
 r = redis.Redis(host='localhost', port=6379, db=0)
 
 MAX_INTENTOS = 5
-TIEMPO_BLOQUEO = 300  # en segundos, ej 5 minutos
+TIEMPO_BLOQUEO = 300 # en segundos, ej 5 minutos
 
 def obtener_ip_cliente():
-    # Si tienes proxy reverso, revisa esta cabecera
+    """Obtiene la dirección IP del cliente que realiza la solicitud."""
     if request.headers.get('X-Forwarded-For'):
         return request.headers.get('X-Forwarded-For').split(',')[0]
     return request.remote_addr
 
 @login_bp.route('/login', methods=['POST'])
 def login():
+    """Maneja las solicitudes de inicio de sesión."""
     ip = obtener_ip_cliente()
     key_intentos = f"login_intentos:{ip}"
     key_bloqueo = f"login_bloqueado:{ip}"
 
-    # Verifica si la IP está bloqueada
+    # Verifica si la IP está bloqueada por demasiados intentos fallidos
     if r.exists(key_bloqueo):
         tiempo_restante = r.ttl(key_bloqueo)
         return jsonify({
@@ -133,9 +123,9 @@ def login():
 
     datos = request.json
     email = datos.get('email')
-    contrasena = datos.get('contrasena')
+    contrasena_texto_plano = datos.get('contrasena') # Contraseña en texto plano del usuario
 
-    if not email or not contrasena:
+    if not email or not contrasena_texto_plano:
         return jsonify({"status": "error", "mensaje": "⚠️ Por favor, completa todos los campos."}), 400
 
     conexion = obtener_conexion()
@@ -144,30 +134,33 @@ def login():
 
     cursor = conexion.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT * FROM usuario WHERE email = %s AND contrasena = %s", (email, contrasena))
-        usuario = cursor.fetchone()
+        # Selecciona los datos del usuario, incluyendo la contraseña hasheada (columna 'contrasena')
+        cursor.execute("SELECT id_usuario, nombre, email, contrasena, id_perfil FROM usuario WHERE email = %s", (email,))
+        usuario_db = cursor.fetchone()
 
-        if usuario:
-            # Login exitoso -> limpiar intentos
-            r.delete(key_intentos)
-            session['usuario'] = usuario['nombre']
-            session['perfil'] = usuario['id_perfil']  
-            registrar_evento(usuario['nombre'], "Inicio de sesión")
+        # Verifica si el usuario existe y si la contraseña hasheada coincide con la ingresada
+        if usuario_db and check_password_hash(usuario_db['contrasena'], contrasena_texto_plano):
+            r.delete(key_intentos) # Login exitoso -> limpiar intentos fallidos de Redis
+            session['usuario'] = usuario_db['nombre']
+            session['id_usuario'] = usuario_db['id_usuario'] # Guarda el ID del usuario en la sesión
+            session['perfil'] = usuario_db['id_perfil']
+            registrar_evento(usuario_db['nombre'], "Inicio de sesión exitoso")
 
             return jsonify({
                 "status": "success",
-                "mensaje": f"✅ Bienvenido {usuario['nombre']} 🎉",
-                "usuario": usuario['nombre']
+                "mensaje": f"✅ Bienvenido {usuario_db['nombre']} 🎉",
+                "usuario": usuario_db['nombre'],
+                "perfil": usuario_db['id_perfil']
             }), 200
         else:
-            # Incrementar contador de intentos fallidos
+            # Lógica para manejar intentos fallidos y bloqueo de IP
             intentos = r.incr(key_intentos)
             if intentos == 1:
-                r.expire(key_intentos, TIEMPO_BLOQUEO)  # El contador expira pasado el tiempo de bloqueo
+                r.expire(key_intentos, TIEMPO_BLOQUEO)
 
             if intentos > MAX_INTENTOS:
-                # Bloqueamos la IP
                 r.set(key_bloqueo, 1, ex=TIEMPO_BLOQUEO)
+                registrar_evento(email, "Bloqueo de IP por múltiples intentos fallidos", f"IP: {ip}")
                 return jsonify({
                     "status": "error",
                     "mensaje": f"❌ Demasiados intentos fallidos. IP bloqueada por {TIEMPO_BLOQUEO} segundos."
@@ -178,26 +171,73 @@ def login():
                     "mensaje": "❌ Credenciales incorrectas.",
                     "intentos_restantes": MAX_INTENTOS - intentos
                 }), 401
-
     except Exception as e:
         print("Error al iniciar sesión:", e)
+        registrar_evento(email, "Error en inicio de sesión", f"Detalle: {str(e)}")
         return jsonify({
             "status": "error",
             "mensaje": "⚠️ Ocurrió un problema inesperado.",
             "detalle": str(e)
         }), 500
-
     finally:
-        cursor.close()
-        conexion.close()
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
+
+@login_bp.route('/registrar_nuevo_usuario', methods=['POST'])
+def registrar_nuevo_usuario():
+    """Ruta para registrar un nuevo usuario en el sistema."""
+    datos = request.get_json()
+    nombre = datos.get('nombre').strip()
+    email = datos.get('email').strip()
+    contrasena_texto_plano = datos.get('contrasena').strip()
+    id_perfil = datos.get('id_perfil', 2) # Asigna un perfil por defecto (ej. 'Usuario Estándar')
+
+    if not nombre or not email or not contrasena_texto_plano:
+        return jsonify({"status": "error", "mensaje": "Todos los campos son obligatorios."}), 400
+
+    if len(contrasena_texto_plano) < 8:
+        return jsonify({"status": "error", "mensaje": "La contraseña debe tener al menos 8 caracteres."}), 400
+
+    hashed_password = generate_password_hash(contrasena_texto_plano)
+
+    conexion = obtener_conexion()
+    if not conexion:
+        return jsonify({"status": "error", "mensaje": "Error de conexión a la base de datos."}), 500
+
+    cursor = conexion.cursor()
+    try:
+        # Verifica si el email ya existe para evitar duplicados
+        cursor.execute("SELECT COUNT(*) FROM usuario WHERE email = %s", (email,))
+        if cursor.fetchone()[0] > 0:
+            return jsonify({"status": "error", "mensaje": "El email ya está registrado."}), 409
+
+        # Inserta el nuevo usuario con la contraseña hasheada en la columna 'contrasena'
+        cursor.execute(
+            "INSERT INTO usuario (nombre, email, contrasena, id_perfil) VALUES (%s, %s, %s, %s)",
+            (nombre, email, hashed_password, id_perfil)
+        )
+        conexion.commit()
+
+        registrar_evento(nombre, "Registro de Usuario", f"Nuevo usuario registrado: {email}")
+        return jsonify({"status": "success", "mensaje": "Usuario registrado exitosamente."}), 201
+
+    except Exception as e:
+        conexion.rollback()
+        print(f"Error al registrar nuevo usuario: {e}")
+        return jsonify({"status": "error", "mensaje": "Error al registrar el usuario.", "detalle": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
 
 @login_bp.route('/crear_perfil', methods=['POST'])
 def crear_perfil():
-    from modelo.eventos import registrar_evento
-    from flask import session
-
+    """Ruta para crear un nuevo perfil/rol en el sistema."""
     datos = request.get_json()
     nombre = datos.get("nombre", "").strip()
     estado = datos.get("estado", "").strip()
@@ -213,7 +253,7 @@ def crear_perfil():
     try:
         cursor = conexion.cursor(dictionary=True)
 
-        # Validar duplicado
+        # Valida que no exista un perfil con el mismo nombre
         cursor.execute("SELECT COUNT(*) as total FROM perfil WHERE LOWER(nombre) = LOWER(%s)", (nombre,))
         if cursor.fetchone()["total"] > 0:
             return jsonify({"status": "error", "mensaje": "❌ Ya existe un perfil con ese nombre."}), 409
@@ -230,14 +270,15 @@ def crear_perfil():
         print("Error al crear perfil:", e)
         return jsonify({"status": "error", "mensaje": "❌ Error al guardar el perfil.", "detalle": str(e)}), 500
     finally:
-        cursor.close()
-        conexion.close()
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
-
-login = Blueprint('login', __name__)
 
 @login_bp.route('/perfiles', methods=['GET'])
 def obtener_perfiles():
+    """Ruta para obtener todos los perfiles existentes."""
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
 
@@ -249,15 +290,15 @@ def obtener_perfiles():
         print("Error al obtener perfiles:", e)
         return jsonify({"status": "error", "mensaje": "❌ No se pudieron cargar los perfiles."}), 500
     finally:
-        cursor.close()
-        conexion.close()
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
 
 @login_bp.route('/editar_perfil/<int:id_perfil>', methods=['PUT'])
 def editar_perfil(id_perfil):
-    from modelo.eventos import registrar_evento
-    from flask import session
-
+    """Ruta para editar un perfil existente."""
     datos = request.get_json()
     nombre = datos.get("nombre", "").strip()
     estado = datos.get("estado", "").strip()
@@ -273,7 +314,7 @@ def editar_perfil(id_perfil):
     try:
         cursor = conexion.cursor(dictionary=True)
 
-        # Validar nombre duplicado para otro perfil
+        # Valida nombre duplicado para otro perfil
         cursor.execute("SELECT COUNT(*) as total FROM perfil WHERE LOWER(nombre) = LOWER(%s) AND id_perfil != %s", (nombre, id_perfil))
         if cursor.fetchone()["total"] > 0:
             return jsonify({"status": "error", "mensaje": "❌ Ya existe otro perfil con ese nombre."}), 409
@@ -290,42 +331,139 @@ def editar_perfil(id_perfil):
         print("❌ Error al editar perfil:", e)
         return jsonify({"status": "error", "mensaje": "❌ Error al editar el perfil.", "detalle": str(e)}), 500
     finally:
-        cursor.close()
-        conexion.close()
-
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
 
 @login_bp.route('/inhabilitar_perfil/<int:id_perfil>', methods=['PUT'])
 def inhabilitar_perfil(id_perfil):
-    from modelo.eventos import registrar_evento
-    from flask import session
-
+    """Ruta para inhabilitar un perfil (cambiar su estado a 'inactivo')."""
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
         cursor.execute("UPDATE perfil SET estado = 'inactivo' WHERE id_perfil = %s", (id_perfil,))
         conexion.commit()
 
-        # Registrar evento
         registrar_evento(session.get('usuario'), "Inhabilitación de perfil", f"Se inhabilitó el perfil con ID {id_perfil}")
 
         return jsonify({"status": "success", "mensaje": "✅ Perfil inhabilitado correctamente."})
     except Exception as e:
         return jsonify({"status": "error", "mensaje": "❌ Error al inhabilitar el perfil.", "detalle": str(e)}), 500
     finally:
-        cursor.close()
-        conexion.close()
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
+
+@login_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Ruta para solicitar el restablecimiento de contraseña (envío de email)."""
+    if request.method == 'POST':
+        email = request.form.get('email')
+        usuario = obtener_usuario_por_email(email)
+
+        if usuario:
+            serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+            # Se usa 'id_usuario' del usuario obtenido de la DB para generar el token
+            token = serializer.dumps(usuario['id_usuario'], salt='password-reset-salt')
+
+            # Construye la URL completa para el email
+            # CORRECCIÓN: Usar 'login.reset_token' para referenciar la ruta del Blueprint 'login'
+            reset_url = url_for('login.reset_token', token=token, _external=True)
+
+            try:
+                msg = Message("Restablecer tu Contraseña",
+                              sender=current_app.config['MAIL_DEFAULT_SENDER'],
+                              recipients=[email])
+                msg.body = f"""Hola {usuario['email']},
+
+Parece que solicitaste un restablecimiento de contraseña.
+Haz clic en el siguiente enlace para establecer una nueva contraseña:
+
+{reset_url}
+
+Este enlace es válido por 1 hora. Si no solicitaste un restablecimiento, por favor ignora este correo.
+
+Saludos,
+Tu Equipo de Soporte
+"""
+                current_app.extensions['mail'].send(msg)
+                flash('Se ha enviado un enlace de restablecimiento a tu correo electrónico. Revisa tu bandeja de entrada y spam.', 'info')
+                registrar_evento(email, "Solicitud de Restablecimiento de Contraseña", f"Enlace enviado a {email}")
+            except Exception as e:
+                flash(f'Ocurrió un error al enviar el correo: {e}. Por favor, verifica tu configuración de correo.', 'danger')
+                current_app.logger.error(f"Error al enviar email de restablecimiento a {email}: {e}")
+                registrar_evento(email, "Error de Envío de Correo de Restablecimiento", f"Error: {e}")
+        else:
+            # Mensaje genérico por seguridad para no revelar si el email existe o no
+            flash('Si el correo electrónico está registrado, se ha enviado un enlace de restablecimiento.', 'info')
+            registrar_evento(email, "Intento de Solicitud de Restablecimiento (Email no encontrado o genérico)", "Email no registrado o mensaje genérico para seguridad")
+
+        # Redirige a la misma página para mostrar mensajes flash y evitar reenvío de formulario
+        # CORRECCIÓN: Usar 'login.forgot_password' para referenciar la ruta del Blueprint 'login'
+        return redirect(url_for('login.forgot_password'))
+    return render_template('forgot_password.html')
 
 
+@login_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    """Ruta para restablecer la contraseña usando un token."""
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    user_id = None
+    try:
+        # Carga y valida el token. Si expira o es inválido, lanzará una excepción.
+        user_id = serializer.loads(token, salt='password-reset-salt', max_age=3600) # Token válido por 1 hora
+    except Exception:
+        flash('El enlace de restablecimiento es inválido o ha expirado. Por favor, solicita uno nuevo.', 'danger')
+        registrar_evento("Desconocido", "Enlace de Restablecimiento Inválido/Expirado", f"Token: {token}")
+        # CORRECCIÓN: Usar 'login.forgot_password' para referenciar la ruta del Blueprint 'login'
+        return redirect(url_for('login.forgot_password'))
 
-#contenido del dasboar 
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Validaciones de la nueva contraseña
+        if not new_password or not confirm_password:
+            flash('Por favor, ingresa y confirma la nueva contraseña.', 'warning')
+            return render_template('reset_password.html', token=token)
+
+        if new_password != confirm_password:
+            flash('Las contraseñas no coinciden.', 'warning')
+            return render_template('reset_password.html', token=token)
+
+        if len(new_password) < 8: # Mínimo 8 caracteres, puedes añadir más reglas (números, símbolos, etc.)
+            flash('La contraseña debe tener al menos 8 caracteres.', 'warning')
+            return render_template('reset_password.html', token=token)
+
+        hashed_password = generate_password_hash(new_password)
+
+        # Actualiza la contraseña en la base de datos usando el ID del token
+        if actualizar_contraseña_usuario(user_id, hashed_password):
+            flash('Tu contraseña ha sido restablecida exitosamente. Ahora puedes iniciar sesión.', 'success')
+            registrar_evento(f"ID_Usuario:{user_id}", "Contraseña Restablecida Exitosamente", "Contraseña cambiada a través de enlace de recuperación")
+            # CORRECCIÓN: Usar 'login.home' para redirigir a la página de login después del éxito
+            return redirect(url_for('login.home'))
+        else:
+            flash('Ocurrió un error al actualizar la contraseña. Inténtalo de nuevo.', 'danger')
+            registrar_evento(f"ID_Usuario:{user_id}", "Error al Restablecer Contraseña", "Fallo al actualizar la contraseña en la DB")
+            return render_template('reset_password.html', token=token)
+
+    # Renderiza la plantilla de restablecimiento de contraseña para solicitudes GET
+    return render_template('reset_password.html', token=token)
 
 
-
+# Los siguientes Blueprints están definidos aquí, pero se registran en app.py
+# Es una práctica común definirlos en archivos separados. Si ya los tienes en archivos separados,
+# esto podría ser duplicado o una convención diferente.
+# Si solo son para este archivo, entonces están bien aquí.
 sistema_bp = Blueprint('sistema', __name__)
 
 @sistema_bp.route('/estado_sistema')
 def estado_sistema():
+    """Ruta para obtener el estado del sistema (CPU, memoria, disco)."""
     cpu = psutil.cpu_percent(interval=1)
     memoria = psutil.virtual_memory()
     disco = psutil.disk_usage('/')
@@ -341,8 +479,8 @@ def estado_sistema():
     })
 
 
-from modelo.base_datos import obtener_conexion
 def obtener_resumen_monitoreo():
+    """Obtiene un resumen de los últimos eventos de monitoreo de red."""
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
 
@@ -356,7 +494,7 @@ def obtener_resumen_monitoreo():
         ORDER BY fecha_captura DESC
         LIMIT 5
     """)
-    
+
     resultados = cursor.fetchall()
 
     cursor.close()
@@ -365,24 +503,18 @@ def obtener_resumen_monitoreo():
     return resultados
 
 
-
 @login_bp.route('/api/resumen_monitoreo')
 def api_resumen_monitoreo():
+    """Endpoint API para obtener el resumen de monitoreo de red."""
     datos = obtener_resumen_monitoreo()
     return jsonify(datos)
 
-
-#contro de eventos
-
-from modelo.eventos import registrar_evento
-
-from flask import Blueprint, jsonify
-from modelo.base_datos import obtener_conexion
 
 eventos_bp = Blueprint('eventos_bp', __name__)
 
 @eventos_bp.route('/eventos_recientes')
 def eventos_recientes():
+    """Endpoint API para obtener los eventos más recientes."""
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     try:
@@ -393,96 +525,94 @@ def eventos_recientes():
         print("❌ Error al obtener eventos:", e)
         return jsonify([]), 500
     finally:
-        cursor.close()
-        conexion.close()
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
-
-
-from flask import Flask, render_template
-from modelo.base_datos import obtener_alertas  # Asegúrate de tener esta función
-
-app = Flask(__name__)
 
 @login_bp.route('/alertas')
 def alertas():
-    # Tu código para la vista de alertas
+    """Ruta para la página de alertas."""
     return render_template('alertas.html', alertas=obtener_alertas())
 
 
 @login_bp.route('/api/alertas')
 def api_alertas():
-    """
-    Endpoint API para obtener todas las alertas en formato JSON.
-    """
+    """Endpoint API para obtener todas las alertas en formato JSON."""
     try:
-        # Reutilizamos la función que ya obtiene las alertas
-        alertas_data = obtener_alertas() 
-        
-        # Devolvemos los datos como JSON
+        alertas_data = obtener_alertas()
+
         return jsonify(alertas_data)
-        
+
     except Exception as e:
         print(f"❌ Error al obtener alertas para API: {e}")
-        # En caso de error, devolvemos un JSON con el mensaje
         return jsonify({"status": "error", "mensaje": "No se pudieron cargar las alertas.", "detalle": str(e)}), 500
 
 
-
-
-
-from flask import session, redirect, url_for, flash, render_template, jsonify
-
 @login_bp.route('/usuarios')
 def gestion_usuarios():
-    # Verificamos si el perfil del usuario está en la sesión y si es 'Administrador'
-    if 'perfil' not in session or session['perfil'] != 1:  # 1 es el id de perfil para 'Administrador'
+    """Ruta para la gestión de usuarios (requiere perfil de administrador)."""
+    if 'perfil' not in session or session['perfil'] != 1: # 1 es el id de perfil para 'Administrador'
         flash("Usted no tiene permiso para acceder aquí.")
-        return redirect(url_for('login.dashboard'))  # Redirige al dashboard o a donde desees
+        # CORRECCIÓN: Usar 'login.dashboard' para redirigir al dashboard
+        return redirect(url_for('login.dashboard'))
     return render_template('usuarios.html')
 
 
-# Ruta para obtener el perfil actual del usuario
 @login_bp.route('/usuarios/perfil-actual')
 def perfil_actual():
-    # Obtenemos el perfil del usuario desde la sesión
-    perfil = session.get('perfil', 'Invitado')  # Si no está en la sesión, asignamos 'Invitado'
-    # Retornamos el perfil como respuesta en formato JSON
+    """Endpoint API para obtener el perfil actual del usuario logueado."""
+    perfil = session.get('perfil', 'Invitado')
     return jsonify({'perfil': perfil})
 
 @login_bp.route('/editar_perfil/<int:id>', methods=['PUT'], endpoint='editar_perfil_admin')
 def editar_perfil_admin(id):
-    # lógica de edición para administradores
+    """Ruta para editar perfil de usuario (lógica para administradores)."""
     pass
 
 @login_bp.route('/editar_perfil_usuario/<int:id>', methods=['PUT'], endpoint='editar_perfil_usuario')
 def editar_perfil_usuario(id):
-    # lógica de edición para usuarios
+    """Ruta para editar perfil de usuario (lógica para usuarios)."""
     pass
 
 @login_bp.route('/perfiles')
 def listar_perfiles():
-    if 'perfil' not in session or session['perfil'] != 1:  # 1 = Administrador
+    """Ruta para listar perfiles (requiere perfil de administrador)."""
+    if 'perfil' not in session or session['perfil'] != 1: # 1 = Administrador
         return jsonify({'error': 'No autorizado'}), 403
 
-    # Código que devuelve los perfiles
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
 
-
-
-
-#consultar por imaill 
-
+    try:
+        cursor.execute("SELECT id_perfil, nombre, estado, descripcion FROM perfil")
+        perfiles = cursor.fetchall()
+        return jsonify(perfiles), 200
+    except Exception as e:
+        print("Error al obtener perfiles:", e)
+        return jsonify({"status": "error", "mensaje": "❌ No se pudieron cargar los perfiles."}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
 
 @login_bp.route('/ultimas-amenazas')
 def ultimas_amenazas():
+    """Endpoint API para obtener las últimas amenazas de seguridad."""
     conn = obtener_conexion()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT tipo, nivel, descripcion, ip_origen, fecha FROM eventos_seguridad ORDER BY fecha DESC LIMIT 5")
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return jsonify(data)
-
-
-
-
+    try:
+        cursor.execute("SELECT tipo, nivel, descripcion, ip_origen, fecha FROM eventos_seguridad ORDER BY fecha DESC LIMIT 5")
+        data = cursor.fetchall()
+        return jsonify(data)
+    except Exception as e:
+        print(f"❌ Error al obtener últimas amenazas: {e}")
+        return jsonify({"status": "error", "mensaje": "No se pudieron cargar las últimas amenazas.", "detalle": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -134,13 +132,33 @@
             font-size: 0.875rem;
             margin-top: 5px;
         }
-        @media (max-width: 640px) {
-            .login-container {
-                padding: 1.5rem;
-            }
-            .form-title {
-                font-size: 1.5rem;
-            }
+        /* Estilos para mensajes flash de Flask */
+        .alert {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            text-align: left;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
         }
     </style>
 </head>
@@ -149,13 +167,23 @@
     <div class="login-container">
         <img src="{{ url_for('static', filename='images/login-image.jpg') }}" alt="Logo" class="logo">
 
-
-
         <h2 class="form-title text-gray-800">Iniciar Sesión</h2>
+
+        {# Bloque para mostrar los mensajes flash de Flask #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes mb-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <div id="messageBox" class="hidden text-center mb-4"></div>
         <div class="mb-5">
-            
-
             <input type="email" id="email" class="input-field text-sm" placeholder="Correo Electrónico" required>
             <p id="emailError" class="error-msg hidden">Correo inválido</p>
         </div>
@@ -169,7 +197,7 @@
             <label class="flex items-center">
                 <input type="checkbox" class="mr-2"> Recordarme
             </label>
-            <a href="{{ url_for('login.recuperar') }}" class="forgot-password">¿Olvidaste tu contraseña?</a>
+            <a href="{{ url_for('login.forgot_password') }}" class="forgot-password">¿Olvidaste tu contraseña?</a>
         </div>
         <button onclick="validateForm()" class="btn-primary flex items-center justify-center">
             <span>Iniciar Sesión</span>
@@ -185,64 +213,67 @@
             const themeButton = document.querySelector('.theme-toggle');
             themeButton.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
-        
+
         function togglePassword() {
             const password = document.getElementById('password');
             password.type = password.type === 'password' ? 'text' : 'password';
         }
-        
+
         async function validateForm() {
-    let email = document.getElementById('email').value;
-    let password = document.getElementById('password').value;
-    let messageBox = document.getElementById('messageBox');
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+            let messageBox = document.getElementById('messageBox');
 
-    messageBox.innerHTML = "";
-    messageBox.classList.add("hidden");
+            // Limpiar mensajes anteriores
+            messageBox.innerHTML = "";
+            messageBox.classList.add("hidden");
+            // Asegurarse de que los mensajes flash no estén visibles inicialmente si no hay nuevos
+            const flashedMessagesDiv = document.querySelector('.flashes');
+            if (flashedMessagesDiv) {
+                flashedMessagesDiv.innerHTML = "";
+            }
 
-    if (!email || !password) {
-        messageBox.classList.remove("hidden");
-        messageBox.classList.add("error-msg");
-        messageBox.innerHTML = "⚠️ Todos los campos son obligatorios.";
-        return false;
-    }
 
-    document.getElementById("spinner").style.display = "block";
+            if (!email || !password) {
+                messageBox.classList.remove("hidden");
+                messageBox.classList.add("error-msg");
+                messageBox.innerHTML = "⚠️ Todos los campos son obligatorios.";
+                return false;
+            }
 
-    try {
-        let response = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, contrasena: password })
-        });
+            document.getElementById("spinner").style.display = "block";
 
-        let result = await response.json();
+            try {
+                let response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, contrasena: password })
+                });
 
-        if (response.ok) {
-            messageBox.classList.remove("hidden");
-            messageBox.classList.add("success-msg");
-            messageBox.innerHTML = result.mensaje;
+                let result = await response.json();
 
-            // ✅ Redirigir a Dashboard después de 1 segundo
-            setTimeout(() => {
-                window.location.href = "/dashboard";  // Ajusta la ruta según tu estructura
-            }, 1000);
-        } else {
-            messageBox.classList.remove("hidden");
-            messageBox.classList.add("error-msg");
-            messageBox.innerHTML = result.mensaje;
+                if (response.ok) {
+                    messageBox.classList.remove("hidden");
+                    messageBox.classList.add("success-msg");
+                    messageBox.innerHTML = result.mensaje;
+
+                    // ✅ Redirigir a Dashboard después de 1 segundo
+                    setTimeout(() => {
+                        window.location.href = "/dashboard";  // Ajusta la ruta según tu estructura
+                    }, 1000);
+                } else {
+                    messageBox.classList.remove("hidden");
+                    messageBox.classList.add("error-msg");
+                    messageBox.innerHTML = result.mensaje;
+                }
+            } catch (error) {
+                messageBox.classList.remove("hidden");
+                messageBox.classList.add("error-msg");
+                messageBox.innerHTML = "Hubo un problema al iniciar sesión. Intenta nuevamente.";
+            } finally {
+                document.getElementById("spinner").style.display = "none";
+            }
         }
-    } catch (error) {
-        messageBox.classList.remove("hidden");
-        messageBox.classList.add("error-msg");
-        messageBox.innerHTML = "Hubo un problema al iniciar sesión. Intenta nuevamente.";
-    } finally {
-        document.getElementById("spinner").style.display = "none";
-    }
-}
-
     </script>
-
-  <!-- Comentario aquí    -->
-   <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
 </body>
 </html>
