@@ -10,6 +10,14 @@ import time
 from modelo import base_datos
 import psutil
 import redis
+# Dentro de controlador/login.py
+# ... otros imports ...
+from . import captura_paquetes # El '.' indica import relativo del mismo paquete/directorio
+from datetime import datetime # Necesaria para la función de obtener paquetes
+# Dentro de controlador/login.py
+# ... otros imports ...
+from . import captura_paquetes # El '.' indica import relativo del mismo paquete/directorio
+from datetime import datetime # Necesaria para la función de obtener paquetes
 
 from modelo.base_datos import (
     obtener_conexion,
@@ -23,6 +31,8 @@ from modelo.base_datos import (
     actualizar_contraseña_usuario
 )
 from modelo.eventos import registrar_evento
+
+
 
 # Define el Blueprint. El nombre del Blueprint es 'login'.
 login_bp = Blueprint('login', __name__, template_folder="../vista")
@@ -667,3 +677,9 @@ def ultimas_amenazas():
             cursor.close()
         if conn:
             conn.close()
+
+
+
+
+
+
