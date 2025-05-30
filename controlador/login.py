@@ -276,6 +276,9 @@ def crear_perfil():
             conexion.close()
 
 
+
+
+
 @login_bp.route('/perfiles', methods=['GET'])
 def obtener_perfiles():
     """Ruta para obtener todos los perfiles existentes."""
@@ -356,6 +359,54 @@ def inhabilitar_perfil(id_perfil):
             cursor.close()
         if conexion:
             conexion.close()
+
+
+from flask import request # Asegúrate de tener request importado
+
+# ... (otros imports)
+
+@login_bp.route('/toggle_perfil_estado/<int:id_perfil>', methods=['PUT'])
+def toggle_perfil_estado(id_perfil):
+    """Ruta para cambiar el estado de un perfil (activo/inactivo)."""
+    datos = request.get_json()
+    nuevo_estado = datos.get('estado') # El frontend enviará 'activo' o 'inactivo'
+
+    if nuevo_estado not in ['activo', 'inactivo']:
+        return jsonify({"status": "error", "mensaje": "❌ Estado no válido proporcionado."}), 400
+
+    conexion = obtener_conexion()
+    if not conexion:
+        return jsonify({"status": "error", "mensaje": "🚨 Error de conexión DB."}), 500
+    
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("UPDATE perfil SET estado = %s WHERE id_perfil = %s", (nuevo_estado, id_perfil))
+        conexion.commit()
+
+        accion_registrada = "Habilitación" if nuevo_estado == 'activo' else "Inhabilitación"
+        # Asumo que tienes 'session' y 'registrar_evento' disponibles
+        # from flask import session 
+        # from modelo.eventos import registrar_evento (o donde esté)
+        if 'usuario' in session:
+             user_name = session.get('usuario')
+        else:
+             user_name = "Sistema" # O algún valor por defecto si no hay sesión
+
+        registrar_evento(user_name, f"{accion_registrada} de perfil", f"Se cambió estado a '{nuevo_estado}' para perfil ID {id_perfil}")
+        
+        mensaje_exito = f"✅ Perfil puesto como '{nuevo_estado}' correctamente."
+        return jsonify({"status": "success", "mensaje": mensaje_exito})
+    except Exception as e:
+        # from flask import current_app (si quieres usar current_app.logger)
+        # current_app.logger.error(f"Error al cambiar estado del perfil {id_perfil}: {e}")
+        print(f"Error al cambiar estado del perfil {id_perfil}: {e}") # Log básico si no usas logger
+        conexion.rollback()
+        return jsonify({"status": "error", "mensaje": "❌ Error al actualizar el estado del perfil.", "detalle": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conexion: conexion.close()
+
+        
 
 @login_bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():

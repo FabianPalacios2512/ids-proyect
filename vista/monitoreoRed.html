@@ -221,30 +221,32 @@
       </div>
     </section>
 
-    <section class="table-container bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg shadow-lg overflow-hidden mb-6">
-      <table class="w-full text-sm text-left border-collapse">
-        <thead class="bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200 uppercase text-xs font-semibold">
-          <tr>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="idescanear_red">ID <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="iporigen">IP Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="ipdestino">IP Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors hidden md:table-cell" data-sort-key="mac_origen">MAC Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors hidden md:table-cell" data-sort-key="mac_destino">MAC Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="puerto_origen">P. Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="puerto_destino">P. Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="protocolo">Protocolo <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-right" data-sort-key="tamano">Tamaño <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="fecha_captura">Fecha <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="ttl">TTL <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
-            <th scope="col" class="p-3 text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="packetTable" class="text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr><td colspan="12" class="text-center p-4">Cargando datos o inicia la captura...</td></tr>
-        </tbody>
-      </table>
-       <div id="noResultsMessage" class="text-center p-4 text-gray-500 dark:text-gray-400 hidden">No se encontraron paquetes que coincidan con los filtros.</div>
-    </section>
+    <section class="table-container bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg shadow-lg mb-6"> 
+      <div class="overflow-x-auto">
+        <div class="max-h-96 overflow-y-auto">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead class="bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200 uppercase text-xs font-semibold sticky top-0 z-10">
+              <tr>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="idescanear_red">ID <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="iporigen">IP Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="ipdestino">IP Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors hidden md:table-cell" data-sort-key="mac_origen">MAC Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors hidden md:table-cell" data-sort-key="mac_destino">MAC Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="puerto_origen">P. Origen <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="puerto_destino">P. Destino <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="protocolo">Protocolo <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-right" data-sort-key="tamano">Tamaño <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors" data-sort-key="fecha_captura">Fecha <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors text-center" data-sort-key="ttl">TTL <i data-lucide="arrow-up-down" class="inline-block w-3 h-3 ml-1"></i></th>
+                <th scope="col" class="p-3 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="packetTable" class="text-gray-700 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr><td colspan="12" class="text-center p-4">Cargando datos o inicia la captura...</td></tr>
+              </tbody>
+          </table>
+        </div> </div> <div id="noResultsMessage" class="text-center p-4 text-gray-500 dark:text-gray-400 hidden">No se encontraron paquetes que coincidan con los filtros.</div>
+      </section>
 
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg">
