@@ -128,7 +128,7 @@ CREATE TABLE `eventos` (
   `usuario` varchar(100) DEFAULT NULL,
   `fecha_evento` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id_evento`)
-) ENGINE=InnoDB AUTO_INCREMENT=327 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=361 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -464,7 +464,41 @@ INSERT INTO `eventos` VALUES
 (323,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 06:08:28'),
 (324,'Acción del sistema','Inicio de sesión exitoso','Mariangel','2025-05-30 06:14:27'),
 (325,'Enlace enviado a mbejarano844@gmail.com','Solicitud de Restablecimiento de Contraseña','mbejarano844@gmail.com','2025-05-30 06:19:00'),
-(326,'Acción del sistema','Inicio de sesión exitoso','Mariangel','2025-05-30 06:19:55');
+(326,'Acción del sistema','Inicio de sesión exitoso','Mariangel','2025-05-30 06:19:55'),
+(327,'Acción del sistema','Inicio de sesión exitoso','Gloria ','2025-05-31 11:27:22'),
+(328,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Gloria ','2025-05-31 11:28:36'),
+(329,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Gloria ','2025-05-31 11:29:50'),
+(330,'Cierre de sesión','Logout','Gloria ','2025-05-31 11:33:19'),
+(331,'Enlace enviado a fpaternina12@gmail.com','Solicitud de Restablecimiento de Contraseña','fpaternina12@gmail.com','2025-05-31 11:33:30'),
+(332,'Acción del sistema','Inicio de sesión exitoso','Fabian','2025-05-31 11:36:21'),
+(333,'Se creó el usuario: wqqwq hjasio','Creación de usuario','Fabian','2025-05-31 11:37:43'),
+(334,'Acción del sistema','Inicio de sesión exitoso','Fabian','2025-05-31 11:39:16'),
+(335,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 11:56:29'),
+(336,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 12:47:33'),
+(337,'Se creó el usuario: dfabian PATERNINA','Creación de usuario','Fabian','2025-05-31 12:57:15'),
+(338,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 12:59:12'),
+(339,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 12:59:20'),
+(340,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 13:05:34'),
+(341,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 13:29:31'),
+(342,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 13:43:00'),
+(343,'Acción del sistema','Inicio de sesión exitoso','Fabian','2025-05-31 13:49:20'),
+(344,'Se creó el usuario: Fabian PATERNINA','Creación de usuario','Fabian','2025-05-31 14:17:45'),
+(345,'Se creó el usuario: Fabian PATERNINA','Creación de usuario',NULL,'2025-05-31 14:30:50'),
+(346,'Actualizó al usuario con ID: 25','Actualización de usuario',NULL,'2025-05-31 14:32:59'),
+(347,'Cierre de sesión','Logout','Fabian','2025-05-31 14:33:25'),
+(348,'Enlace enviado a fpaternina12@gmail.com','Solicitud de Restablecimiento de Contraseña','fpaternina12@gmail.com','2025-05-31 14:36:37'),
+(349,'Acción del sistema','Inicio de sesión exitoso','Fabian','2025-05-31 14:37:36'),
+(350,'Actualizó al usuario con ID: 25','Actualización de usuario',NULL,'2025-05-31 14:41:31'),
+(351,'Cierre de sesión','Logout','Fabian','2025-05-31 14:41:46'),
+(352,'Enlace enviado a fpaternina12@gmail.com','Solicitud de Restablecimiento de Contraseña','fpaternina12@gmail.com','2025-05-31 14:43:53'),
+(353,'Enlace enviado a fpaternina12@gmail.com','Solicitud de Restablecimiento de Contraseña','fpaternina12@gmail.com','2025-05-31 14:55:36'),
+(354,'Acción del sistema','Inicio de sesión exitoso','Fabian','2025-05-31 14:56:30'),
+(355,'Actualizó al usuario con ID: 25','Actualización de usuario',NULL,'2025-05-31 14:58:12'),
+(356,'Cierre de sesión','Logout','Fabian','2025-05-31 14:58:59'),
+(357,'Usuario fpaternina12@gmail.com inició sesión.','Inicio de sesión exitoso','Fabian','2025-05-31 15:04:45'),
+(358,'Se creó el usuario: Fabian PATERNINA','Creación de usuario',NULL,'2025-05-31 15:05:41'),
+(359,'Cierre de sesión','Logout','Fabian','2025-05-31 15:05:43'),
+(360,'Usuario fabian@gmail.com inició sesión.','Inicio de sesión exitoso','Fabian','2025-05-31 15:06:06');
 /*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -660,6 +694,7 @@ CREATE TABLE `usuario` (
   `telefono` varchar(15) NOT NULL,
   `email` varchar(100) NOT NULL,
   `contrasena` varchar(255) NOT NULL,
+  `salt_contrasena` varchar(32) DEFAULT NULL,
   `ultimo_acceso` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `id_perfil` int(11) NOT NULL,
   `estado` varchar(20) DEFAULT NULL,
@@ -667,7 +702,7 @@ CREATE TABLE `usuario` (
   UNIQUE KEY `email` (`email`),
   KEY `id_perfil` (`id_perfil`),
   CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`id_perfil`) REFERENCES `perfil` (`id_perfil`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -678,12 +713,26 @@ LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
 set autocommit=0;
 INSERT INTO `usuario` VALUES
-(10,'Gloria ','Paterina','3134540533','fpaternina12@gmail.comeee','scrypt:32768:8:1$lZjncGFfkGgplJJZ$730a7ed2b100f6f6a2c072dda47647af1928bc2decdc15f701556545e72781fc675175cfad92480d55b7417f23ab90cb9e33c83da9c91a04d296e836fbbc5ad0','2025-05-30 03:15:21',1,'inactivo'),
-(11,'Maria Jose ','Gonzalez','3134540533','mariaberriogonzalez09@gmail.com','scrypt:32768:8:1$mYiKWqFlEE3OMX9f$72477ff2f023e53db2365f48883446e084ba57c7abd76b8c9065b00122487286c9fba0be9a53fbb4ba874e69c7046dfc4ce8b244fdd6f20bba41553abd077fca','2025-05-30 03:15:21',8,'activo'),
-(16,'Gloria','Lora','a','d@gmail.com','scrypt:32768:8:1$WCd8IfWe9l49XqRg$6e97e07377099d5468d14f467c9d294612bfbceaf3716bea3a2318acb442fcd1f2a6d0f40a6f723cd062e07030e4ce17e0f0a407a3cc25ecd12f41b9ba1aaa28','2025-05-30 03:15:22',1,'activo'),
-(20,'Fabian','PATERNINA','3134540533','nuevoadmin@ejemplo.com','scrypt:32768:8:1$cLgyIlousdLkxAKG$46973f7cd6b92c6de58f9af7142defacd11925846b2d5df3d7902c44ad02b1eaf1107278f901e36354d8764cf48034cb845b428f5a1a7c637ec07732476cf905','2025-05-30 03:15:22',1,'activo'),
-(22,'1212121','121212','12121212','fpaternina12@gmail.comeee11','scrypt:32768:8:1$NITYVrkDHNh4EwXi$fc43fc78b09c6dc4f2f4c725d5c43a62165c628b567b6bb144813367c8ad9e068807aa8266ba02a1e3bfd887d7e56fce5d9eb10907dd2fa8c821d040feb29d96','2025-05-30 03:15:22',10,'activo'),
-(23,'Mariangel','Bejarano','3136052434','mbejarano844@gmail.com','scrypt:32768:8:1$wCMu5X6WuaU1UwZG$bdf11d00f17d415058b3acd446346372095fde80886689ca68cd522279d5bf618beb12eeb919dca7c1e808740691e0e81729f3f224dfa7d1f850690a2748acb0','2025-05-30 06:19:45',1,'activo');
+(10,'Gloria ','Paterina','3134540533','fpaternina12@gmail.comeee','scrypt:32768:8:1$lZjncGFfkGgplJJZ$730a7ed2b100f6f6a2c072dda47647af1928bc2decdc15f701556545e72781fc675175cfad92480d55b7417f23ab90cb9e33c83da9c91a04d296e836fbbc5ad0','','2025-05-30 03:15:21',1,'inactivo'),
+(11,'Maria Jose ','Gonzalez','3134540533','mariaberriogonzalez09@gmail.com','scrypt:32768:8:1$mYiKWqFlEE3OMX9f$72477ff2f023e53db2365f48883446e084ba57c7abd76b8c9065b00122487286c9fba0be9a53fbb4ba874e69c7046dfc4ce8b244fdd6f20bba41553abd077fca','','2025-05-30 03:15:21',8,'activo'),
+(16,'Gloria','Lora','a','d@gmail.com','scrypt:32768:8:1$WCd8IfWe9l49XqRg$6e97e07377099d5468d14f467c9d294612bfbceaf3716bea3a2318acb442fcd1f2a6d0f40a6f723cd062e07030e4ce17e0f0a407a3cc25ecd12f41b9ba1aaa28','','2025-05-30 03:15:22',1,'activo'),
+(20,'Fabian','PATERNINA','3134540533','nuevoadmin@ejemplo.com','scrypt:32768:8:1$cLgyIlousdLkxAKG$46973f7cd6b92c6de58f9af7142defacd11925846b2d5df3d7902c44ad02b1eaf1107278f901e36354d8764cf48034cb845b428f5a1a7c637ec07732476cf905','','2025-05-30 03:15:22',1,'activo'),
+(22,'1212121','121212','12121212','fpaternina12@gmail.comeee11','scrypt:32768:8:1$NITYVrkDHNh4EwXi$fc43fc78b09c6dc4f2f4c725d5c43a62165c628b567b6bb144813367c8ad9e068807aa8266ba02a1e3bfd887d7e56fce5d9eb10907dd2fa8c821d040feb29d96','','2025-05-30 03:15:22',10,'activo'),
+(23,'Mariangel','Bejarano','3136052434','mbejarano844@gmail.com','scrypt:32768:8:1$wCMu5X6WuaU1UwZG$bdf11d00f17d415058b3acd446346372095fde80886689ca68cd522279d5bf618beb12eeb919dca7c1e808740691e0e81729f3f224dfa7d1f850690a2748acb0','','2025-05-30 06:19:45',1,'activo'),
+(24,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.comeeeee','123456','','2025-05-31 11:28:36',1,'activo'),
+(25,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.com','scrypt:32768:8:1$gthtdy60uuOHSfzE$4438c1e654bb0969206d898092394648b8c61ea09fcc05d8e5f4e851effd0aa49a5546aacf7ab8205f6284ca21b3ee621edd930460da5dfec324938fec7bc6e9','','2025-05-31 15:04:45',1,'Activo'),
+(26,'wqqwq','hjasio','1212121','asemaria@gmail.com','123456','','2025-05-31 11:37:43',1,'activo'),
+(28,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.comeee22','Fa1001504182.','','2025-05-31 11:56:29',8,'activo'),
+(43,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.comeeeddd','Hasjiasj8.','','2025-05-31 12:47:33',1,'activo'),
+(50,'dfabian','PATERNINA','3134540533','fpaternina12@gmail.comeeeeee','DASASSAa1.','','2025-05-31 12:57:15',1,'activo'),
+(52,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.comeeeeeee','ffffff111D.','','2025-05-31 12:59:12',1,'activo'),
+(53,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.comeeeeeee111','ffffff111D.','','2025-05-31 12:59:20',1,'activo'),
+(57,'Fabian','PATERNINA','3134540533','d@gmail.comS','asasasA1.','','2025-05-31 13:05:34',1,'activo'),
+(59,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.comeee11w','DASASASa1.','','2025-05-31 13:29:31',1,'activo'),
+(60,'Fabian','PATERNINA','3134540533','fpaternina12@gmail.comeeeS','DDSDSDS212-.f','','2025-05-31 13:43:00',1,'activo'),
+(61,'Fabian','PATERNINA','3134540533','admin@ids.com','fffffAAA1.','','2025-05-31 14:17:45',8,'activo'),
+(62,'Fabian','PATERNINA','3134540533','fppcuenta5@gmail.com','58f0932c58adb0e65f967106492fe6d27893fc1fc7885fd9290c0d66703ed08288d5e7629fa3b23aa1b2ff4f1469233718bcdbd28f600ecd61a605ea310d4d53','da986bbc9d6829415f3d9e4b3e49c812','2025-05-31 14:30:50',1,'activo'),
+(63,'Fabian','PATERNINA','3134540533','fabian@gmail.com','scrypt:32768:8:1$y1OicP/7sB69poRz$03f34bec6e44b03c9d66a625f352a39e0cab70811caaf97ff0436a8adb55a2669070ec098115724cc0bbf9a2c08c47b612b3eaa6d52f5b0cf4eebfc90e17f321','','2025-05-31 15:06:06',1,'activo');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -697,4 +746,4 @@ commit;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2025-05-30  2:26:38
+-- Dump completed on 2025-05-31 10:07:55

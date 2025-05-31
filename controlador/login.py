@@ -10,6 +10,9 @@ import time
 from modelo import base_datos
 import psutil
 import redis
+import scrypt
+import base64
+# ... tus otros imports como Blueprint, request, jsonify, etc.
 # Dentro de controlador/login.py
 # ... otros imports ...
 from . import captura_paquetes # El '.' indica import relativo del mismo paquete/directorio
@@ -116,6 +119,9 @@ def obtener_ip_cliente():
         return request.headers.get('X-Forwarded-For').split(',')[0]
     return request.remote_addr
 
+
+
+
 @login_bp.route('/login', methods=['POST'])
 def login():
     """Maneja las solicitudes de inicio de sesión."""
@@ -123,7 +129,6 @@ def login():
     key_intentos = f"login_intentos:{ip}"
     key_bloqueo = f"login_bloqueado:{ip}"
 
-    # Verifica si la IP está bloqueada por demasiados intentos fallidos
     if r.exists(key_bloqueo):
         tiempo_restante = r.ttl(key_bloqueo)
         return jsonify({
@@ -133,7 +138,7 @@ def login():
 
     datos = request.json
     email = datos.get('email')
-    contrasena_texto_plano = datos.get('contrasena') # Contraseña en texto plano del usuario
+    contrasena_texto_plano = datos.get('contrasena')
 
     if not email or not contrasena_texto_plano:
         return jsonify({"status": "error", "mensaje": "⚠️ Por favor, completa todos los campos."}), 400
@@ -144,17 +149,29 @@ def login():
 
     cursor = conexion.cursor(dictionary=True)
     try:
-        # Selecciona los datos del usuario, incluyendo la contraseña hasheada (columna 'contrasena')
-        cursor.execute("SELECT id_usuario, nombre, email, contrasena, id_perfil FROM usuario WHERE email = %s", (email,))
+        cursor.execute("SELECT id_usuario, nombre, email, contrasena, id_perfil FROM usuario WHERE email = %s AND estado = 'activo'", (email,)) # Asegúrate que el usuario esté activo
         usuario_db = cursor.fetchone()
 
-        # Verifica si el usuario existe y si la contraseña hasheada coincide con la ingresada
-        if usuario_db and check_password_hash(usuario_db['contrasena'], contrasena_texto_plano):
-            r.delete(key_intentos) # Login exitoso -> limpiar intentos fallidos de Redis
+        # ----- MODIFICACIÓN IMPORTANTE AQUÍ -----
+        # Ya no usamos check_password_hash, usamos nuestra función personalizada
+        if usuario_db and verificar_contrasena_scrypt(contrasena_texto_plano, usuario_db['contrasena']):
+        # -----------------------------------------
+            r.delete(key_intentos)
             session['usuario'] = usuario_db['nombre']
-            session['id_usuario'] = usuario_db['id_usuario'] # Guarda el ID del usuario en la sesión
+            session['id_usuario'] = usuario_db['id_usuario']
             session['perfil'] = usuario_db['id_perfil']
-            registrar_evento(usuario_db['nombre'], "Inicio de sesión exitoso")
+            # Actualizar ultimo_acceso
+            try:
+                cursor_update = conexion.cursor() # Usar un nuevo cursor si el anterior podría tener resultados pendientes
+                cursor_update.execute("UPDATE usuario SET ultimo_acceso = NOW() WHERE id_usuario = %s", (usuario_db['id_usuario'],))
+                conexion.commit()
+                cursor_update.close()
+            except Exception as e_update:
+                print(f"Error al actualizar ultimo_acceso: {e_update}")
+                # No fallar el login por esto, pero registrarlo
+
+            registrar_evento(usuario_db['nombre'], "Inicio de sesión exitoso", f"Usuario {email} inició sesión.")
+
 
             return jsonify({
                 "status": "success",
@@ -163,7 +180,7 @@ def login():
                 "perfil": usuario_db['id_perfil']
             }), 200
         else:
-            # Lógica para manejar intentos fallidos y bloqueo de IP
+            # (Tu lógica de intentos fallidos y bloqueo de IP sigue igual)
             intentos = r.incr(key_intentos)
             if intentos == 1:
                 r.expire(key_intentos, TIEMPO_BLOQUEO)
@@ -176,10 +193,15 @@ def login():
                     "mensaje": f"❌ Demasiados intentos fallidos. IP bloqueada por {TIEMPO_BLOQUEO} segundos."
                 }), 429
             else:
+                # Registrar intento fallido si el usuario existe pero la contraseña no
+                if usuario_db: # El email existía pero la contraseña fue incorrecta
+                     registrar_evento(email, "Intento de inicio de sesión fallido", f"Contraseña incorrecta para {email}.")
+                # Si usuario_db es None, el email no fue encontrado.
+                # El mensaje genérico de "Credenciales incorrectas" es bueno para no revelar si el email existe.
                 return jsonify({
                     "status": "error",
                     "mensaje": "❌ Credenciales incorrectas.",
-                    "intentos_restantes": MAX_INTENTOS - intentos
+                    "intentos_restantes": MAX_INTENTOS - intentos if usuario_db else MAX_INTENTOS # Ajustar si el email no existe
                 }), 401
     except Exception as e:
         print("Error al iniciar sesión:", e)
@@ -194,6 +216,67 @@ def login():
             cursor.close()
         if conexion:
             conexion.close()
+
+
+
+
+
+# Esta constante debe coincidir con la usada al crear los hashes (64 bytes)
+# que resultan en 128 caracteres hexadecimales.
+SCRYPT_VERIFY_BUFLEN = 64 # Asegúrate que esta es la longitud del derived key en bytes
+
+def verificar_contrasena_scrypt(contrasena_ingresada_str, hash_almacenado_str):
+    """
+    Verifica una contraseña ingresada contra un hash almacenado en el formato
+    scrypt:N:r:p$salt_base64$derived_key_hex
+    """
+    if not hash_almacenado_str or not isinstance(hash_almacenado_str, str) or '$' not in hash_almacenado_str:
+        print(f"Hash almacenado parece inválido o no es el formato esperado: {hash_almacenado_str}")
+        return False
+    try:
+        parts = hash_almacenado_str.split('$')
+        if len(parts) != 3:
+            print(f"Formato de hash incorrecto (no 3 partes): {hash_almacenado_str}")
+            return False
+
+        param_str, salt_b64_str, stored_derived_key_hex = parts
+
+        algo_param_parts = param_str.split(':')
+        if len(algo_param_parts) != 4 or algo_param_parts[0].lower() != 'scrypt':
+            print(f"Formato de hash incorrecto (sección de params): {param_str}")
+            return False
+
+        N = int(algo_param_parts[1])
+        r = int(algo_param_parts[2])
+        p = int(algo_param_parts[3])
+
+        salt_bytes = base64.b64decode(salt_b64_str)
+
+        nuevo_hash_derivado_bytes = scrypt.hash(
+            contrasena_ingresada_str.encode('utf-8'),
+            salt_bytes,
+            N=N,
+            r=r,
+            p=p,
+            buflen=SCRYPT_VERIFY_BUFLEN
+        )
+        nuevo_hash_derivado_hex = nuevo_hash_derivado_bytes.hex()
+
+        # Comparación segura (aunque para scrypt el timing es menos crítico)
+        # Usaremos una comparación simple por ahora, pero hmac.compare_digest es más robusto
+        # import hmac
+        # return hmac.compare_digest(nuevo_hash_derivado_hex.encode('ascii'), stored_derived_key_hex.encode('ascii'))
+        if nuevo_hash_derivado_hex == stored_derived_key_hex:
+            return True
+        else:
+            # print(f"Debug: Hashes no coinciden. Calculado: {nuevo_hash_derivado_hex}, Almacenado: {stored_derived_key_hex}")
+            return False
+
+    except Exception as e:
+        print(f"Error durante la verificación de contraseña: {e} (Hash: {hash_almacenado_str})")
+        return False
+
+
 
 
 @login_bp.route('/registrar_nuevo_usuario', methods=['POST'])
