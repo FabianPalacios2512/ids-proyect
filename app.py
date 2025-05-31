@@ -11,6 +11,7 @@ from controlador.dispositivos import dispositivos_bp
 from controlador.reportes import reportes_bp
 from controlador.alertas_acciones_controlador import alertas_acciones_bp
 
+
 app = Flask(__name__)
 
 # --- Configuración de SECRET_KEY ---
