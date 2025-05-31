@@ -49,7 +49,7 @@ except ImportError as e:
 
 alertas_acciones_bp = Blueprint('alertas_acciones', __name__, url_prefix='/alerta')
 
-# --- NUEVA FUNCIÓN ---
+# --- FUNCIÓN MODIFICADA ---
 def obtener_estado_actual_dispositivo(target_ip):
     """
     Consulta el estado 'bloqueado' de un dispositivo en la BD.
@@ -72,7 +72,10 @@ def obtener_estado_actual_dispositivo(target_ip):
             logger.error(f"DB_GET_STATUS: No se pudo obtener conexión a la BD para IP {target_ip}.")
             return None # Error de conexión
 
-        cursor = conexion.cursor()
+        # ***** LÍNEA MODIFICADA *****
+        cursor = conexion.cursor(buffered=True) 
+        # ***** FIN DE LÍNEA MODIFICADA *****
+        
         sql_select = "SELECT bloqueado FROM dispositivos WHERE direccion_ip = %s"
         cursor.execute(sql_select, (target_ip,))
         resultado = cursor.fetchone()
@@ -83,7 +86,6 @@ def obtener_estado_actual_dispositivo(target_ip):
         else:
             logger.warning(f"DB_GET_STATUS: IP {target_ip} no encontrada en la tabla dispositivos.")
             # Mantenemos estado_bloqueado = None para indicar que no se encontró
-            # O podría devolverse un valor específico si se prefiere distinguir "no encontrado" de "error DB"
             
     except (mariadb.Error, mysql.connector.Error) as db_err:
         logger.error(f"DB_GET_STATUS: Error de base de datos al obtener estado para {target_ip}: {db_err}")
@@ -106,7 +108,7 @@ def obtener_estado_actual_dispositivo(target_ip):
     
     return estado_bloqueado
 
-# --- FUNCIÓN EXISTENTE (MODIFICADA) ---
+# --- FUNCIÓN EXISTENTE (SIN CAMBIOS AQUÍ, PERO BENEFICIADA SI LLAMA A LA VERSIÓN CORREGIDA DE ARRIBA) ---
 def actualizar_estado_bloqueado_db(target_ip, bloqueado_status_int):
     """
     Actualiza el estado 'bloqueado' (0 o 1) en la tabla dispositivos.
@@ -125,7 +127,8 @@ def actualizar_estado_bloqueado_db(target_ip, bloqueado_status_int):
             logger.error(f"DB_UPDATE_BLOCKED: No se pudo obtener conexión a la BD para actualizar {target_ip}.")
             return False
 
-        cursor = conexion.cursor() 
+        cursor = conexion.cursor() # Si esta función hiciera SELECTs directos que causaran problemas, también se podría poner buffered=True aquí.
+                                   # Pero el problema principal está en la función que es llamada.
 
         logger.info(f"DB_UPDATE_BLOCKED: Intentando actualizar 'bloqueado' a {bloqueado_status_int} para IP {target_ip}")
         sql_update = "UPDATE dispositivos SET bloqueado = %s WHERE direccion_ip = %s"
@@ -138,14 +141,13 @@ def actualizar_estado_bloqueado_db(target_ip, bloqueado_status_int):
             operacion_exitosa = True
         else:
             # Si no afectó filas, verificar si es porque ya estaba en ese estado
-            estado_actual_post_intento = obtener_estado_actual_dispositivo(target_ip)
+            estado_actual_post_intento = obtener_estado_actual_dispositivo(target_ip) # Esta llamada ya usa la versión corregida
             if estado_actual_post_intento == bloqueado_status_int:
                 logger.info(f"DB_UPDATE_BLOCKED: 0 filas afectadas, pero el estado para {target_ip} ya es {bloqueado_status_int}.")
-                operacion_exitosa = True # Considerar éxito si ya estaba en el estado deseado
+                operacion_exitosa = True 
             else:
                 logger.warning(f"DB_UPDATE_BLOCKED: 0 filas afectadas al actualizar {target_ip} y el estado no es el deseado. ¿Existe la IP?")
-                # operacion_exitosa sigue False
-
+                
     except (mariadb.Error, mysql.connector.Error) as db_err: 
         logger.error(f"DB_UPDATE_BLOCKED: Error de base de datos al actualizar {target_ip}: {db_err}")
         if conexion:
@@ -183,35 +185,25 @@ def bloquear_ip_desde_alerta(target_ip):
         logger.warning("BLOQUEO_IP_VALIDATION: Módulos de ataque no disponibles.")
         return jsonify({"status": "error", "mensaje": "❌ Funcionalidad de ataque/bloqueo no disponible en el servidor."}), 503
 
-    # --- INICIO DE LA NUEVA VALIDACIÓN ---
-    estado_actual = obtener_estado_actual_dispositivo(target_ip)
+    estado_actual = obtener_estado_actual_dispositivo(target_ip) # Esta llamada usa la versión corregida
 
     if estado_actual == 1:
         mensaje_ya_bloqueado = f"ℹ️ El dispositivo {target_ip} ya se encuentra bloqueado."
         logger.info(f"BLOQUEO_IP_VALIDATION: {mensaje_ya_bloqueado}")
-        return jsonify({"status": "info", "mensaje": mensaje_ya_bloqueado}), 200 # 200 OK con mensaje informativo
+        return jsonify({"status": "info", "mensaje": mensaje_ya_bloqueado}), 200 
     
     if estado_actual is None:
-        # La IP no está en la tabla 'dispositivos'. Puede que quieras bloquearla igualmente
-        # a nivel de red y luego decidir si la añades a la tabla o no.
-        # Por ahora, se registrará la advertencia desde obtener_estado_actual_dispositivo
-        # y el flujo continuará para bloquear a nivel de red.
-        # La actualización de DB (actualizar_estado_bloqueado_db) fallará en afectar filas
-        # si la IP no existe, lo cual ya se maneja.
         logger.warning(f"BLOQUEO_IP_VALIDATION: IP {target_ip} no encontrada en la tabla dispositivos. Se intentará bloqueo de red.")
-    # --- FIN DE LA NUEVA VALIDACIÓN ---
-
-
+    
     logger.info(f"BLOQUEO_IP_EXEC: Procediendo con el intento de bloqueo para IP: {target_ip} (Estado actual en BD: {estado_actual})")
 
     if not initialize_arp_network_info(): 
         logger.error("BLOQUEO_IP_EXEC: Fallo al inicializar la información de red para arp_manager.")
-        # Continuar con el bloqueo de iptables si es posible.
-
+        
     ipv4_blocked_iptables = block_ipv4(target_ip)
     ipv6_blocked_iptables = False 
-    mitm_iniciado = start_full_attack(target_ip) # Esta función debería tener su propia lógica para no sobre-escribir o causar conflicto si ya está activo.
-                                                 # Sin embargo, nuestra validación previa ya debería evitar llamarla si está bloqueado en BD.
+    mitm_iniciado = start_full_attack(target_ip) 
+    
     if not mitm_iniciado:
         logger.warning(f"BLOQUEO_IP_EXEC: Fallo al iniciar MiTM para {target_ip}, pero se intentará bloqueo con iptables.")
 
@@ -228,14 +220,12 @@ def bloquear_ip_desde_alerta(target_ip):
 
     db_updated = False 
     if ipv4_blocked_iptables or ipv6_blocked_iptables or mitm_iniciado:
-        # Solo actualizamos si alguna acción de red fue (aparentemente) exitosa
         logger.info(f"BLOQUEO_IP_EXEC: Al menos una acción de bloqueo de red para {target_ip} tuvo éxito. Intentando actualizar BD.")
         db_updated = actualizar_estado_bloqueado_db(target_ip, 1) 
         if not db_updated:
             logger.error(f"BLOQUEO_IP_EXEC: El bloqueo de red para {target_ip} pudo haber funcionado, pero falló la actualización en BD o la IP no existe/ya estaba actualizada.")
     else:
         logger.error(f"BLOQUEO_IP_EXEC: Fallaron todos los métodos de bloqueo (iptables y MiTM) para {target_ip}.")
-        # Si las acciones de red fallaron, no tiene sentido devolver 200
         return jsonify({"status": "error", "mensaje": f"❌ Falló el bloqueo completo a nivel de red para {target_ip}."}), 500
 
     mensajes_exito = []
@@ -247,26 +237,19 @@ def bloquear_ip_desde_alerta(target_ip):
     if mensajes_exito:
         final_msg_parts.append(f"Acciones de red para {target_ip}: {', '.join(mensajes_exito)}.")
     else:
-        # Esto no debería pasar si llegamos aquí porque la condición anterior (if ipv4_blocked_iptables or ...)
-        # habría resultado en un error 500. Pero por si acaso:
         final_msg_parts.append(f"Ninguna acción de bloqueo de red tuvo éxito explícito para {target_ip}.")
 
     if db_updated:
         final_msg_parts.append("Estado en BD actualizado a bloqueado.")
     else:
-        # Si llegamos aquí, significa que alguna acción de red tuvo éxito, pero la BD no se actualizó
-        # (o la IP no existe en la tabla, o ya estaba marcada como bloqueada, lo cual la validación inicial ya debería haber capturado).
-        # La función actualizar_estado_bloqueado_db ya loggea los detalles.
         final_msg_parts.append("El estado en BD no se actualizó (podría no existir la IP en tabla o ya estar marcada).")
         
     final_msg = " ".join(final_msg_parts)
     logger.info(f"BLOQUEO_IP_EXEC: Resultado final: {final_msg}")
     
-    # Si al menos una acción de red tuvo éxito, consideramos la operación general como exitosa.
     if mensajes_exito:
         return jsonify({"status": "success", "mensaje": final_msg }), 200
     else:
-        # Este caso es redundante debido al chequeo previo, pero por seguridad:
         return jsonify({"status": "error", "mensaje": final_msg}), 500
 
 
