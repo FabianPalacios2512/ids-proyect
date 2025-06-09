@@ -1,112 +1,92 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Inicializar iconos de Lucide
+// --- Variable global para guardar el ID del usuario que inició sesión ---
+let idUsuarioLogueado = null;
+
+// --- FUNCIÓN PARA OBTENER LOS DATOS DE SESIÓN DEL USUARIO ---
+async function obtenerSesionUsuarioActual() {
+    try {
+        const response = await fetch('/usuarios/perfil-actual'); 
+        if (!response.ok) throw new Error('No se pudo verificar la sesión del usuario.');
+        const data = await response.json();
+        // Verificamos que la respuesta contenga ambos datos
+        if (data && typeof data.perfil !== 'undefined' && typeof data.id_usuario !== 'undefined') {
+            return data; // Devuelve el objeto completo, ej: { perfil: 1, id_usuario: 5 }
+        } else {
+            throw new Error('Respuesta de sesión inválida desde el servidor.');
+        }
+    } catch (error) {
+        console.error("Error crítico de autenticación:", error);
+        throw error;
+    }
+}
+
+
+// --- FUNCIÓN PARA OCULTAR ELEMENTOS SEGÚN EL PERFIL ---
+function aplicarPermisosVisuales(idPerfil) {
+    // El perfil de Administrador es 1
+    if (idPerfil !== 1) {
+        mostrarToast('No tienes permisos para acceder a esta sección.', 'error');
+
+        const formUsuario = document.getElementById('formulario-usuario');
+        const divTablaUsuarios = document.getElementById('tabla-usuarios-container'); 
+
+        if (formUsuario) formUsuario.style.display = 'none';
+        if (divTablaUsuarios) divTablaUsuarios.style.display = 'none';
+        
+        const navLinkUsuarios = document.querySelector('#nav-usuarios');
+        if (navLinkUsuarios) navLinkUsuarios.style.display = 'none';
+
+        return false;
+    }
+    return true; 
+}
+
+
+// --- EVENTO PRINCIPAL QUE SE EJECUTA AL CARGAR LA PÁGINA ---
+document.addEventListener("DOMContentLoaded", async function () {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
 
-    // --- Carga inicial de usuarios y perfiles ---
-    cargarUsuarios();
-    cargarPerfiles();
-    // Carga los event listeners para todas las validaciones instantáneas
-    cargarEventListenersValidacion();
+    try {
+        const sesion = await obtenerSesionUsuarioActual();
+        idUsuarioLogueado = sesion.id_usuario; // Guardamos el ID en la variable global
+        
+        const esAdmin = aplicarPermisosVisuales(sesion.perfil);
 
-    // --- Manejo del Envío del Formulario ---
-    document.getElementById("formulario-usuario").addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const esNombreValido = validarNombre();
-        const esApellidoValido = validarApellido();
-        const esEmailFormatoValido = validarEmailFormato(); // Solo formato aquí
-        const esTelefonoValido = validarTelefono();
-        const esPerfilValido = validarPerfil();
-        const esContrasenaValida = validarContrasena();
-
-        if (!esNombreValido || !esApellidoValido || !esEmailFormatoValido ||
-            !esTelefonoValido || !esPerfilValido || !esContrasenaValida) {
-            mostrarToast('Por favor, corrija los errores de formato en el formulario antes de guardar.', 'error');
-            return;
+        if (!esAdmin) {
+            return; 
         }
 
-        const id = document.getElementById("id_usuario").value;
-        const datos = {
-            nombre: document.getElementById("nombre").value,
-            apellido: document.getElementById("apellido").value,
-            telefono: document.getElementById("telefono").value,
-            email: document.getElementById("email").value,
-            contrasena: document.getElementById("contrasena")?.value || "", // Se envía texto plano
-            id_perfil: document.getElementById("perfil").value,
-            estado: document.getElementById("estado")?.value || "Activo"
-        };
+        // --- El resto del código solo se ejecuta si el usuario ES Administrador ---
+        cargarUsuarios();
+        cargarPerfiles();
+        cargarEventListenersValidacion();
 
-        const url = id ? `/usuarios/actualizar/${id}` : "/usuarios/crear";
-        const metodo = id ? "PUT" : "POST";
+        const formulario = document.getElementById("formulario-usuario");
+        if(formulario) {
+            formulario.addEventListener("submit", manejarEnvioFormulario);
+        }
 
-        fetch(url, {
-            method: metodo,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(datos)
-        })
-        .then(async res => { // <--- MARCADO COMO ASYNC
-            if (!res.ok) {
-                let errorData;
-                let errorMessageFromServer;
-                try {
-                    // Intenta parsear como JSON primero, clonando la respuesta
-                    errorData = await res.clone().json(); 
-                    errorMessageFromServer = errorData.mensaje || JSON.stringify(errorData); // Usa el mensaje o el objeto stringifeado
-                } catch (e) {
-                    // Si falla el parseo JSON (ej. es HTML de error 500), lee el cuerpo original como texto
-                    errorMessageFromServer = await res.text(); 
-                }
+    } catch (error) {
+        mostrarToast(error.message, 'error');
+    }
 
-                const lowerErrorMessage = (errorMessageFromServer || '').toLowerCase();
-                const esErrorDeEmailDuplicadoDetectadoEnSubmit =
-                    (lowerErrorMessage.includes('duplicate entry') && lowerErrorMessage.includes('email')) ||
-                    lowerErrorMessage.includes('correo ya registrado') ||
-                    lowerErrorMessage.includes('el correo electrónico ya existe');
-
-                if (esErrorDeEmailDuplicadoDetectadoEnSubmit) {
-                    mostrarError(inputEmail, 'EL CORREO YA SE ENCUENTRA REGISTRADO POR FAVOR INTENTE CON OTRO');
-                    throw new Error('EL CORREO YA SE ENCUENTRA REGISTRADO POR FAVOR INTENTE CON OTRO');
-                }
-                // Para otros errores, lanzar el mensaje obtenido del servidor
-                throw new Error(errorMessageFromServer || `Error ${res.status} del servidor.`);
-            }
-            return res.json(); // Si res.ok es true
-        })
-        .then(responseData => {
-            mostrarToast(responseData.mensaje, responseData.exito ? "success" : "error");
-            if (responseData.exito) {
-                limpiarFormulario();
-                cargarUsuarios();
-            }
-        })
-        .catch(error => { 
-            console.error('Error en la petición de submit:', error);
-            mostrarToast(error.message || 'Error al procesar la solicitud.', 'error');
-        });
-    });
-
+    // Listener del botón de tema
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark');
-            if (document.documentElement.classList.contains('dark')) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
             if (typeof lucide !== 'undefined') { lucide.createIcons(); }
         });
     }
 
     if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
     }
     if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 
+    // Listener del buscador
     const inputBuscarUsuario = document.getElementById('buscar-usuario');
     if (inputBuscarUsuario) {
         inputBuscarUsuario.addEventListener('input', function(e) {
@@ -136,33 +116,23 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+    
+    // Listener del botón Limpiar
+    const btnLimpiarForm = document.getElementById('limpiar-formulario-btn');
+    if (btnLimpiarForm) {
+        btnLimpiarForm.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            limpiarFormulario(); 
+        });
+    }
 });
+
+// --- DEFINICIÓN DE TODAS LAS FUNCIONES ---
 
 const MAX_NOMBRE_LENGTH = 50;
 const MAX_APELLIDO_LENGTH = 50;
 const MAX_EMAIL_LENGTH = 100;
 const MAX_TELEFONO_LENGTH = 20;
-
-function mostrarError(elementoInput, mensaje) {
-    if (!elementoInput) return;
-    let errorSpan = elementoInput.nextElementSibling;
-    if (!errorSpan || !errorSpan.classList.contains('error-message')) {
-        errorSpan = document.createElement('span');
-        errorSpan.classList.add('error-message', 'text-red-500', 'text-xs', 'mt-1', 'block');
-        if (elementoInput.parentNode) { elementoInput.parentNode.insertBefore(errorSpan, elementoInput.nextSibling); }
-    }
-    errorSpan.textContent = mensaje;
-    elementoInput.classList.remove('border-gray-300', 'dark:border-gray-600', 'focus:border-blue-500', 'dark:focus:border-blue-500', 'focus:ring-blue-500');
-    elementoInput.classList.add('border-red-500', 'dark:border-red-500', 'focus:border-red-500', 'dark:focus:border-red-500', 'focus:ring-red-500');
-}
-
-function limpiarError(elementoInput) {
-    if (!elementoInput) return;
-    const errorSpan = elementoInput.nextElementSibling;
-    if (errorSpan && errorSpan.classList.contains('error-message')) { errorSpan.remove(); }
-    elementoInput.classList.remove('border-red-500', 'dark:border-red-500', 'focus:border-red-500', 'dark:focus:border-red-500', 'focus:ring-red-500');
-    elementoInput.classList.add('border-gray-300', 'dark:border-gray-600', 'focus:border-blue-500', 'dark:focus:border-blue-500', 'focus:ring-blue-500');
-}
 
 let inputNombre, inputApellido, inputEmail, inputTelefono, selectPerfil, inputContrasena;
 
@@ -174,10 +144,30 @@ function inicializarReferenciasFormulario() {
     selectPerfil = document.getElementById('perfil');
     inputContrasena = document.getElementById('contrasena');
 }
-document.addEventListener('DOMContentLoaded', inicializarReferenciasFormulario);
+
+function mostrarError(elementoInput, mensaje) {
+    if (!elementoInput) return;
+    let errorSpan = elementoInput.nextElementSibling;
+    if (!errorSpan || !errorSpan.classList.contains('error-message')) {
+        errorSpan = document.createElement('span');
+        errorSpan.classList.add('error-message', 'text-red-500', 'text-xs', 'mt-1', 'block');
+        if (elementoInput.parentNode) { elementoInput.parentNode.insertBefore(errorSpan, elementoInput.nextSibling); }
+    }
+    errorSpan.textContent = mensaje;
+    elementoInput.classList.remove('border-gray-300', 'dark:border-gray-600');
+    elementoInput.classList.add('border-red-500', 'dark:border-red-500');
+}
+
+function limpiarError(elementoInput) {
+    if (!elementoInput) return;
+    const errorSpan = elementoInput.nextElementSibling;
+    if (errorSpan && errorSpan.classList.contains('error-message')) { errorSpan.remove(); }
+    elementoInput.classList.remove('border-red-500', 'dark:border-red-500');
+    elementoInput.classList.add('border-gray-300', 'dark:border-gray-600');
+}
 
 function validarNombre() {
-    if (!inputNombre) inicializarReferenciasFormulario(); if (!inputNombre) return true;
+    if (!inputNombre) return true;
     const nombreValor = inputNombre.value.trim();
     if (nombreValor.length === 0) { mostrarError(inputNombre, 'El nombre no puede estar vacío.'); return false; }
     if (nombreValor.length < 3) { mostrarError(inputNombre, 'El nombre debe tener al menos 3 caracteres.'); return false; }
@@ -189,7 +179,7 @@ function validarNombre() {
 }
 
 function validarApellido() {
-    if (!inputApellido) inicializarReferenciasFormulario(); if (!inputApellido) return true;
+    if (!inputApellido) return true;
     const apellidoValor = inputApellido.value.trim();
     if (apellidoValor.length === 0) { mostrarError(inputApellido, 'El apellido no puede estar vacío.'); return false; }
     if (apellidoValor.length < 3) { mostrarError(inputApellido, 'El apellido debe tener al menos 3 caracteres.'); return false; }
@@ -201,108 +191,73 @@ function validarApellido() {
 }
 
 function validarEmailFormato() {
-    if (!inputEmail) inicializarReferenciasFormulario(); if (!inputEmail) return true;
+    if (!inputEmail) return true;
+    const dominiosValidos = ['gmail.com', 'hotmail.com'];
     const emailValor = inputEmail.value.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const idUsuario = document.getElementById("id_usuario")?.value;
     if (emailValor.length === 0) {
-        if (!idUsuario) {
-            mostrarError(inputEmail, 'El email no puede estar vacío.'); return false;
-        } else {
-            limpiarError(inputEmail); return true;
-        }
+        if (!idUsuario) { mostrarError(inputEmail, 'El email no puede estar vacío.'); return false; }
+        else { limpiarError(inputEmail); return true; }
     }
-    if (emailValor.length > MAX_EMAIL_LENGTH) {
-        mostrarError(inputEmail, `El email no puede exceder los ${MAX_EMAIL_LENGTH} caracteres.`); return false;
+    if (emailValor.length > MAX_EMAIL_LENGTH) { mostrarError(inputEmail, `El email no puede exceder los ${MAX_EMAIL_LENGTH} caracteres.`); return false; }
+    if (!emailRegex.test(emailValor)) { mostrarError(inputEmail, 'Ingrese un formato de correo válido (ej: usuario@dominio.com).'); return false; }
+    const dominio = emailValor.split('@')[1];
+    if (dominio && !dominiosValidos.includes(dominio.toLowerCase())) {
+        mostrarError(inputEmail, `El dominio "@${dominio}" no es válido. Utilice un proveedor conocido.`);
+        return false;
     }
-    if (!emailRegex.test(emailValor)) {
-        mostrarError(inputEmail, 'Ingrese un formato de correo electrónico válido (ej: usuario@dominio.com).'); return false;
-    }
-    const errorSpan = inputEmail.nextElementSibling;
-    if (errorSpan && errorSpan.classList.contains('error-message') && 
-        (errorSpan.textContent.toLowerCase().includes('formato') || errorSpan.textContent.toLowerCase().includes('vacío'))) {
-        limpiarError(inputEmail);
-    }
-    return true;
+    limpiarError(inputEmail); return true;
 }
 
 async function verificarExistenciaEmail() {
-    if (!inputEmail) inicializarReferenciasFormulario(); if (!inputEmail) return;
-    const formatoValido = validarEmailFormato();
+    if (!inputEmail) inicializarReferenciasFormulario();
+    if (!validarEmailFormato()) return;
     const emailValor = inputEmail.value.trim();
-    if (!formatoValido || emailValor === "") { return; }
+    if (emailValor === "") return;
 
     try {
         const idUsuarioActual = document.getElementById("id_usuario").value;
-        let urlVerificacion = `/usuarios/verificar-email?email=${encodeURIComponent(emailValor)}`;
-        const response = await fetch(urlVerificacion);
-        if (!response.ok) {
-            console.error('Error del servidor al verificar email (endpoint no encontrado o error):', response.status);
-            const errorText = await response.text();
-            console.error('Cuerpo de la respuesta de error (verificación):', errorText);
-            mostrarError(inputEmail, 'No se pudo verificar el correo en este momento. Intente guardar.');
-            return;
-        }
+        const response = await fetch(`/usuarios/verificar-email?email=${encodeURIComponent(emailValor)}`);
+        if (!response.ok) return;
+        
         const data = await response.json();
-        if (data.existe) {
-            if (idUsuarioActual && data.usuarioId && parseInt(data.usuarioId) === parseInt(idUsuarioActual)) {
-                limpiarError(inputEmail); 
-            } else {
-                mostrarError(inputEmail, 'EL CORREO YA SE ENCUENTRA REGISTRADO.');
-            }
+        if (data.existe && (!idUsuarioActual || parseInt(data.usuarioId) !== parseInt(idUsuarioActual))) {
+            mostrarError(inputEmail, 'Este correo electrónico ya está registrado.');
         } else {
-            limpiarError(inputEmail); 
+            limpiarError(inputEmail);
         }
     } catch (error) {
-        console.error('Error en la petición fetch para verificar email (red o parseo JSON):', error);
-        mostrarError(inputEmail, 'Fallo de red al verificar el correo. Intente guardar.');
+        console.error('Error al verificar email:', error);
     }
 }
 
 function validarTelefono() {
-    if (!inputTelefono) inicializarReferenciasFormulario(); if (!inputTelefono) return true;
+    if (!inputTelefono) return true;
     const telefonoValor = inputTelefono.value.trim();
-    const telefonoRegex = /^\+?[0-9\s\-()]*$/;
-    const minDigitos = 7; 
-
-    if (telefonoValor.length === 0) { 
-        limpiarError(inputTelefono); return true; 
-    }
-    if (!telefonoRegex.test(telefonoValor)) { 
-        mostrarError(inputTelefono, 'El teléfono solo puede contener números, espacios, y los símbolos +, -, (, ).');
-        return false;
-    }
-    const soloNumeros = telefonoValor.replace(/[^\d]/g, "");
-    if (soloNumeros.length > 0 && soloNumeros.length < minDigitos) {
-         mostrarError(inputTelefono, `El teléfono debe tener al menos ${minDigitos} dígitos.`);
-         return false;
-    }
-    if (telefonoValor.length > MAX_TELEFONO_LENGTH) {
-        mostrarError(inputTelefono, `El teléfono no debe exceder los ${MAX_TELEFONO_LENGTH} caracteres.`);
-        return false;
-    }
+    if (telefonoValor.length === 0) { limpiarError(inputTelefono); return true; }
+    if (!telefonoValor.startsWith('3')) { mostrarError(inputTelefono, 'El número de teléfono debe comenzar con 3.'); return false; }
+    if (telefonoValor.length !== 10 || !/^[0-9]+$/.test(telefonoValor)) { mostrarError(inputTelefono, 'El teléfono debe contener 10 dígitos numéricos.'); return false; }
     limpiarError(inputTelefono); return true;
 }
 
 function validarPerfil() {
-    if (!selectPerfil) inicializarReferenciasFormulario(); if (!selectPerfil) return true;
-    if (selectPerfil.value === "" || selectPerfil.value === "Seleccione un perfil") { mostrarError(selectPerfil, 'Debe seleccionar un perfil.'); return false; }
+    if (!selectPerfil) return true;
+    if (selectPerfil.value === "") { mostrarError(selectPerfil, 'Debe seleccionar un perfil.'); return false; }
     limpiarError(selectPerfil); return true;
 }
 
 function validarContrasena() {
-    if (!inputContrasena) inicializarReferenciasFormulario(); if (!inputContrasena) return true;
+    if (!inputContrasena) return true;
     const contrasenaValor = inputContrasena.value;
     const idUsuario = document.getElementById("id_usuario")?.value;
     if (idUsuario && contrasenaValor === "") { limpiarError(inputContrasena); return true; } 
-    if (!idUsuario || (idUsuario && contrasenaValor.length > 0)) { 
-        if (contrasenaValor.length === 0 && !idUsuario) { mostrarError(inputContrasena, 'La contraseña no puede estar vacía.'); return false; }
-        if (contrasenaValor.length < 8) { mostrarError(inputContrasena, 'La contraseña debe tener al menos 8 caracteres.'); return false; }
-        if (!/[A-Z]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos una letra mayúscula.'); return false; }
-        if (!/[a-z]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos una letra minúscula.'); return false; }
-        if (!/[0-9]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos un número.'); return false; }
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos un carácter especial (!@#$%^&*(),.?":{}|<>).'); return false; }
-    }
+    if (contrasenaValor.length === 0) { mostrarError(inputContrasena, 'La contraseña no puede estar vacía.'); return false; }
+    if (contrasenaValor.length < 8) { mostrarError(inputContrasena, 'La contraseña debe tener al menos 8 caracteres.'); return false; }
+    if (!/[A-Z]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos una mayúscula.'); return false; }
+    if (!/[a-z]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos una minúscula.'); return false; }
+    if (!/[0-9]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos un número.'); return false; }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(contrasenaValor)) { mostrarError(inputContrasena, 'Debe contener al menos un carácter especial.'); return false; }
     limpiarError(inputContrasena); return true;
 }
 
@@ -319,180 +274,187 @@ function cargarEventListenersValidacion() {
     if (inputContrasena) inputContrasena.addEventListener('input', validarContrasena);
 }
 
+function manejarEnvioFormulario(e) {
+    e.preventDefault();
+    const esValido = [validarNombre(), validarApellido(), validarEmailFormato(), validarTelefono(), validarPerfil(), validarContrasena()].every(v => v);
+    if (!esValido) {
+        mostrarToast('Por favor, corrija los errores del formulario.', 'error');
+        return;
+    }
+    const id = document.getElementById("id_usuario").value;
+    const datos = {
+        nombre: document.getElementById("nombre").value,
+        apellido: document.getElementById("apellido").value,
+        telefono: document.getElementById("telefono").value,
+        email: document.getElementById("email").value,
+        contrasena: document.getElementById("contrasena")?.value || "",
+        id_perfil: document.getElementById("perfil").value,
+        estado: document.getElementById("estado")?.value || "Activo"
+    };
+    const url = id ? `/usuarios/actualizar/${id}` : "/usuarios/crear";
+    const metodo = id ? "PUT" : "POST";
+
+    fetch(url, {
+        method: metodo,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+    })
+    .then(res => res.json())
+    .then(data => {
+        mostrarToast(data.mensaje, data.exito ? 'success' : 'error');
+        if (data.exito) {
+            limpiarFormulario();
+            cargarUsuarios();
+        } else if (data.mensaje && data.mensaje.toLowerCase().includes('correo')) {
+            mostrarError(inputEmail, data.mensaje);
+        }
+    })
+    .catch(err => {
+        console.error("Error al guardar usuario:", err);
+        mostrarToast("Ocurrió un error inesperado al guardar.", "error");
+    });
+}
+
 function cargarUsuarios() {
     fetch("/usuarios/listar")
-        .then(async res => { // Marcar como async para usar await adentro
-            if (!res.ok) {
-                let errorMsg = `Error del servidor (Código: ${res.status}) al intentar listar usuarios.`;
-                try {
-                    const errorBody = await res.clone().json(); // Intentar leer como JSON
-                    errorMsg = errorBody.mensaje || JSON.stringify(errorBody);
-                } catch (e) {
-                    errorMsg = await res.text(); // Si falla JSON, leer como texto
-                }
-                throw new Error(errorMsg);
-            }
+        .then(res => {
+            if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
             return res.json();
         })
         .then(data => {
-            const tbody = document.getElementById("tabla-usuarios"); if (!tbody) return; tbody.innerHTML = "";
+            const tbody = document.getElementById("tabla-usuarios");
+            if (!tbody) return;
+            tbody.innerHTML = "";
             if (!data || data.length === 0) {
-                const noDataRow = document.createElement("tr"); noDataRow.className = "text-center no-resultados";
-                noDataRow.innerHTML = `<td colspan="7" class="px-4 py-8 text-gray-500 dark:text-gray-400"><div class="flex flex-col items-center"><i data-lucide="info" class="w-10 h-10 mb-3"></i><span>No hay usuarios registrados.</span></div></td>`;
-                tbody.appendChild(noDataRow);
-            } else {
-                data.forEach(u => {
-                    const estado = (u.estado || "").toLowerCase(); const estadoTexto = estado === "activo" ? "Activo" : "Inactivo";
-                    const estadoColor = estado === "activo" ? "bg-green-100 text-green-700 dark:bg-green-700 dark:text-green-100" : "bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100";
-                    const fila = document.createElement("tr"); fila.className = "border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150";
-                    fila.innerHTML = `
-                        <td class="px-4 py-3 whitespace-nowrap">${u.nombre || 'N/A'}</td><td class="px-4 py-3 whitespace-nowrap">${u.apellido || 'N/A'}</td>
-                        <td class="px-4 py-3 whitespace-nowrap">${u.email || 'N/A'}</td><td class="px-4 py-3 hidden sm:table-cell whitespace-nowrap">${u.telefono || 'N/A'}</td>
-                        <td class="px-4 py-3 hidden md:table-cell whitespace-nowrap">${u.perfil || 'N/A'}</td>
-                        <td class="px-4 py-3 hidden lg:table-cell"><span class="px-3 py-1 rounded-full text-xs font-semibold ${estadoColor}">${estadoTexto}</span></td>
-                        <td class="px-4 py-3 text-center whitespace-nowrap">
-                            <button onclick="editarUsuario(${u.id_usuario})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md text-sm mr-2 flex items-center gap-1 inline-flex shadow-sm hover:shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-400"><i data-lucide="edit" class="w-4 h-4"></i> <span class="hidden xs:inline">Editar</span></button>
-                            <button onclick="eliminarUsuario(${u.id_usuario})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm flex items-center gap-1 inline-flex shadow-sm hover:shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i> <span class="hidden xs:inline">Eliminar</span></button>
-                        </td>`;
-                    tbody.appendChild(fila);
-                });
+                tbody.innerHTML = `<tr class="text-center"><td colspan="7" class="px-4 py-8 text-gray-500">No hay usuarios registrados.</td></tr>`;
+                return;
             }
-            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-        })
-        .catch(error => {
-            console.error("Error al cargar usuarios:", error); const tbody = document.getElementById("tabla-usuarios"); if (!tbody) return;
-            tbody.innerHTML = `<tr class="text-center no-resultados"><td colspan="7" class="px-4 py-8 text-red-500 dark:text-red-400"><div class="flex flex-col items-center"><i data-lucide="alert-triangle" class="w-10 h-10 mb-3"></i><span>Error al cargar los usuarios: ${error.message || 'Desconocido.'} Por favor, intente de nuevo más tarde.</span></div></td></tr>`;
-            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+            data.forEach(u => {
+                const estadoColor = u.estado === "Activo" ? "bg-green-100 text-green-700 dark:bg-green-700 dark:text-green-100" : "bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100";
+                const fila = document.createElement('tr');
+                fila.className = "border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50";
+                fila.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap">${u.nombre || 'N/A'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${u.apellido || 'N/A'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${u.email || 'N/A'}</td>
+                    <td class="px-4 py-3 hidden sm:table-cell whitespace-nowrap">${u.telefono || 'N/A'}</td>
+                    <td class="px-4 py-3 hidden md:table-cell whitespace-nowrap">${u.perfil || 'N/A'}</td>
+                    <td class="px-4 py-3 hidden lg:table-cell"><span class="px-3 py-1 rounded-full text-xs font-semibold ${estadoColor}">${u.estado}</span></td>
+                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                        <button onclick="editarUsuario(${u.id_usuario})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md text-sm">Editar</button>
+                        <button onclick="eliminarUsuario(${u.id_usuario})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }).catch(err => {
+            console.error("Error al cargar usuarios:", err);
+            mostrarToast("Error al cargar la lista de usuarios.", "error");
         });
 }
 
 function cargarPerfiles() {
     fetch("/usuarios/perfiles")
-        .then(async res => { // async para usar await
-            if (!res.ok) {
-                let errorMsg = `Error al obtener perfiles (Código: ${res.status})`;
-                try { const err = await res.clone().json(); errorMsg = err.mensaje || JSON.stringify(err); } 
-                catch (e) { errorMsg = await res.text(); }
-                throw new Error(errorMsg);
-            }
+        .then(res => {
+            if (!res.ok) throw new Error('Error al obtener perfiles');
             return res.json();
         })
         .then(perfiles => {
-            const select = document.getElementById("perfil"); if (!select) return;
+            const select = document.getElementById("perfil");
+            if (!select) return;
             select.innerHTML = "<option value=''>Seleccione un perfil</option>";
-            perfiles.forEach(p => { const option = document.createElement("option"); option.value = p.id_perfil; option.textContent = p.nombre; select.appendChild(option); });
-        })
-        .catch(error => { console.error("Error al cargar perfiles:", error); mostrarToast(error.message || 'Error al cargar los perfiles disponibles.', 'error'); });
+            perfiles.forEach(p => {
+                const option = document.createElement("option");
+                option.value = p.id_perfil;
+                option.textContent = p.nombre;
+                select.appendChild(option);
+            });
+        }).catch(err => {
+            console.error("Error al cargar perfiles:", err);
+            mostrarToast("Error al cargar los perfiles para el formulario.", "error");
+        });
 }
 
 function editarUsuario(id) {
     fetch(`/usuarios/obtener/${id}`)
-        .then(async res => { // async para usar await
-            if (!res.ok) {
-                let errorMsg = `Error al obtener usuario (Código: ${res.status})`;
-                try { const err = await res.clone().json(); errorMsg = err.mensaje || JSON.stringify(err); }
-                catch (e) { errorMsg = await res.text(); }
-                throw new Error(errorMsg);
-            }
+        .then(res => {
+            if (!res.ok) throw new Error('Error al obtener datos del usuario');
             return res.json();
         })
         .then(u => {
-            if(!u) { mostrarToast('No se recibieron datos del usuario.', 'error'); return; }
+            if(!u) throw new Error('No se recibieron datos del usuario.');
             document.getElementById("id_usuario").value = u.id_usuario;
-            if (inputNombre) inputNombre.value = u.nombre || ''; if (inputApellido) inputApellido.value = u.apellido || '';
-            if (inputTelefono) inputTelefono.value = u.telefono || ""; if (inputEmail) inputEmail.value = u.email || '';
-            if (inputContrasena) inputContrasena.value = ""; if (selectPerfil) selectPerfil.value = u.id_perfil || '';
-            const estadoSelect = document.getElementById("estado"); if(estadoSelect) estadoSelect.value = u.estado || 'Activo';
-
-            limpiarError(inputNombre); limpiarError(inputApellido); limpiarError(inputEmail); limpiarError(inputTelefono); limpiarError(selectPerfil); limpiarError(inputContrasena);
-            const formElement = document.getElementById('formulario-usuario');
-            if (formElement) {
-                 formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                 const submitButton = formElement.querySelector('button[type="submit"]'); if(submitButton) submitButton.textContent = 'Actualizar Usuario';
-            }
-            const tituloForm = document.getElementById('titulo-formulario'); if(tituloForm) tituloForm.textContent = 'Editar Usuario';
+            if (inputNombre) inputNombre.value = u.nombre || ''; 
+            if (inputApellido) inputApellido.value = u.apellido || '';
+            if (inputTelefono) inputTelefono.value = u.telefono || ""; 
+            if (inputEmail) inputEmail.value = u.email || '';
+            if (inputContrasena) inputContrasena.value = ""; 
+            if (selectPerfil) selectPerfil.value = u.id_perfil || '';
+            const estadoSelect = document.getElementById("estado"); 
+            if(estadoSelect) estadoSelect.value = u.estado || 'Activo';
+            
+            [inputNombre, inputApellido, inputEmail, inputTelefono, selectPerfil, inputContrasena].forEach(limpiarError);
+            
+            document.getElementById('titulo-formulario').textContent = 'Editar Usuario';
+            document.querySelector('#formulario-usuario button[type="submit"]').textContent = 'Actualizar Usuario';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         })
-        .catch(error => { console.error("Error al obtener usuario para editar:", error); mostrarToast(error.message || 'Error al cargar los datos del usuario para edición.', 'error'); });
+        .catch(error => { 
+            console.error("Error al obtener usuario para editar:", error);
+            mostrarToast(error.message, 'error');
+        });
 }
 
 function eliminarUsuario(id) {
-    const modalConfirmacion = document.getElementById('confirmacion-modal');
-    const mensajeModal = document.getElementById('mensaje-confirmacion');
-    const btnConfirmarEliminar = document.getElementById('confirmar-eliminar');
-    const btnCancelarEliminar = document.getElementById('cancelar-eliminar');
-    const btnsCerrarModal = document.querySelectorAll('[data-modal-hide="confirmacion-modal"], .cerrar-modal-btn');
-
-    if (!modalConfirmacion || !mensajeModal || !btnConfirmarEliminar || !btnCancelarEliminar) {
-        if (!confirm(`¿Está seguro que desea eliminar este usuario (ID: ${id}) de forma permanente?`)) { return; }
-        procederEliminacion(id); return;
+    if (id === idUsuarioLogueado) {
+        mostrarToast('No puedes eliminar tu propia cuenta mientras tienes la sesión activa.', 'error');
+        return;
     }
-    mensajeModal.textContent = `¿Está seguro que desea eliminar este usuario (ID: ${id}) de forma permanente? Esta acción no se puede deshacer.`;
-    modalConfirmacion.classList.remove('hidden', 'opacity-0'); 
-    modalConfirmacion.classList.add('flex', 'opacity-100');
-    const modalContent = document.getElementById('confirmacion-modal-content');
-    if(modalContent) {
-        modalContent.classList.remove('scale-95', 'opacity-0');
-        modalContent.classList.add('scale-100', 'opacity-100');
+    if (confirm(`¿Estás seguro de que deseas eliminar este usuario (ID: ${id})? Esta acción es permanente.`)) {
+        procederEliminacion(id);
     }
-
-    const nuevoBtnConfirmar = btnConfirmarEliminar.cloneNode(true);
-    btnConfirmarEliminar.parentNode.replaceChild(nuevoBtnConfirmar, btnConfirmarEliminar);
-    nuevoBtnConfirmar.textContent = "Sí, eliminar";
-    
-    const cerrarModalFn = () => { 
-        if(modalContent) {
-            modalContent.classList.remove('scale-100', 'opacity-100');
-            modalContent.classList.add('scale-95', 'opacity-0');
-        }
-        modalConfirmacion.classList.remove('opacity-100');
-        modalConfirmacion.classList.add('opacity-0');
-        setTimeout(() => {
-            modalConfirmacion.classList.add('hidden'); 
-            modalConfirmacion.classList.remove('flex');
-        }, 300); 
-    };
-    nuevoBtnConfirmar.onclick = () => { procederEliminacion(id); cerrarModalFn(); };
-    if(btnCancelarEliminar) btnCancelarEliminar.onclick = cerrarModalFn;
-    btnsCerrarModal.forEach(btn => { 
-        const nuevoBtnCerrar = btn.cloneNode(true); 
-        btn.parentNode.replaceChild(nuevoBtnCerrar, btn); 
-        nuevoBtnCerrar.onclick = cerrarModalFn; 
-    });
 }
 
 function procederEliminacion(id) {
     fetch(`/usuarios/eliminar/${id}`, { method: "DELETE" })
-        .then(async res => { // async para usar await
-            if (!res.ok) {
-                let errorMsg = `Error al eliminar (Código: ${res.status})`;
-                try { const err = await res.clone().json(); errorMsg = err.mensaje || JSON.stringify(err); }
-                catch (e) { errorMsg = await res.text(); }
-                throw new Error(errorMsg);
-            }
-            return res.json();
-        })
-        .then(res => {
-            mostrarToast(res.mensaje, res.exito ? "success" : "error");
-            if (res.exito) { cargarUsuarios(); limpiarFormularioSiEditaba(id); }
-        })
-        .catch(error => { console.error("Error al eliminar usuario:", error); mostrarToast(error.message || 'Error al eliminar el usuario. Intente de nuevo.', 'error'); });
+    .then(res => res.json())
+    .then(data => {
+        mostrarToast(data.mensaje, data.exito ? 'success' : 'error');
+        if (data.exito) {
+            cargarUsuarios();
+            limpiarFormularioSiEditaba(id);
+        }
+    })
+    .catch(err => {
+        console.error("Error al eliminar usuario:", err);
+        mostrarToast("Ocurrió un error al intentar eliminar el usuario.", "error");
+    });
 }
 
 function limpiarFormularioSiEditaba(idEliminado) {
-    const idActualEnForm = document.getElementById("id_usuario")?.value;
-    if (idActualEnForm && parseInt(idActualEnForm) === parseInt(idEliminado)) { limpiarFormulario(); }
+    const idActual = document.getElementById("id_usuario").value;
+    if (idActual && parseInt(idActual) === parseInt(idEliminado)) {
+        limpiarFormulario();
+    }
 }
 
 function limpiarFormulario() {
     const formulario = document.getElementById("formulario-usuario");
     if (formulario) {
-        formulario.reset(); const idUsuarioInput = document.getElementById("id_usuario"); if (idUsuarioInput) idUsuarioInput.value = "";
-        inicializarReferenciasFormulario();
-        if(inputNombre) limpiarError(inputNombre); if(inputApellido) limpiarError(inputApellido); if(inputEmail) limpiarError(inputEmail);
-        if(inputTelefono) limpiarError(inputTelefono); if(selectPerfil) limpiarError(selectPerfil); if(inputContrasena) limpiarError(inputContrasena);
-        if (selectPerfil) selectPerfil.value = ""; const estadoSelect = document.getElementById("estado"); if (estadoSelect) estadoSelect.value = "Activo";
-        const submitButton = formulario.querySelector('button[type="submit"]'); if(submitButton) submitButton.textContent = 'Guardar Usuario';
-        const tituloForm = document.getElementById('titulo-formulario'); if(tituloForm) tituloForm.textContent = 'Crear Nuevo Usuario';
+        formulario.reset();
+        document.getElementById("id_usuario").value = "";
+        
+        if (!inputNombre) inicializarReferenciasFormulario();
+        [inputNombre, inputApellido, inputEmail, inputTelefono, selectPerfil, inputContrasena].forEach(input => {
+            if(input) limpiarError(input);
+        });
+
+        document.getElementById('titulo-formulario').textContent = 'Crear Nuevo Usuario';
+        const submitButton = formulario.querySelector('button[type="submit"]');
+        if(submitButton) submitButton.textContent = 'Guardar Usuario';
+        
+        mostrarToast('Formulario limpiado.', 'info');
     }
 }
 
@@ -503,7 +465,6 @@ function mostrarToast(mensaje, tipo = 'info') {
     const iconContainer = document.getElementById('toast-icon-container');
 
     if (!toast || !toastMessage || !toastIconElement || !iconContainer) {
-        console.warn('Elementos del Toast no encontrados. Usando alert como fallback.');
         alert(`${tipo.toUpperCase()}: ${mensaje}`);
         return;
     }
@@ -533,7 +494,7 @@ function mostrarToast(mensaje, tipo = 'info') {
             arrIconContainerClasses = ['bg-yellow-200', 'dark:bg-yellow-700', 'text-yellow-600', 'dark:text-yellow-100'];
             lucideIconName = 'alert-triangle';
             break;
-        default: // info
+        default: 
             arrToastClasses = ['bg-blue-100', 'dark:bg-blue-800', 'text-blue-700', 'dark:text-blue-200'];
             arrIconContainerClasses = ['bg-blue-200', 'dark:bg-blue-700', 'text-blue-600', 'dark:text-blue-100'];
             lucideIconName = 'info';
@@ -559,13 +520,4 @@ function mostrarToast(mensaje, tipo = 'info') {
         toast.classList.remove('opacity-100', 'translate-x-0');
         toast.classList.add('opacity-0', 'translate-x-full');
     }, 5000);
-}
-
-const btnLimpiarForm = document.getElementById('limpiar-formulario-btn');
-if (btnLimpiarForm) {
-    btnLimpiarForm.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        limpiarFormulario(); 
-        mostrarToast('Formulario limpiado.', 'info'); 
-    });
-}
+} 

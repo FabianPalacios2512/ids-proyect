@@ -217,6 +217,37 @@ def login():
         if conexion:
             conexion.close()
 
+# Importa la función de obtener conexión si aún no está
+# from modelo.base_datos import obtener_conexion
+
+@login_bp.route('/usuarios/verificar-email')
+def verificar_email():
+    """Verifica si un correo electrónico ya existe en la base de datos."""
+    email = request.args.get('email', type=str)
+    if not email:
+        return jsonify({"existe": False, "mensaje": "Email no proporcionado."})
+
+    conexion = obtener_conexion()
+    if not conexion:
+        return jsonify({"error": "Error de conexión DB"}), 500
+    
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id_usuario FROM usuario WHERE email = %s", (email,))
+        usuario = cursor.fetchone()
+        
+        if usuario:
+            # El email existe. Devolvemos el ID por si el frontend lo necesita.
+            return jsonify({"existe": True, "usuarioId": usuario['id_usuario']})
+        else:
+            # El email no existe.
+            return jsonify({"existe": False})
+    except Exception as e:
+        print(f"Error al verificar email: {e}")
+        return jsonify({"error": "Error interno del servidor"}), 500
+    finally:
+        if cursor: cursor.close()
+        if conexion: conexion.close()
 
 
 
@@ -706,9 +737,16 @@ def gestion_usuarios():
 
 @login_bp.route('/usuarios/perfil-actual')
 def perfil_actual():
-    """Endpoint API para obtener el perfil actual del usuario logueado."""
-    perfil = session.get('perfil', 'Invitado')
-    return jsonify({'perfil': perfil})
+    """Endpoint API para obtener el perfil y el ID del usuario logueado."""
+    if 'usuario' not in session:
+        return jsonify({'error': 'No autenticado'}), 401
+    
+    # Obtenemos ambos datos de la sesión que guardamos durante el login
+    perfil_id = session.get('perfil')
+    usuario_id = session.get('id_usuario')
+    
+    # Devolvemos un objeto con ambos datos
+    return jsonify({'perfil': perfil_id, 'id_usuario': usuario_id})
 
 @login_bp.route('/editar_perfil/<int:id>', methods=['PUT'], endpoint='editar_perfil_admin')
 def editar_perfil_admin(id):
